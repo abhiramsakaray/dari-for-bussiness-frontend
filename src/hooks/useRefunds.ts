@@ -1,0 +1,79 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { refundsService } from '@/services/refunds.service';
+import { CreateRefundInput, RefundStatus } from '@/types/api.types';
+import { toast } from 'sonner';
+
+export const REFUNDS_QUERY_KEY = 'refunds';
+export const PAYMENTS_QUERY_KEY = 'payments';
+
+export function useRefunds(
+  page = 1,
+  pageSize = 20,
+  status?: RefundStatus,
+  paymentSessionId?: string
+) {
+  return useQuery({
+    queryKey: [REFUNDS_QUERY_KEY, { page, pageSize, status, paymentSessionId }],
+    queryFn: () =>
+      refundsService.listRefunds({
+        page,
+        page_size: pageSize,
+        status,
+        payment_session_id: paymentSessionId,
+      }),
+  });
+}
+
+export function useRefund(refundId: string) {
+  return useQuery({
+    queryKey: [REFUNDS_QUERY_KEY, refundId],
+    queryFn: () => refundsService.getRefund(refundId),
+    enabled: !!refundId,
+  });
+}
+
+export function useCreateRefund() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: CreateRefundInput) => refundsService.createRefund(input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [REFUNDS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [PAYMENTS_QUERY_KEY] });
+      toast.success('Refund initiated successfully');
+    },
+    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
+      toast.error(error.response?.data?.detail || 'Failed to create refund');
+    },
+  });
+}
+
+export function useCancelRefund() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (refundId: string) => refundsService.cancelRefund(refundId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [REFUNDS_QUERY_KEY] });
+      toast.success('Refund cancelled');
+    },
+    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
+      toast.error(error.response?.data?.detail || 'Failed to cancel refund');
+    },
+  });
+}
+
+export function useRetryRefund() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (refundId: string) => refundsService.retryRefund(refundId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [REFUNDS_QUERY_KEY] });
+      toast.success('Retrying refund...');
+    },
+    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
+      toast.error(error.response?.data?.detail || 'Failed to retry refund');
+    },
+  });
+}
