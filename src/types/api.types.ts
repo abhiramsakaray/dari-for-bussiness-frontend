@@ -289,6 +289,8 @@ export type AnalyticsOverview = {
     total_volume_usd: number;
     avg_payment_usd: number;
     conversion_rate: number;
+    total_coupon_discount?: number; // Total discount given via coupons
+    coupon_payment_count?: number; // Number of payments with coupons
   };
   volume_by_token: {
     token: string;
@@ -389,18 +391,32 @@ export type RolePermissions = {
 export type PaymentSession = {
   id: string;
   merchant_id: string;
+  merchant_name?: string;
   amount_fiat: number;
   fiat_currency: string;
   status: string;
   customer_email?: string;
+  payer_email?: string | null;
+  payer_name?: string | null;
   metadata?: Record<string, unknown>;
   checkout_url: string;
   created_at: string;
   expires_at: string;
-  paid_at?: string;
-  token?: string;
-  chain?: string;
-  tx_hash?: string;
+  paid_at?: string | null;
+  token?: string | null;
+  chain?: string | null;
+  tx_hash?: string | null;
+  amount_usdc?: string | null;
+  
+  // Coupon tracking fields
+  coupon_code?: string | null;
+  discount_amount?: number | null;
+  amount_paid?: number | null; // Actual amount paid (amount_fiat - discount_amount)
+  
+  // Local currency conversions
+  amount_fiat_local?: LocalCurrencyAmount | null;
+  discount_amount_local?: LocalCurrencyAmount | null;
+  amount_paid_local?: LocalCurrencyAmount | null;
 };
 
 // ============================================================================
@@ -692,5 +708,94 @@ export interface CacheRegionStats {
 
 export interface CacheStatsResponse {
   regions: Record<string, CacheRegionStats>;
+}
+
+// ============================================================================
+// PROMO CODES / COUPONS
+// ============================================================================
+
+export type CouponType = 'percentage' | 'fixed';
+export type CouponStatus = 'active' | 'inactive' | 'deleted';
+
+export interface PromoCode {
+  id: string;
+  code: string;
+  type: CouponType;
+  discount_value: number;
+  max_discount_amount: number | null;
+  min_order_amount: number;
+  usage_limit_total: number | null;
+  usage_limit_per_user: number | null;
+  used_count: number;
+  start_date: string;
+  expiry_date: string;
+  status: CouponStatus;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface CreatePromoCodeInput {
+  code: string;
+  type: CouponType;
+  discount_value: number;
+  max_discount_amount?: number;
+  min_order_amount?: number;
+  usage_limit_total?: number;
+  usage_limit_per_user?: number;
+  start_date: string; // ISO datetime
+  expiry_date: string; // ISO datetime
+}
+
+export interface UpdatePromoCodeInput {
+  discount_value?: number;
+  max_discount_amount?: number;
+  min_order_amount?: number;
+  usage_limit_total?: number;
+  usage_limit_per_user?: number;
+  expiry_date?: string;
+  status?: 'active' | 'inactive';
+}
+
+export interface PromoCodeList {
+  promo_codes: PromoCode[];
+  total: number;
+}
+
+export interface PromoCodeAnalytics {
+  promo_code_id: string;
+  code: string;
+  total_used: number;
+  total_discount_given: number;
+  revenue_generated: number;
+  conversion_rate: number | null;
+}
+
+export interface ApplyCouponPayload {
+  merchant_id: string;
+  payment_link_id?: string;
+  coupon_code: string;
+  order_amount: number;
+  customer_id?: string;
+}
+
+export interface ApplyCouponResult {
+  coupon_valid: boolean;
+  discount_amount: number;
+  final_amount: number;
+  coupon_code: string | null;
+  discount_type: CouponType | null;
+  message: string;
+}
+
+export interface CompleteCouponPaymentPayload {
+  session_id: string;
+  coupon_code: string;
+}
+
+export interface CompleteCouponPaymentResult {
+  status: string;
+  message: string;
+  session_id: string;
+  coupon_code: string;
 }
 

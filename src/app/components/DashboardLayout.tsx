@@ -22,6 +22,7 @@ import {
   ChevronDown,
   ChevronRight,
   Zap,
+  Tag,
 } from "lucide-react";
 import { Button } from "./ui/button";
 
@@ -48,7 +49,7 @@ interface DashboardLayoutProps {
 // Which group IDs start expanded
 function getDefaultOpenGroups(activePage: string): Record<string, boolean> {
   const allGroups: Record<string, string[]> = {
-    payments: ['overview', 'payments', 'payer-leads', 'create', 'payment-links', 'invoices', 'subscriptions', 'refunds'],
+    payments: ['overview', 'payments', 'payer-leads', 'create', 'payment-links', 'invoices', 'subscriptions', 'coupons', 'refunds'],
     business: ['analytics', 'team', 'wallets', 'withdrawals', 'billing'],
     developer: ['integrations', 'settings'],
   };
@@ -86,6 +87,7 @@ export function DashboardLayout({ children, activePage, isAdmin = false }: Dashb
         { id: 'payment-links',  label: 'Payment Links',  icon: Link,            href: '#/payment-links' },
         { id: 'invoices',       label: 'Invoices',       icon: FileText,        href: '#/invoices' },
         { id: 'subscriptions',  label: 'Subscriptions',  icon: Repeat,          href: '#/subscriptions' },
+        { id: 'coupons',        label: 'Promo Codes',    icon: Tag,             href: '#/dashboard/coupons' },
         { id: 'refunds',        label: 'Refunds',        icon: RefreshCw,       href: '#/refunds' },
       ],
     },

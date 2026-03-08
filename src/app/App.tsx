@@ -32,6 +32,8 @@ import Wallets from "./components/Wallets";
 import { Withdrawals } from "./components/withdrawals/Withdrawals";
 import { ApiDebugger } from "./components/ApiDebugger";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { Coupons } from "./components/Coupons";
+import { CouponAnalytics } from "./components/coupons/CouponAnalytics";
 
 // Simple router based on URL hash
 export default function App() {
@@ -130,6 +132,13 @@ export default function App() {
       // Refunds Routes (protected)
       case route === "/refunds":
         return <ProtectedRoute><RefundsList /></ProtectedRoute>;
+
+      // Coupons / Promo Codes Routes (protected)
+      case route === "/coupons":
+      case route === "/dashboard/coupons":
+        return <ProtectedRoute><Coupons /></ProtectedRoute>;
+      case route.startsWith("/dashboard/coupons/") && route.endsWith("/analytics"):
+        return <ProtectedRoute><CouponAnalytics /></ProtectedRoute>;
 
       // Analytics Routes (protected)
       case route === "/analytics":

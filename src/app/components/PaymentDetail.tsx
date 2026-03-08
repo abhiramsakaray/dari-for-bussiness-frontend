@@ -3,10 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
-import { ArrowLeft, ExternalLink, Copy, Clock, CheckCircle2, XCircle, AlertCircle, UserCircle2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, Copy, Clock, CheckCircle2, XCircle, AlertCircle, UserCircle2, Tag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { chainpeService, PaymentSession } from "../../services/chainpe";
 import { toast } from "sonner";
+import { displayAmount, displayDualAmount } from "../../lib/utils";
 
 interface PaymentDetailProps {
   paymentId: string;
@@ -138,13 +139,44 @@ export function PaymentDetail({ paymentId }: PaymentDetailProps) {
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-3xl font-bold">${parseFloat(payment.amount_usdc).toFixed(2)}</p>
-                  <p className="text-sm text-muted-foreground">USDC</p>
-                  {payment.amount_fiat && payment.fiat_currency && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      ≈ {payment.fiat_currency.toUpperCase()} {parseFloat(payment.amount_fiat).toFixed(2)}
-                    </p>
+                <div className="text-right space-y-2">
+                  {payment.coupon_code && payment.discount_amount ? (
+                    // Show coupon breakdown
+                    <div className="space-y-1">
+                      <div className="text-sm text-muted-foreground line-through">
+                        {displayAmount(payment.amount_fiat || 0, payment.amount_fiat_local)}
+                      </div>
+                      <div className="flex items-center justify-end gap-2 text-green-600 dark:text-green-400">
+                        <Tag className="h-4 w-4" />
+                        <span className="text-sm font-medium">
+                          -{displayAmount(payment.discount_amount, payment.discount_amount_local)}
+                        </span>
+                        <Badge variant="secondary" className="font-mono text-xs">
+                          {payment.coupon_code}
+                        </Badge>
+                      </div>
+                      <div className="text-3xl font-bold">
+                        {displayAmount(payment.amount_paid || 0, payment.amount_paid_local)}
+                      </div>
+                      <p className="text-sm text-muted-foreground">Amount Paid</p>
+                    </div>
+                  ) : (
+                    // No coupon - show standard amount
+                    <>
+                      <p className="text-3xl font-bold">
+                        {displayAmount(
+                          typeof payment.amount_fiat === 'number' 
+                            ? payment.amount_fiat 
+                            : parseFloat(payment.amount_usdc || '0'),
+                          payment.amount_fiat_local
+                        )}
+                      </p>
+                      {payment.amount_fiat_local && (
+                        <p className="text-sm text-muted-foreground">
+                          ${parseFloat(payment.amount_usdc || '0').toFixed(2)} USDC
+                        </p>
+                      )}
+                    </>
                   )}
                 </div>
               </CardContent>
@@ -188,17 +220,68 @@ export function PaymentDetail({ paymentId }: PaymentDetailProps) {
                 )}
                 <DetailRow label="Order ID" value={payment.order_id} mono copyable={payment.order_id} />
                 <Separator />
-                <DetailRow label="Amount (USDC)" value={`$${parseFloat(payment.amount_usdc).toFixed(2)}`} />
-                <Separator />
-                {payment.amount_fiat && (
+                
+                {/* Amount Details with Coupon Breakdown */}
+                {payment.coupon_code && payment.discount_amount ? (
                   <>
-                    <DetailRow
-                      label={`Amount (${payment.fiat_currency?.toUpperCase() || "Fiat"})`}
-                      value={`${payment.fiat_currency?.toUpperCase() || ""} ${parseFloat(payment.amount_fiat).toFixed(2)}`}
+                    <DetailRow 
+                      label="Original Amount" 
+                      value={displayAmount(payment.amount_fiat || 0, payment.amount_fiat_local)} 
+                    />
+                    <Separator />
+                    <DetailRow 
+                      label="Coupon Code" 
+                      value={
+                        <Badge variant="secondary" className="font-mono">
+                          {payment.coupon_code}
+                        </Badge>
+                      } 
+                    />
+                    <Separator />
+                    <DetailRow 
+                      label="Discount" 
+                      value={
+                        <span className="text-green-600 dark:text-green-400">
+                          -{displayAmount(payment.discount_amount, payment.discount_amount_local)}
+                        </span>
+                      } 
+                    />
+                    <Separator />
+                    <DetailRow 
+                      label="Amount Paid" 
+                      value={
+                        <span className="font-semibold">
+                          {displayAmount(payment.amount_paid || 0, payment.amount_paid_local)}
+                        </span>
+                      } 
+                    />
+                    <Separator />
+                  </>
+                ) : (
+                  <>
+                    <DetailRow 
+                      label="Amount" 
+                      value={displayAmount(
+                        typeof payment.amount_fiat === 'number' 
+                          ? payment.amount_fiat 
+                          : parseFloat(payment.amount_usdc || '0'),
+                        payment.amount_fiat_local
+                      )} 
                     />
                     <Separator />
                   </>
                 )}
+                
+                {payment.amount_fiat_local && (
+                  <>
+                    <DetailRow 
+                      label="Amount (USDC)" 
+                      value={`$${parseFloat(payment.amount_usdc || '0').toFixed(2)}`} 
+                    />
+                    <Separator />
+                  </>
+                )}
+                
                 <DetailRow
                   label="Status"
                   value={

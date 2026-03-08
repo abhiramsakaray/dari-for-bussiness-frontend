@@ -3,7 +3,7 @@ import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Search } from "lucide-react";
+import { Search, Tag } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -14,6 +14,7 @@ import {
 } from "./ui/table";
 import { usePaymentHistory } from "../../hooks/usePaymentHistory";
 import { useState } from "react";
+import { displayAmount, displayDualAmount } from "../../lib/utils";
 
 export function PaymentsList() {
   const { payments, isLoading } = usePaymentHistory({ limit: 50 });
@@ -87,21 +88,26 @@ export function PaymentsList() {
                     <TableHead>Session ID</TableHead>
                     <TableHead>Payer</TableHead>
                     <TableHead>Order ID</TableHead>
-                    <TableHead>USDC Amount</TableHead>
+                    <TableHead>Amount</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Tx Hash</TableHead>
                     <TableHead>Created At</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredPayments.map((payment) => (
-                  <TableRow
-                    key={payment.id || payment.session_id}
-                    className="cursor-pointer hover:bg-muted/50 transition-colors"
-                    onClick={() => window.location.href = `#/dashboard/payments/${payment.id || payment.session_id}`}
-                  >
-                    <TableCell className="font-mono text-sm">
-                      {payment.id || payment.session_id}
+                  {filteredPayments.map((payment) => {
+                    const hasDiscount = payment.coupon_code !== null && payment.coupon_code !== undefined;
+                    const amountUsd = payment.amount_fiat || parseFloat(payment.amount_usdc || '0');
+                    const dual = displayDualAmount(amountUsd, payment.amount_fiat_local);
+                    
+                    return (
+                    <TableRow
+                      key={payment.id || payment.session_id}
+                      className="cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => window.location.href = `#/dashboard/payments/${payment.id || payment.session_id}`}
+                    >
+                      <TableCell className="font-mono text-sm">
+                        {payment.id || payment.session_id}
                       </TableCell>
                       <TableCell>
                         {payment.payer_name || payment.payer_email ? (
@@ -114,7 +120,27 @@ export function PaymentsList() {
                         )}
                       </TableCell>
                       <TableCell>{payment.order_id || '-'}</TableCell>
-                      <TableCell>${parseFloat(payment.amount_usdc).toFixed(2)}</TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="font-medium">{dual.primary}</div>
+                          {dual.secondary && (
+                            <div className="text-xs text-muted-foreground">{dual.secondary}</div>
+                          )}
+                          {hasDiscount && payment.discount_amount && (
+                            <div className="text-xs space-y-0.5">
+                              <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                                <Tag className="w-3 h-3" />
+                                <span>-{displayAmount(payment.discount_amount, payment.discount_amount_local)}</span>
+                                <span className="font-mono">({payment.coupon_code})</span>
+                              </div>
+                              <div className="text-muted-foreground">
+                                Paid: {displayAmount(payment.amount_paid || 0, payment.amount_paid_local)}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      </TableCell>
                       <TableCell>
                         <Badge
                           variant={
@@ -140,6 +166,7 @@ export function PaymentsList() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-primary hover:underline"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             {payment.tx_hash.slice(0, 12)}...
                           </a>
@@ -151,7 +178,8 @@ export function PaymentsList() {
                         {payment.created_at ? new Date(payment.created_at).toLocaleString() : '-'}
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             )}

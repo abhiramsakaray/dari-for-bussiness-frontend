@@ -131,27 +131,6 @@ export function SubscriptionsDashboard() {
     20
   );
 
-  // Debug logging
-  React.useEffect(() => {
-    console.log('🔍 SubscriptionsDashboard - Plans Data:', {
-      plansData,
-      items: plansData?.items,
-      itemsLength: plansData?.items?.length,
-      isLoading: plansLoading,
-      error: plansError,
-    });
-  }, [plansData, plansLoading, plansError]);
-
-  React.useEffect(() => {
-    console.log('🔍 SubscriptionsDashboard - Subscriptions Data:', {
-      subscriptionsData,
-      items: subscriptionsData?.items,
-      itemsLength: subscriptionsData?.items?.length,
-      isLoading: subscriptionsLoading,
-      error: subscriptionsError,
-    });
-  }, [subscriptionsData, subscriptionsLoading, subscriptionsError]);
-
   const createPlanMutation = useCreateSubscriptionPlan();
   const updatePlanMutation = useUpdateSubscriptionPlan();
   const deactivatePlanMutation = useDeactivateSubscriptionPlan();

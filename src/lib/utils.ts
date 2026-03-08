@@ -136,3 +136,72 @@ export function calculatePercentageChange(current: number, previous: number): nu
   if (previous === 0) return current > 0 ? 100 : 0;
   return ((current - previous) / previous) * 100;
 }
+
+// ============================================================================
+// LOCAL CURRENCY UTILITIES
+// ============================================================================
+
+export interface LocalCurrencyAmount {
+  amount_usdc: number;
+  amount_local: number;
+  local_currency: string;
+  local_symbol: string;
+  exchange_rate: number;
+  display_local: string;
+}
+
+/**
+ * Display amount, preferring local currency if available
+ * @param amountUsd - Amount in USD
+ * @param localAmount - LocalCurrencyAmount object (null for USD merchants)
+ * @returns Formatted amount string
+ */
+export function displayAmount(
+  amountUsd: number,
+  localAmount: LocalCurrencyAmount | null | undefined
+): string {
+  if (localAmount) {
+    return localAmount.display_local;
+  }
+  return formatCurrency(amountUsd, 'USD');
+}
+
+/**
+ * Display amount with both local and USD (dual display)
+ * @param amountUsd - Amount in USD
+ * @param localAmount - LocalCurrencyAmount object (null for USD merchants)
+ * @returns Object with primary and secondary display strings
+ */
+export function displayDualAmount(
+  amountUsd: number,
+  localAmount: LocalCurrencyAmount | null | undefined
+): { primary: string; secondary: string | null } {
+  if (localAmount) {
+    return {
+      primary: localAmount.display_local,
+      secondary: formatCurrency(amountUsd, 'USD'),
+    };
+  }
+  return {
+    primary: formatCurrency(amountUsd, 'USD'),
+    secondary: null,
+  };
+}
+
+/**
+ * Get currency symbol from LocalCurrencyAmount or default to $
+ */
+export function getCurrencySymbol(
+  localAmount: LocalCurrencyAmount | null | undefined
+): string {
+  return localAmount?.local_symbol || '$';
+}
+
+/**
+ * Check if merchant has local currency (non-USD)
+ */
+export function hasLocalCurrency(
+  localAmount: LocalCurrencyAmount | null | undefined
+): boolean {
+  return localAmount !== null && localAmount !== undefined;
+}

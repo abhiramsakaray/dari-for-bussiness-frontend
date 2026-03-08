@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { DashboardLayout } from "./DashboardLayout";
 import { Card } from "./ui/card";
-import { TrendingUp, DollarSign, CheckCircle, Clock, Wallet2, Copy, Check } from "lucide-react";
+import { TrendingUp, DollarSign, CheckCircle, Clock, Wallet2, Copy, Check, Tag } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
@@ -16,6 +16,7 @@ import { usePaymentHistory, usePaymentStats } from "../../hooks/usePaymentHistor
 import { useWallets, useWalletDashboard } from "../../hooks/useWallets";
 import { CHAIN_INFO } from "../../services/wallets.service";
 import { toast } from "sonner";
+import { displayAmount, displayDualAmount, hasLocalCurrency } from "../../lib/utils";
 
 export function Dashboard() {
   const { payments, isLoading } = usePaymentHistory({ limit: 10 });
@@ -28,6 +29,10 @@ export function Dashboard() {
   const totalVolume = stats?.revenue.total_usdc ?? 0;
   const paymentsToday = stats?.recent.today ?? 0;
   const successRate = stats ? stats.success_rate.toFixed(1) : '0';
+  const hasCouponDiscounts = stats && stats.revenue.coupon_payment_count > 0;
+  const totalRevenueLocal = stats?.revenue.total_local;
+  const totalCouponDiscountLocal = stats?.revenue.total_coupon_discount_local;
+  const revenueDisplay = displayDualAmount(totalVolume, totalRevenueLocal);
 
   // Try to get wallets from either endpoint
   const wallets = walletsData?.wallets || dashboardData?.wallets || [];
@@ -53,9 +58,28 @@ export function Dashboard() {
               </div>
               <TrendingUp className="h-4 w-4 text-green-500" />
             </div>
-            <div className="text-2xl mb-1">${totalVolume.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-            <p className="text-sm text-muted-foreground">Total Volume (USDC)</p>
+            <div className="text-2xl mb-1">{revenueDisplay.primary}</div>
+            {revenueDisplay.secondary && (
+              <div className="text-sm text-muted-foreground mb-1">{revenueDisplay.secondary}</div>
+            )}
+            <p className="text-sm text-muted-foreground">Total Revenue</p>
           </Card>
+
+          {hasCouponDiscounts && (
+            <Card className="p-6 bg-card border-border">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-10 h-10 bg-green-500/10 border border-green-500/20 flex items-center justify-center">
+                  <Tag className="h-5 w-5 text-green-600" />
+                </div>
+              </div>
+              <div className="text-2xl mb-1">
+                {displayAmount(stats.revenue.total_coupon_discount, totalCouponDiscountLocal)}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Coupon Discounts ({stats.revenue.coupon_payment_count} payments)
+              </p>
+            </Card>
+          )}
 
           <Card className="p-6 bg-card border-border">
             <div className="flex items-center justify-between mb-4">

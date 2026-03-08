@@ -16,7 +16,7 @@ export interface PaymentSession {
   merchant_name?: string;
   checkout_url: string;
   amount_usdc: string;
-  amount_fiat?: string;
+  amount_fiat?: number;
   fiat_currency?: string;
   order_id?: string;
   expires_at: string;
@@ -28,6 +28,18 @@ export interface PaymentSession {
   paid_at?: string;
   payer_email?: string;
   payer_name?: string;
+  token?: string;
+  chain?: string;
+  
+  // Coupon tracking fields
+  coupon_code?: string | null;
+  discount_amount?: number | null;
+  amount_paid?: number | null;
+  
+  // Local currency conversions
+  amount_fiat_local?: LocalCurrencyAmount | null;
+  discount_amount_local?: LocalCurrencyAmount | null;
+  amount_paid_local?: LocalCurrencyAmount | null;
 }
 
 export interface MerchantProfile {
@@ -91,12 +103,25 @@ export interface PaymentStats {
   revenue: {
     total_usdc: number;
     currency: string;
+    total_coupon_discount: number;
+    coupon_payment_count: number;
+    total_local: LocalCurrencyAmount | null;
+    total_coupon_discount_local: LocalCurrencyAmount | null;
   };
   recent: {
     today: number;
     this_week: number;
   };
   success_rate: number;
+}
+
+export interface LocalCurrencyAmount {
+  amount_usdc: number;
+  amount_local: number;
+  local_currency: string;
+  local_symbol: string;
+  exchange_rate: number;
+  display_local: string;
 }
 
 export const chainpeService = {

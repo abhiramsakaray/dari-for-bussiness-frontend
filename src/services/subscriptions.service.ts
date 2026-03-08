@@ -28,8 +28,6 @@ export class SubscriptionsService {
   }): Promise<PaginatedResponse<SubscriptionPlan>> {
     const data = await apiClient.get<any>(`${this.basePath}/plans`, { params });
     
-    console.log('📋 Subscriptions Plans API Response:', data);
-    
     // Handle different response formats from backend
     let items: SubscriptionPlan[] = [];
     
@@ -43,8 +41,6 @@ export class SubscriptionsService {
       // Backend returns paginated: { items: [...], total, page, ... }
       items = data.items;
     }
-    
-    console.log('✅ Parsed plans:', items.length, 'items');
     
     return {
       items,
@@ -83,8 +79,6 @@ export class SubscriptionsService {
   }): Promise<PaginatedResponse<Subscription>> {
     const data = await apiClient.get<any>(this.basePath, { params });
     
-    console.log('📋 Subscriptions API Response:', data);
-    
     // Handle different response formats from backend
     let items: Subscription[] = [];
     
@@ -98,8 +92,6 @@ export class SubscriptionsService {
       // Backend returns paginated: { items: [...], total, page, ... }
       items = data.items;
     }
-    
-    console.log('✅ Parsed subscriptions:', items.length, 'items');
     
     return {
       items,
