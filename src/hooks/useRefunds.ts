@@ -32,15 +32,27 @@ export function useRefund(refundId: string) {
   });
 }
 
+export function useRefundEligibility(paymentSessionId: string) {
+  return useQuery({
+    queryKey: [REFUNDS_QUERY_KEY, 'eligibility', paymentSessionId],
+    queryFn: () => refundsService.checkEligibility(paymentSessionId),
+    enabled: !!paymentSessionId,
+  });
+}
+
 export function useCreateRefund() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (input: CreateRefundInput) => refundsService.createRefund(input),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [REFUNDS_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [PAYMENTS_QUERY_KEY] });
-      toast.success('Refund initiated successfully');
+      if (data.status === 'queued') {
+        toast.success('Refund queued — will process when funds are available');
+      } else {
+        toast.success('Refund initiated successfully');
+      }
     },
     onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
       toast.error(error.response?.data?.detail || 'Failed to create refund');
@@ -74,6 +86,21 @@ export function useRetryRefund() {
     },
     onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
       toast.error(error.response?.data?.detail || 'Failed to retry refund');
+    },
+  });
+}
+
+export function useProcessQueuedRefunds() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => refundsService.processQueued(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [REFUNDS_QUERY_KEY] });
+      toast.success('Queued refunds are being processed');
+    },
+    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
+      toast.error(error.response?.data?.detail || 'Failed to process queued refunds');
     },
   });
 }

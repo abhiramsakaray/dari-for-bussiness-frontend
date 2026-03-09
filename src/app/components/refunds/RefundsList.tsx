@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useRefunds, useRetryRefund, useCancelRefund } from '../../../hooks/useRefunds';
-import { Refund, RefundStatus } from '../../../types/api.types';
+import React, { useState, useEffect } from 'react';
+import { useRefunds, useRetryRefund, useCancelRefund, useCreateRefund, useRefundEligibility, useProcessQueuedRefunds } from '../../../hooks/useRefunds';
+import { Refund, RefundStatus, RefundEligibility, CreateRefundInput } from '../../../types/api.types';
 import { formatCurrency, formatDate, truncateAddress } from '../../../lib/utils';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -27,6 +27,18 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../ui/dialog';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
+import {
   MoreVertical,
   RefreshCw,
   XCircle,
@@ -35,6 +47,10 @@ import {
   CheckCircle,
   Clock,
   AlertCircle,
+  Plus,
+  Wallet,
+  Timer,
+  DollarSign,
 } from 'lucide-react';
 import { DashboardLayout } from '../DashboardLayout';
 
@@ -43,11 +59,31 @@ const STATUS_CONFIG: Record<RefundStatus, { variant: 'default' | 'secondary' | '
   [RefundStatus.PROCESSING]: { variant: 'default', icon: <RefreshCw className="w-3 h-3 animate-spin" /> },
   [RefundStatus.COMPLETED]: { variant: 'default', icon: <CheckCircle className="w-3 h-3" /> },
   [RefundStatus.FAILED]: { variant: 'destructive', icon: <AlertCircle className="w-3 h-3" /> },
+  [RefundStatus.QUEUED]: { variant: 'secondary', icon: <Timer className="w-3 h-3" /> },
+  [RefundStatus.INSUFFICIENT_FUNDS]: { variant: 'destructive', icon: <DollarSign className="w-3 h-3" /> },
 };
+
+function formatSettlement(status: string): string {
+  switch (status) {
+    case 'in_platform': return 'Funds in ChainPe';
+    case 'settled_external': return 'Settled to external wallet';
+    case 'partially_settled': return 'Partially settled';
+    default: return status;
+  }
+}
 
 export function RefundsList() {
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<RefundStatus | 'all'>('all');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogStep, setDialogStep] = useState<'form' | 'eligibility'>('form');
+  const [eligibilityPaymentId, setEligibilityPaymentId] = useState('');
+  const [refundForm, setRefundForm] = useState<CreateRefundInput>({
+    payment_session_id: '',
+    refund_address: '',
+    amount: undefined,
+    reason: '',
+  });
 
   const { data, isLoading, error } = useRefunds(
     page,
@@ -55,8 +91,23 @@ export function RefundsList() {
     statusFilter === 'all' ? undefined : statusFilter
   );
 
+  const { data: eligibility, isLoading: eligibilityLoading, error: eligibilityError } =
+    useRefundEligibility(eligibilityPaymentId);
+
   const retryMutation = useRetryRefund();
   const cancelMutation = useCancelRefund();
+  const createMutation = useCreateRefund();
+  const processQueuedMutation = useProcessQueuedRefunds();
+
+  // When eligibility loads, prefill amount
+  useEffect(() => {
+    if (eligibility && eligibility.max_refundable > 0) {
+      setRefundForm((f) => ({
+        ...f,
+        amount: eligibility.max_refundable,
+      }));
+    }
+  }, [eligibility]);
 
   const handleRetry = (refundId: string) => {
     retryMutation.mutate(refundId);
@@ -65,6 +116,43 @@ export function RefundsList() {
   const handleCancel = (refundId: string) => {
     if (window.confirm('Are you sure you want to cancel this refund?')) {
       cancelMutation.mutate(refundId);
+    }
+  };
+
+  const handleCheckEligibility = () => {
+    if (!refundForm.payment_session_id) return;
+    setEligibilityPaymentId(refundForm.payment_session_id);
+    setDialogStep('eligibility');
+  };
+
+  const handleCreateRefund = (force = false, queue = false) => {
+    if (!refundForm.payment_session_id || !refundForm.refund_address) return;
+    createMutation.mutate(
+      {
+        payment_session_id: refundForm.payment_session_id,
+        refund_address: refundForm.refund_address,
+        amount: refundForm.amount || undefined,
+        reason: refundForm.reason || undefined,
+        force,
+        queue_if_insufficient: queue,
+      },
+      {
+        onSuccess: () => {
+          setDialogOpen(false);
+          setDialogStep('form');
+          setEligibilityPaymentId('');
+          setRefundForm({ payment_session_id: '', refund_address: '', amount: undefined, reason: '' });
+        },
+      }
+    );
+  };
+
+  const handleDialogOpenChange = (open: boolean) => {
+    setDialogOpen(open);
+    if (!open) {
+      setDialogStep('form');
+      setEligibilityPaymentId('');
+      setRefundForm({ payment_session_id: '', refund_address: '', amount: undefined, reason: '' });
     }
   };
 
@@ -111,6 +199,8 @@ export function RefundsList() {
   const processing = data?.items?.filter((r) => r.status === RefundStatus.PROCESSING).length || 0;
   const completed = data?.items?.filter((r) => r.status === RefundStatus.COMPLETED).length || 0;
   const failed = data?.items?.filter((r) => r.status === RefundStatus.FAILED).length || 0;
+  const queued = data?.items?.filter((r) => r.status === RefundStatus.QUEUED).length || 0;
+  const insufficientFunds = data?.items?.filter((r) => r.status === RefundStatus.INSUFFICIENT_FUNDS).length || 0;
 
   return (
     <DashboardLayout activePage="refunds">
@@ -119,6 +209,186 @@ export function RefundsList() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Refunds</h1>
             <p className="text-muted-foreground">Process and track customer refunds</p>
+          </div>
+          <div className="flex gap-2">
+            {(queued > 0 || insufficientFunds > 0) && (
+              <Button
+                variant="outline"
+                onClick={() => processQueuedMutation.mutate()}
+                disabled={processQueuedMutation.isPending}
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${processQueuedMutation.isPending ? 'animate-spin' : ''}`} />
+                Process Queued
+              </Button>
+            )}
+            <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Issue Refund
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Issue Refund</DialogTitle>
+                  <DialogDescription>
+                    {dialogStep === 'form'
+                      ? 'Enter payment details to check eligibility and process a refund.'
+                      : 'Review eligibility and choose how to process the refund.'}
+                  </DialogDescription>
+                </DialogHeader>
+
+                {dialogStep === 'form' ? (
+                  <>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="payment_session_id">Payment Session ID *</Label>
+                        <Input
+                          id="payment_session_id"
+                          placeholder="Enter payment session ID"
+                          value={refundForm.payment_session_id}
+                          onChange={(e) => setRefundForm((f) => ({ ...f, payment_session_id: e.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="refund_address">Refund Address *</Label>
+                        <Input
+                          id="refund_address"
+                          placeholder="Wallet address to send refund to"
+                          value={refundForm.refund_address}
+                          onChange={(e) => setRefundForm((f) => ({ ...f, refund_address: e.target.value }))}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="reason">Reason (optional)</Label>
+                        <Textarea
+                          id="reason"
+                          placeholder="Reason for refund"
+                          value={refundForm.reason ?? ''}
+                          onChange={(e) => setRefundForm((f) => ({ ...f, reason: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => handleDialogOpenChange(false)}>
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleCheckEligibility}
+                        disabled={!refundForm.payment_session_id || !refundForm.refund_address}
+                      >
+                        Check Eligibility
+                      </Button>
+                    </DialogFooter>
+                  </>
+                ) : (
+                  <>
+                    <div className="space-y-4 py-4">
+                      {eligibilityLoading && (
+                        <div className="flex items-center justify-center py-8">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                          <span className="ml-2 text-sm text-muted-foreground">Checking eligibility...</span>
+                        </div>
+                      )}
+
+                      {eligibilityError && (
+                        <div className="rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20 p-4">
+                          <p className="text-sm text-red-600 dark:text-red-400">
+                            Failed to check eligibility. The payment may not exist or may not be eligible for refund.
+                          </p>
+                        </div>
+                      )}
+
+                      {eligibility && (
+                        <>
+                          <div className={`rounded-lg border p-4 ${eligibility.sufficient_balance ? 'border-green-200 bg-green-50 dark:bg-green-950/20' : 'border-yellow-200 bg-yellow-50 dark:bg-yellow-950/20'}`}>
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Settlement</span>
+                                <span className="font-medium">{formatSettlement(eligibility.settlement_status)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Your Balance</span>
+                                <span className="font-medium">${eligibility.merchant_balance.toFixed(2)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Max Refundable</span>
+                                <span className="font-medium">${eligibility.max_refundable.toFixed(2)}</span>
+                              </div>
+                              {eligibility.already_refunded > 0 && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Already Refunded</span>
+                                  <span className="font-medium">${eligibility.already_refunded.toFixed(2)}</span>
+                                </div>
+                              )}
+                              <p className="pt-2 text-muted-foreground border-t">{eligibility.message}</p>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="refund_amount">Refund Amount</Label>
+                            <Input
+                              id="refund_amount"
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              max={eligibility.max_refundable}
+                              value={refundForm.amount ?? ''}
+                              onChange={(e) =>
+                                setRefundForm((f) => ({
+                                  ...f,
+                                  amount: e.target.value ? Number(e.target.value) : undefined,
+                                }))
+                              }
+                            />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    <DialogFooter className="flex-col gap-2 sm:flex-row">
+                      <Button variant="outline" onClick={() => setDialogStep('form')}>
+                        Back
+                      </Button>
+
+                      {eligibility?.sufficient_balance && (
+                        <Button
+                          onClick={() => handleCreateRefund(false, false)}
+                          disabled={createMutation.isPending}
+                        >
+                          {createMutation.isPending ? 'Processing...' : 'Refund from Balance'}
+                        </Button>
+                      )}
+
+                      {eligibility && !eligibility.sufficient_balance && eligibility.can_queue && (
+                        <Button
+                          variant="secondary"
+                          onClick={() => handleCreateRefund(false, true)}
+                          disabled={createMutation.isPending}
+                        >
+                          <Timer className="w-4 h-4 mr-2" />
+                          {createMutation.isPending ? 'Processing...' : 'Queue Refund (7 days)'}
+                        </Button>
+                      )}
+
+                      {eligibility?.can_force_external && (
+                        <Button
+                          variant="outline"
+                          onClick={() => handleCreateRefund(true, false)}
+                          disabled={createMutation.isPending}
+                        >
+                          <Wallet className="w-4 h-4 mr-2" />
+                          {createMutation.isPending ? 'Processing...' : 'Refund via External Wallet'}
+                        </Button>
+                      )}
+
+                      {eligibility && !eligibility.eligible && (
+                        <p className="text-sm text-red-500">{eligibility.message}</p>
+                      )}
+                    </DialogFooter>
+                  </>
+                )}
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
@@ -176,6 +446,8 @@ export function RefundsList() {
             <SelectItem value={RefundStatus.PROCESSING}>Processing</SelectItem>
             <SelectItem value={RefundStatus.COMPLETED}>Completed</SelectItem>
             <SelectItem value={RefundStatus.FAILED}>Failed</SelectItem>
+            <SelectItem value={RefundStatus.QUEUED}>Queued</SelectItem>
+            <SelectItem value={RefundStatus.INSUFFICIENT_FUNDS}>Insufficient Funds</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -207,6 +479,7 @@ export function RefundsList() {
                   <TableHead>Token/Chain</TableHead>
                   <TableHead>Refund Address</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Source</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -262,8 +535,8 @@ interface RefundRowProps {
 
 function RefundRow({ refund, onRetry, onCancel }: RefundRowProps) {
   const config = STATUS_CONFIG[refund.status];
-  const canRetry = refund.status === RefundStatus.FAILED;
-  const canCancel = refund.status === RefundStatus.PENDING;
+  const canRetry = refund.status === RefundStatus.FAILED || refund.status === RefundStatus.INSUFFICIENT_FUNDS;
+  const canCancel = refund.status === RefundStatus.PENDING || refund.status === RefundStatus.QUEUED;
 
   return (
     <TableRow>
@@ -289,10 +562,29 @@ function RefundRow({ refund, onRetry, onCancel }: RefundRowProps) {
       <TableCell>
         <Badge variant={config.variant} className="flex items-center gap-1 w-fit">
           {config.icon}
-          {refund.status.toUpperCase()}
+          {refund.status.replace('_', ' ').toUpperCase()}
         </Badge>
         {refund.error_message && (
           <p className="text-xs text-red-500 mt-1">{refund.error_message}</p>
+        )}
+        {refund.failure_reason && !refund.error_message && (
+          <p className="text-xs text-red-500 mt-1">{refund.failure_reason}</p>
+        )}
+        {refund.status === RefundStatus.QUEUED && refund.queued_until && (
+          <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+            Expires {new Date(refund.queued_until).toLocaleDateString()}
+          </p>
+        )}
+      </TableCell>
+      <TableCell className="text-sm">
+        {refund.refund_source === 'external_wallet' ? (
+          <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
+            <Wallet className="w-3 h-3" /> External
+          </span>
+        ) : refund.refund_source === 'platform_balance' ? (
+          <span>Platform</span>
+        ) : (
+          <span className="text-muted-foreground">—</span>
         )}
       </TableCell>
       <TableCell className="text-muted-foreground">

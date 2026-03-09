@@ -157,6 +157,8 @@ export enum SubscriptionInterval {
   YEARLY = 'yearly',
 }
 
+export type TrialType = 'free' | 'reduced_price';
+
 export type SubscriptionPlan = {
   id: string;
   merchant_id: string;
@@ -167,11 +169,17 @@ export type SubscriptionPlan = {
   interval: SubscriptionInterval;
   interval_count: number;
   trial_days: number;
+  trial_type?: TrialType;
+  trial_price?: number;
+  setup_fee?: number;
+  max_billing_cycles?: number;
   accepted_tokens: string[];
   accepted_chains: string[];
   features?: string[];
+  metadata?: Record<string, any>;
   is_active: boolean;
   subscriber_count: number;
+  subscribe_url?: string;
   created_at: string;
   updated_at?: string;
 };
@@ -187,10 +195,24 @@ export type Subscription = {
   status: SubscriptionStatus;
   current_period_start: string;
   current_period_end: string;
+  // Trial info
   trial_start?: string;
   trial_end?: string;
+  trial_type?: TrialType;
+  is_in_trial: boolean;
+  trial_days_remaining?: number;
+  // Payment stats
+  total_payments_collected: number;
+  total_revenue?: number;
   next_payment_at?: string;
   next_payment_url?: string;
+  next_payment_amount?: number;
+  // Customer payment method
+  customer_wallet_address?: string;
+  customer_chain?: string;
+  customer_token?: string;
+  has_payment_method: boolean;
+  // Cancellation
   cancel_at?: string;
   cancelled_at?: string;
   cancellation_reason?: string;
@@ -220,9 +242,14 @@ export type CreateSubscriptionPlanInput = {
   interval: SubscriptionInterval;
   interval_count?: number;
   trial_days?: number;
+  trial_type?: TrialType;
+  trial_price?: number;
+  setup_fee?: number;
+  max_billing_cycles?: number;
   accepted_tokens: string[];
   accepted_chains: string[];
   features?: string[];
+  metadata?: Record<string, any>;
 };
 
 export type UpdateSubscriptionPlanInput = Partial<CreateSubscriptionPlanInput> & {
@@ -234,7 +261,12 @@ export type CreateSubscriptionInput = {
   customer_email: string;
   customer_name?: string;
   customer_id?: string;
+  customer_wallet_address?: string;
+  customer_chain?: string;
+  customer_token?: string;
   skip_trial?: boolean;
+  custom_trial_days?: number;
+  metadata?: Record<string, any>;
 };
 
 // ============================================================================
@@ -246,7 +278,22 @@ export enum RefundStatus {
   PROCESSING = 'processing',
   COMPLETED = 'completed',
   FAILED = 'failed',
+  QUEUED = 'queued',
+  INSUFFICIENT_FUNDS = 'insufficient_funds',
 }
+
+export type RefundEligibility = {
+  eligible: boolean;
+  payment_session_id: string;
+  max_refundable: number;
+  already_refunded: number;
+  merchant_balance: number;
+  sufficient_balance: boolean;
+  settlement_status: 'in_platform' | 'settled_external' | 'partially_settled';
+  message: string;
+  can_queue: boolean;
+  can_force_external: boolean;
+};
 
 export type Refund = {
   id: string;
@@ -260,8 +307,14 @@ export type Refund = {
   reason?: string;
   tx_hash?: string;
   error_message?: string;
+  refund_source?: 'platform_balance' | 'external_wallet';
+  settlement_status?: 'in_platform' | 'settled_external' | 'partially_settled';
+  merchant_balance_at_request?: number;
+  failure_reason?: string;
+  queued_until?: string;
   created_at: string;
   completed_at?: string;
+  processed_at?: string;
   updated_at?: string;
 };
 
@@ -270,6 +323,8 @@ export type CreateRefundInput = {
   amount?: number;
   refund_address: string;
   reason?: string;
+  force?: boolean;
+  queue_if_insufficient?: boolean;
 };
 
 // ============================================================================

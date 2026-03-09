@@ -140,7 +140,6 @@ export function PaymentsList() {
                           )}
                         </div>
                       </TableCell>
-                      </TableCell>
                       <TableCell>
                         <Badge
                           variant={

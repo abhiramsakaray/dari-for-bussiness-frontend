@@ -192,3 +192,93 @@ export function useResumeSubscription() {
     },
   });
 }
+
+// ============================================================================
+// TRIAL MANAGEMENT HOOKS
+// ============================================================================
+
+export function useExtendTrial() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ subscriptionId, extraDays }: { subscriptionId: string; extraDays: number }) =>
+      subscriptionsService.extendTrial(subscriptionId, extraDays),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [SUBSCRIPTIONS_QUERY_KEY] });
+      toast.success('Trial extended');
+    },
+    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
+      toast.error(error.response?.data?.detail || 'Failed to extend trial');
+    },
+  });
+}
+
+export function useEndTrial() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (subscriptionId: string) => subscriptionsService.endTrial(subscriptionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [SUBSCRIPTIONS_QUERY_KEY] });
+      toast.success('Trial ended — subscription converted to paid');
+    },
+    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
+      toast.error(error.response?.data?.detail || 'Failed to end trial');
+    },
+  });
+}
+
+// ============================================================================
+// PAYMENT METHOD & COLLECTION HOOKS
+// ============================================================================
+
+export function useUpdatePaymentMethod() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      subscriptionId,
+      data,
+    }: {
+      subscriptionId: string;
+      data: { wallet_address: string; chain: string; token: string };
+    }) => subscriptionsService.updatePaymentMethod(subscriptionId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [SUBSCRIPTIONS_QUERY_KEY] });
+      toast.success('Payment method updated');
+    },
+    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
+      toast.error(error.response?.data?.detail || 'Failed to update payment method');
+    },
+  });
+}
+
+export function useCollectPayment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (subscriptionId: string) => subscriptionsService.collectPayment(subscriptionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [SUBSCRIPTIONS_QUERY_KEY] });
+      toast.success('Payment collection initiated');
+    },
+    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
+      toast.error(error.response?.data?.detail || 'Failed to collect payment');
+    },
+  });
+}
+
+export function useRenewSubscription() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (subscriptionId: string) => subscriptionsService.renewSubscription(subscriptionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [SUBSCRIPTIONS_QUERY_KEY] });
+      toast.success('Subscription renewed');
+    },
+    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
+      toast.error(error.response?.data?.detail || 'Failed to renew subscription');
+    },
+  });
+}

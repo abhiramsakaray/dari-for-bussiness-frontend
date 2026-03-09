@@ -10,6 +10,10 @@ import {
   useResumeSubscription,
   useUpdateSubscriptionPlan,
   useDeactivateSubscriptionPlan,
+  useExtendTrial,
+  useEndTrial,
+  useCollectPayment,
+  useUpdatePaymentMethod,
 } from '../../../hooks/useSubscriptions';
 import {
   SubscriptionPlan,
@@ -18,6 +22,7 @@ import {
   SubscriptionInterval,
   CreateSubscriptionPlanInput,
   CreateSubscriptionInput,
+  TrialType,
 } from '../../../types/api.types';
 import { formatCurrency, formatDate } from '../../../lib/utils';
 import { Button } from '../ui/button';
@@ -59,6 +64,10 @@ import {
   Users,
   CreditCard,
   TrendingUp,
+  Gift,
+  Timer,
+  Wallet,
+  Zap,
 } from 'lucide-react';
 import { DashboardLayout } from '../DashboardLayout';
 
@@ -94,6 +103,10 @@ export function SubscriptionsDashboard() {
     interval: SubscriptionInterval;
     interval_count: string;
     trial_days: string;
+    trial_type: TrialType;
+    trial_price: string;
+    setup_fee: string;
+    max_billing_cycles: string;
     accepted_tokens: string[];
     accepted_chains: string[];
     features: string;
@@ -106,6 +119,10 @@ export function SubscriptionsDashboard() {
     interval: SubscriptionInterval.MONTHLY,
     interval_count: '1',
     trial_days: '0',
+    trial_type: 'free',
+    trial_price: '',
+    setup_fee: '0',
+    max_billing_cycles: '',
     accepted_tokens: ['USDC'],
     accepted_chains: ['polygon'],
     features: '',
@@ -117,12 +134,20 @@ export function SubscriptionsDashboard() {
     plan_id: string;
     customer_email: string;
     customer_name: string;
+    customer_wallet_address: string;
+    customer_chain: string;
+    customer_token: string;
     skip_trial: boolean;
+    custom_trial_days: string;
   }>({
     plan_id: '',
     customer_email: '',
     customer_name: '',
+    customer_wallet_address: '',
+    customer_chain: '',
+    customer_token: '',
     skip_trial: false,
+    custom_trial_days: '',
   });
 
   const { data: plansData, isLoading: plansLoading, error: plansError } = useSubscriptionPlans(plansPage, 20);
@@ -138,6 +163,10 @@ export function SubscriptionsDashboard() {
   const cancelMutation = useCancelSubscription();
   const pauseMutation = usePauseSubscription();
   const resumeMutation = useResumeSubscription();
+  const extendTrialMutation = useExtendTrial();
+  const endTrialMutation = useEndTrial();
+  const collectPaymentMutation = useCollectPayment();
+  const updatePaymentMethodMutation = useUpdatePaymentMethod();
 
   // Check for 403 errors
   const error = plansError || subscriptionsError;
@@ -183,6 +212,42 @@ export function SubscriptionsDashboard() {
     resumeMutation.mutate(subscriptionId);
   };
 
+  const handleExtendTrial = (subscriptionId: string) => {
+    const daysStr = window.prompt('How many extra days to extend the trial?', '7');
+    if (daysStr) {
+      const days = parseInt(daysStr, 10);
+      if (!isNaN(days) && days > 0) {
+        extendTrialMutation.mutate({ subscriptionId, extraDays: days });
+      }
+    }
+  };
+
+  const handleEndTrial = (subscriptionId: string) => {
+    if (window.confirm('End trial and convert to paid subscription?')) {
+      endTrialMutation.mutate(subscriptionId);
+    }
+  };
+
+  const handleCollectPayment = (subscriptionId: string) => {
+    if (window.confirm('Attempt to collect payment for this subscription now?')) {
+      collectPaymentMutation.mutate(subscriptionId);
+    }
+  };
+
+  const handleUpdatePaymentMethod = (subscriptionId: string) => {
+    const wallet = window.prompt('Enter customer wallet address:');
+    if (wallet) {
+      const chain = window.prompt('Enter chain (e.g., ethereum, polygon):');
+      const token = window.prompt('Enter token (e.g., USDT, USDC):');
+      if (chain && token) {
+        updatePaymentMethodMutation.mutate({
+          subscriptionId,
+          data: { wallet_address: wallet, chain, token },
+        });
+      }
+    }
+  };
+
   const handleCreatePlan = () => {
     const input: CreateSubscriptionPlanInput = {
       name: planForm.name,
@@ -192,6 +257,10 @@ export function SubscriptionsDashboard() {
       interval: planForm.interval,
       interval_count: parseInt(planForm.interval_count) || 1,
       trial_days: parseInt(planForm.trial_days) || 0,
+      trial_type: planForm.trial_type,
+      trial_price: planForm.trial_type === 'reduced_price' && planForm.trial_price ? parseFloat(planForm.trial_price) : undefined,
+      setup_fee: parseFloat(planForm.setup_fee) || 0,
+      max_billing_cycles: planForm.max_billing_cycles ? parseInt(planForm.max_billing_cycles) : undefined,
       accepted_tokens: planForm.accepted_tokens,
       accepted_chains: planForm.accepted_chains,
       features: planForm.features ? planForm.features.split('\n').filter(Boolean) : undefined,
@@ -202,7 +271,8 @@ export function SubscriptionsDashboard() {
         setPlanForm({
           name: '', description: '', amount: '', fiat_currency: 'USD',
           interval: SubscriptionInterval.MONTHLY, interval_count: '1',
-          trial_days: '0', accepted_tokens: ['USDC'], accepted_chains: ['polygon'], features: '',
+          trial_days: '0', trial_type: 'free', trial_price: '', setup_fee: '0',
+          max_billing_cycles: '', accepted_tokens: ['USDC'], accepted_chains: ['polygon'], features: '',
         });
       },
     });
@@ -213,12 +283,16 @@ export function SubscriptionsDashboard() {
       plan_id: subForm.plan_id,
       customer_email: subForm.customer_email,
       customer_name: subForm.customer_name || undefined,
+      customer_wallet_address: subForm.customer_wallet_address || undefined,
+      customer_chain: subForm.customer_chain || undefined,
+      customer_token: subForm.customer_token || undefined,
       skip_trial: subForm.skip_trial,
+      custom_trial_days: subForm.custom_trial_days ? parseInt(subForm.custom_trial_days) : undefined,
     };
     createSubMutation.mutate(input, {
       onSuccess: () => {
         setShowNewSubDialog(false);
-        setSubForm({ plan_id: '', customer_email: '', customer_name: '', skip_trial: false });
+        setSubForm({ plan_id: '', customer_email: '', customer_name: '', customer_wallet_address: '', customer_chain: '', customer_token: '', skip_trial: false, custom_trial_days: '' });
       },
     });
   };
@@ -372,6 +446,10 @@ export function SubscriptionsDashboard() {
                           onPause={handlePause}
                           onResume={handleResume}
                           onCancel={handleCancel}
+                          onExtendTrial={handleExtendTrial}
+                          onEndTrial={handleEndTrial}
+                          onCollectPayment={handleCollectPayment}
+                          onUpdatePaymentMethod={handleUpdatePaymentMethod}
                         />
                       ))}
                     </TableBody>
@@ -418,6 +496,10 @@ export function SubscriptionsDashboard() {
                         interval: p.interval,
                         interval_count: p.interval_count.toString(),
                         trial_days: p.trial_days.toString(),
+                        trial_type: (p.trial_type as TrialType) || 'free',
+                        trial_price: p.trial_price?.toString() || '',
+                        setup_fee: p.setup_fee?.toString() || '',
+                        max_billing_cycles: p.max_billing_cycles?.toString() || '',
                         accepted_tokens: ['USDC'],
                         accepted_chains: ['polygon'],
                         features: (p.features || []).join('\n'),
@@ -430,8 +512,7 @@ export function SubscriptionsDashboard() {
                       setShowDeletePlanDialog(true);
                     }}
                     onShare={(p) => {
-                      const baseUrl = window.location.origin;
-                      const subscribeUrl = `${baseUrl}/#/subscribe/${p.id}`;
+                      const subscribeUrl = p.subscribe_url || `${window.location.origin}/#/subscribe/${p.id}`;
                       navigator.clipboard.writeText(subscribeUrl);
                       toast.success('Subscription link copied to clipboard!');
                     }}
@@ -535,6 +616,59 @@ export function SubscriptionsDashboard() {
                 value={planForm.trial_days}
                 onChange={(e) => setPlanForm((f) => ({ ...f, trial_days: e.target.value }))}
               />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls}>Trial Type</label>
+                <select
+                  className={inputCls}
+                  value={planForm.trial_type}
+                  onChange={(e) => setPlanForm((f) => ({ ...f, trial_type: e.target.value as TrialType }))}
+                >
+                  <option value="free">Free</option>
+                  <option value="reduced_price">Reduced Price</option>
+                </select>
+              </div>
+              {planForm.trial_type === 'reduced_price' && (
+                <div>
+                  <label className={labelCls}>Trial Price</label>
+                  <input
+                    className={inputCls}
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="e.g. 4.99"
+                    value={planForm.trial_price}
+                    onChange={(e) => setPlanForm((f) => ({ ...f, trial_price: e.target.value }))}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls}>Setup Fee (one-time)</label>
+                <input
+                  className={inputCls}
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={planForm.setup_fee}
+                  onChange={(e) => setPlanForm((f) => ({ ...f, setup_fee: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Max Billing Cycles</label>
+                <input
+                  className={inputCls}
+                  type="number"
+                  min="1"
+                  placeholder="Unlimited"
+                  value={planForm.max_billing_cycles}
+                  onChange={(e) => setPlanForm((f) => ({ ...f, max_billing_cycles: e.target.value }))}
+                />
+              </div>
             </div>
 
             <div>
@@ -834,6 +968,61 @@ export function SubscriptionsDashboard() {
               />
               <label htmlFor="skip_trial" className="text-sm">Skip trial period</label>
             </div>
+
+            {!subForm.skip_trial && (
+              <div>
+                <label className={labelCls}>Custom Trial Days (override plan default)</label>
+                <input
+                  className={inputCls}
+                  type="number"
+                  min="0"
+                  placeholder="Use plan default"
+                  value={subForm.custom_trial_days}
+                  onChange={(e) => setSubForm((f) => ({ ...f, custom_trial_days: e.target.value }))}
+                />
+              </div>
+            )}
+
+            <div className="border-t pt-4 mt-2">
+              <p className="text-sm font-medium mb-3">Customer Payment Method (optional)</p>
+              <div>
+                <label className={labelCls}>Wallet Address</label>
+                <input
+                  className={inputCls}
+                  placeholder="Customer wallet address"
+                  value={subForm.customer_wallet_address}
+                  onChange={(e) => setSubForm((f) => ({ ...f, customer_wallet_address: e.target.value }))}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3 mt-3">
+                <div>
+                  <label className={labelCls}>Chain</label>
+                  <select
+                    className={inputCls}
+                    value={subForm.customer_chain}
+                    onChange={(e) => setSubForm((f) => ({ ...f, customer_chain: e.target.value }))}
+                  >
+                    <option value="">Select chain</option>
+                    {SUPPORTED_CHAINS.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelCls}>Token</label>
+                  <select
+                    className={inputCls}
+                    value={subForm.customer_token}
+                    onChange={(e) => setSubForm((f) => ({ ...f, customer_token: e.target.value }))}
+                  >
+                    <option value="">Select token</option>
+                    {SUPPORTED_TOKENS.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
 
           <DialogFooter>
@@ -858,11 +1047,16 @@ interface SubscriptionRowProps {
   onPause: (id: string) => void;
   onResume: (id: string) => void;
   onCancel: (id: string) => void;
+  onExtendTrial: (id: string) => void;
+  onEndTrial: (id: string) => void;
+  onCollectPayment: (id: string) => void;
+  onUpdatePaymentMethod: (id: string) => void;
 }
 
-function SubscriptionRow({ subscription, onPause, onResume, onCancel }: SubscriptionRowProps) {
+function SubscriptionRow({ subscription, onPause, onResume, onCancel, onExtendTrial, onEndTrial, onCollectPayment, onUpdatePaymentMethod }: SubscriptionRowProps) {
   const isActive = subscription.status === SubscriptionStatus.ACTIVE;
   const isPaused = subscription.status === SubscriptionStatus.PAUSED;
+  const isTrialing = subscription.status === SubscriptionStatus.TRIALING || subscription.is_in_trial;
 
   return (
     <TableRow>
@@ -874,15 +1068,32 @@ function SubscriptionRow({ subscription, onPause, onResume, onCancel }: Subscrip
       </TableCell>
       <TableCell>{subscription.plan_name}</TableCell>
       <TableCell>
-        <Badge variant={STATUS_VARIANTS[subscription.status]}>
-          {subscription.status.replace('_', ' ').toUpperCase()}
-        </Badge>
+        <div className="flex items-center gap-1.5">
+          <Badge variant={STATUS_VARIANTS[subscription.status]}>
+            {subscription.status.replace('_', ' ').toUpperCase()}
+          </Badge>
+          {isTrialing && (
+            <Badge variant="outline" className="text-blue-600 border-blue-300 bg-blue-50 dark:bg-blue-950/20 flex items-center gap-1">
+              <Gift className="w-3 h-3" />
+              {subscription.trial_days_remaining != null
+                ? `${subscription.trial_days_remaining}d left`
+                : 'Trial'}
+            </Badge>
+          )}
+        </div>
       </TableCell>
       <TableCell className="text-muted-foreground">
         {formatDate(subscription.current_period_start)} - {formatDate(subscription.current_period_end)}
       </TableCell>
       <TableCell className="text-muted-foreground">
-        {subscription.next_payment_at ? formatDate(subscription.next_payment_at) : '-'}
+        {subscription.next_payment_at ? (
+          <div>
+            <p>{formatDate(subscription.next_payment_at)}</p>
+            {subscription.next_payment_amount != null && (
+              <p className="text-xs">${Number(subscription.next_payment_amount).toFixed(2)}</p>
+            )}
+          </div>
+        ) : '-'}
       </TableCell>
       <TableCell className="text-right">
         <DropdownMenu>
@@ -892,11 +1103,29 @@ function SubscriptionRow({ subscription, onPause, onResume, onCancel }: Subscrip
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            {isTrialing && (
+              <>
+                <DropdownMenuItem onClick={() => onExtendTrial(subscription.id)}>
+                  <Timer className="w-4 h-4 mr-2" />
+                  Extend Trial
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onEndTrial(subscription.id)}>
+                  <Zap className="w-4 h-4 mr-2" />
+                  Convert to Paid
+                </DropdownMenuItem>
+              </>
+            )}
             {isActive && (
-              <DropdownMenuItem onClick={() => onPause(subscription.id)}>
-                <Pause className="w-4 h-4 mr-2" />
-                Pause
-              </DropdownMenuItem>
+              <>
+                <DropdownMenuItem onClick={() => onCollectPayment(subscription.id)}>
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Collect Payment
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onPause(subscription.id)}>
+                  <Pause className="w-4 h-4 mr-2" />
+                  Pause
+                </DropdownMenuItem>
+              </>
             )}
             {isPaused && (
               <DropdownMenuItem onClick={() => onResume(subscription.id)}>
@@ -904,7 +1133,11 @@ function SubscriptionRow({ subscription, onPause, onResume, onCancel }: Subscrip
                 Resume
               </DropdownMenuItem>
             )}
-            {(isActive || isPaused) && (
+            <DropdownMenuItem onClick={() => onUpdatePaymentMethod(subscription.id)}>
+              <Wallet className="w-4 h-4 mr-2" />
+              {subscription.has_payment_method ? 'Update' : 'Set'} Payment Method
+            </DropdownMenuItem>
+            {(isActive || isPaused || isTrialing) && (
               <DropdownMenuItem onClick={() => onCancel(subscription.id)} className="text-red-600">
                 <XCircle className="w-4 h-4 mr-2" />
                 Cancel
@@ -994,9 +1227,19 @@ function PlanCard({ plan, onEdit, onDelete, onShare }: PlanCardProps) {
           <span className="text-sm text-muted-foreground">
             {plan.subscriber_count} subscriber{plan.subscriber_count !== 1 ? 's' : ''}
           </span>
-          {plan.trial_days > 0 && (
-            <span className="text-xs text-muted-foreground">{plan.trial_days}d trial</span>
-          )}
+          <div className="flex items-center gap-2">
+            {plan.setup_fee != null && plan.setup_fee > 0 && (
+              <span className="text-xs text-muted-foreground">Setup: {formatCurrency(plan.setup_fee, plan.fiat_currency)}</span>
+            )}
+            {plan.trial_days > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {plan.trial_days}d {plan.trial_type === 'reduced_price' ? `trial @ ${formatCurrency(plan.trial_price ?? 0, plan.fiat_currency)}` : 'free trial'}
+              </span>
+            )}
+            {plan.max_billing_cycles != null && (
+              <span className="text-xs text-muted-foreground">Max {plan.max_billing_cycles} cycles</span>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

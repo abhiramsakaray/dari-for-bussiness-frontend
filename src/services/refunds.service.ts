@@ -2,6 +2,7 @@ import { apiClient } from '@/lib/api-client';
 import { generateIdempotencyKey } from '@/lib/utils';
 import {
   Refund,
+  RefundEligibility,
   CreateRefundInput,
   PaginatedResponse,
   RefundStatus,
@@ -9,6 +10,10 @@ import {
 
 export class RefundsService {
   private basePath = '/refunds';
+
+  async checkEligibility(paymentSessionId: string): Promise<RefundEligibility> {
+    return apiClient.get<RefundEligibility>(`${this.basePath}/eligibility/${paymentSessionId}`);
+  }
 
   async createRefund(input: CreateRefundInput): Promise<Refund> {
     return apiClient.post<Refund>(this.basePath, input, {
@@ -44,6 +49,10 @@ export class RefundsService {
 
   async retryRefund(refundId: string): Promise<Refund> {
     return apiClient.post<Refund>(`${this.basePath}/${refundId}/retry`);
+  }
+
+  async processQueued(): Promise<void> {
+    return apiClient.post<void>(`${this.basePath}/process-queued`);
   }
 }
 

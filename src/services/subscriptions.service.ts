@@ -125,6 +125,34 @@ export class SubscriptionsService {
     return apiClient.post<Subscription>(`${this.basePath}/${subscriptionId}/resume`);
   }
 
+  // Trial management
+  async extendTrial(subscriptionId: string, extraDays: number): Promise<Subscription> {
+    return apiClient.post<Subscription>(`${this.basePath}/${subscriptionId}/extend-trial`, {
+      extra_days: extraDays,
+    });
+  }
+
+  async endTrial(subscriptionId: string): Promise<Subscription> {
+    return apiClient.post<Subscription>(`${this.basePath}/${subscriptionId}/end-trial`);
+  }
+
+  // Payment method
+  async updatePaymentMethod(
+    subscriptionId: string,
+    data: { wallet_address: string; chain: string; token: string }
+  ): Promise<Subscription> {
+    return apiClient.put<Subscription>(`${this.basePath}/${subscriptionId}/payment-method`, data);
+  }
+
+  // Payment collection
+  async collectPayment(subscriptionId: string): Promise<void> {
+    return apiClient.post<void>(`${this.basePath}/${subscriptionId}/collect-payment`);
+  }
+
+  async renewSubscription(subscriptionId: string): Promise<Subscription> {
+    return apiClient.post<Subscription>(`${this.basePath}/${subscriptionId}/renew`);
+  }
+
   async getSubscriptionPayments(
     subscriptionId: string,
     params?: { page?: number; page_size?: number }
