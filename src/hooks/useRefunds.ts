@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { refundsService } from '@/services/refunds.service';
 import { CreateRefundInput, RefundStatus } from '@/types/api.types';
 import { toast } from 'sonner';
+import { extractErrorMessage } from '@/lib/utils';
 
 export const REFUNDS_QUERY_KEY = 'refunds';
 export const PAYMENTS_QUERY_KEY = 'payments';
@@ -54,8 +55,8 @@ export function useCreateRefund() {
         toast.success('Refund initiated successfully');
       }
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to create refund');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to create refund'));
     },
   });
 }
@@ -69,8 +70,8 @@ export function useCancelRefund() {
       queryClient.invalidateQueries({ queryKey: [REFUNDS_QUERY_KEY] });
       toast.success('Refund cancelled');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to cancel refund');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to cancel refund'));
     },
   });
 }
@@ -84,8 +85,8 @@ export function useRetryRefund() {
       queryClient.invalidateQueries({ queryKey: [REFUNDS_QUERY_KEY] });
       toast.success('Retrying refund...');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to retry refund');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to retry refund'));
     },
   });
 }
@@ -99,8 +100,8 @@ export function useProcessQueuedRefunds() {
       queryClient.invalidateQueries({ queryKey: [REFUNDS_QUERY_KEY] });
       toast.success('Queued refunds are being processed');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to process queued refunds');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to process queued refunds'));
     },
   });
 }

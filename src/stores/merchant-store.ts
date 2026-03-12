@@ -9,6 +9,8 @@ interface MerchantState {
   email: string | null;
   role: MerchantRole | null;
   isAuthenticated: boolean;
+  currency: string;
+  currencySymbol: string;
   setMerchant: (data: {
     apiKey: string;
     merchantId: string;
@@ -16,6 +18,7 @@ interface MerchantState {
     email: string;
     role: MerchantRole;
   }) => void;
+  setCurrency: (currency: string, symbol: string) => void;
   clearMerchant: () => void;
 }
 
@@ -28,11 +31,15 @@ export const useMerchantStore = create<MerchantState>()(
       email: null,
       role: null,
       isAuthenticated: false,
+      currency: 'USD',
+      currencySymbol: '$',
       setMerchant: (data) =>
         set({
           ...data,
           isAuthenticated: true,
         }),
+      setCurrency: (currency, symbol) =>
+        set({ currency, currencySymbol: symbol }),
       clearMerchant: () =>
         set({
           apiKey: null,
@@ -41,6 +48,8 @@ export const useMerchantStore = create<MerchantState>()(
           email: null,
           role: null,
           isAuthenticated: false,
+          currency: 'USD',
+          currencySymbol: '$',
         }),
     }),
     {

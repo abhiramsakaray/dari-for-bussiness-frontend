@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { teamService } from '@/services/team.service';
 import { InviteTeamMemberInput, UpdateTeamMemberInput } from '@/types/api.types';
 import { toast } from 'sonner';
+import { extractErrorMessage } from '@/lib/utils';
 
 export const TEAM_QUERY_KEY = 'team';
 
@@ -37,8 +38,8 @@ export function useInviteTeamMember() {
       queryClient.invalidateQueries({ queryKey: [TEAM_QUERY_KEY] });
       toast.success('Invitation sent successfully');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to send invitation');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to send invitation'));
     },
   });
 }
@@ -54,8 +55,8 @@ export function useUpdateTeamMember() {
       queryClient.invalidateQueries({ queryKey: [TEAM_QUERY_KEY, data.id] });
       toast.success('Team member updated');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to update team member');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to update team member'));
     },
   });
 }
@@ -69,8 +70,8 @@ export function useRemoveTeamMember() {
       queryClient.invalidateQueries({ queryKey: [TEAM_QUERY_KEY] });
       toast.success('Team member removed');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to remove team member');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to remove team member'));
     },
   });
 }
@@ -81,8 +82,8 @@ export function useResendInvite() {
     onSuccess: () => {
       toast.success('Invitation resent');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to resend invitation');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to resend invitation'));
     },
   });
 }
@@ -93,8 +94,8 @@ export function useAcceptInvite() {
     onSuccess: () => {
       toast.success('Invitation accepted');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to accept invitation');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to accept invitation'));
     },
   });
 }

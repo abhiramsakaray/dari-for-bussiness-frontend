@@ -6,6 +6,7 @@ import { CheckCircle, XCircle, Loader2, RefreshCw } from 'lucide-react';
 import { api } from '../../services/api';
 import { apiClient } from '../../lib/api-client';
 import { toast } from 'sonner';
+import { extractErrorMessage } from '../../lib/utils';
 
 interface EndpointTest {
   name: string;
@@ -43,7 +44,7 @@ export function ApiDebugger() {
   const runTests = async () => {
     setTesting(true);
     setResults([]);
-    
+
     const testResults: TestResult[] = [];
 
     // Check auth tokens first
@@ -80,17 +81,17 @@ export function ApiDebugger() {
     for (const endpoint of ENDPOINTS_TO_TEST) {
       try {
         console.log(`🧪 Testing: ${endpoint.name} (${endpoint.endpoint})`);
-        
+
         const startTime = Date.now();
         let response;
-        
+
         if (endpoint.useApiClient) {
           response = await apiClient.get(endpoint.endpoint);
         } else {
           const axiosResponse = await api.get(endpoint.endpoint);
           response = axiosResponse.data;
         }
-        
+
         const duration = Date.now() - startTime;
         const data = response as any;
 
@@ -113,7 +114,7 @@ export function ApiDebugger() {
             }
             return !!val;
           });
-          
+
           if (!hasData) {
             status = 'empty';
             message = 'No data returned (all values are empty/zero)';
@@ -129,12 +130,9 @@ export function ApiDebugger() {
 
       } catch (error: any) {
         console.error(`❌ ${endpoint.name}:`, error);
-        
-        const errorMessage = error.response?.data?.detail || 
-                            error.response?.data?.message ||
-                            error.message || 
-                            'Unknown error';
-        
+
+        const errorMessage = extractErrorMessage(error, 'Unknown error');
+
         testResults.push({
           name: endpoint.name,
           status: 'error',
@@ -149,7 +147,7 @@ export function ApiDebugger() {
 
       // Update results after each test
       setResults([...testResults]);
-      
+
       // Small delay between requests
       await new Promise(resolve => setTimeout(resolve, 100));
     }

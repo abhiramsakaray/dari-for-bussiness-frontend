@@ -462,12 +462,12 @@ export type PaymentSession = {
   chain?: string | null;
   tx_hash?: string | null;
   amount_usdc?: string | null;
-  
+
   // Coupon tracking fields
   coupon_code?: string | null;
   discount_amount?: number | null;
   amount_paid?: number | null; // Actual amount paid (amount_fiat - discount_amount)
-  
+
   // Local currency conversions
   amount_fiat_local?: LocalCurrencyAmount | null;
   discount_amount_local?: LocalCurrencyAmount | null;
@@ -520,10 +520,18 @@ export interface LocalCurrencyAmount {
   display_local: string;
 }
 
+export interface ChainTokenBalance {
+  chain: string;
+  token: string;
+  balance: number;
+  wallet_address: string;
+}
+
 export interface CoinBalance {
   token: string;
   balance_usdc: number;
   balance_local: LocalCurrencyAmount;
+  chain_balances: ChainTokenBalance[] | null;
 }
 
 export interface WalletInfo {
@@ -544,6 +552,7 @@ export interface BalanceDashboardResponse {
   pending_withdrawals_local: LocalCurrencyAmount;
   net_available_usdc: number;
   net_available_local: LocalCurrencyAmount;
+  balance_source: "onchain" | "database";
 }
 
 export type WithdrawalStatus = "pending" | "processing" | "completed" | "failed" | "cancelled";
@@ -581,6 +590,7 @@ export interface Withdrawal {
   merchant_id: string;
   amount: number;
   amount_local?: LocalCurrencyAmount;
+  token: string;
   token_amount: number;
   fee: number;
   fee_local?: LocalCurrencyAmount;
@@ -601,6 +611,7 @@ export interface CreateWithdrawalRequest {
   currency: string;
   chain: string;
   destination_address: string;
+  token?: string;
   notes?: string;
 }
 

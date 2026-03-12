@@ -1,4 +1,5 @@
 import { useState } from "react";
+import logoUrl from '../../../assets/logo.png';
 import {
   LayoutDashboard,
   CreditCard,
@@ -21,7 +22,6 @@ import {
   UserCircle2,
   ChevronDown,
   ChevronRight,
-  Zap,
   Tag,
 } from "lucide-react";
 import { Button } from "./ui/button";
@@ -133,11 +133,8 @@ export function DashboardLayout({ children, activePage, isAdmin = false }: Dashb
   const SidebarContent = () => (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Logo */}
-      <div className="h-16 flex items-center gap-3 px-6 border-b border-border/60 shrink-0">
-        <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center shadow-md shadow-primary/40">
-          <Zap className="w-5 h-5 text-white" />
-        </div>
-        <span className="font-bold text-xl tracking-tight">ChainPe</span>
+      <div className="h-16 flex items-center px-6 border-b border-border/60 shrink-0">
+        <img src={logoUrl} alt="ChainPe" className="h-9 w-auto" />
       </div>
 
       {/* Navigation — NO overflow, everything must fit */}

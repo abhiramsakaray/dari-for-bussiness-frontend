@@ -205,3 +205,31 @@ export function hasLocalCurrency(
 ): boolean {
   return localAmount !== null && localAmount !== undefined;
 }
+/**
+ * Safely extract a human-readable error message from an API error response.
+ * Handles both string 'detail' and FastAPI/Pydantic validation error arrays.
+ */
+export function extractErrorMessage(error: any, fallback = 'An unexpected error occurred'): string {
+  if (!error) return fallback;
+
+  // Handle Axios/Fetch error response objects
+  const data = error.response?.data;
+  const detail = data?.detail || data?.message;
+
+  if (typeof detail === 'string') {
+    return detail;
+  }
+
+  if (Array.isArray(detail) && detail.length > 0) {
+    // Handle Pydantic validation errors: [{type, loc, msg, input}, ...]
+    return detail
+      .map((e: any) => {
+        if (typeof e === 'string') return e;
+        if (e.msg) return e.msg;
+        return JSON.stringify(e);
+      })
+      .join('; ');
+  }
+
+  return error.message || fallback;
+}

@@ -10,6 +10,7 @@ import { Textarea } from '../ui/textarea';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { DashboardLayout } from '../DashboardLayout';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { formatCurrency } from '../../../lib/utils';
@@ -18,6 +19,23 @@ import { formatCurrency } from '../../../lib/utils';
 const navigateTo = (path: string) => {
   window.location.hash = path;
 };
+
+const CURRENCIES = [
+  { code: 'USD', label: 'US Dollar',         symbol: '$',   flag: '🇺🇸' },
+  { code: 'EUR', label: 'Euro',              symbol: '€',   flag: '🇪🇺' },
+  { code: 'GBP', label: 'British Pound',     symbol: '£',   flag: '🇬🇧' },
+  { code: 'AED', label: 'UAE Dirham',        symbol: 'د.إ', flag: '🇦🇪' },
+  { code: 'INR', label: 'Indian Rupee',      symbol: '₹',   flag: '🇮🇳' },
+  { code: 'SGD', label: 'Singapore Dollar',  symbol: 'S$',  flag: '🇸🇬' },
+  { code: 'MYR', label: 'Malaysian Ringgit', symbol: 'RM',  flag: '🇲🇾' },
+  { code: 'PKR', label: 'Pakistani Rupee',   symbol: '₨',   flag: '🇵🇰' },
+  { code: 'BDT', label: 'Bangladeshi Taka',  symbol: '৳',   flag: '🇧🇩' },
+  { code: 'CAD', label: 'Canadian Dollar',   symbol: 'CA$', flag: '🇨🇦' },
+  { code: 'AUD', label: 'Australian Dollar', symbol: 'A$',  flag: '🇦🇺' },
+  { code: 'JPY', label: 'Japanese Yen',      symbol: '¥',   flag: '🇯🇵' },
+  { code: 'SAR', label: 'Saudi Riyal',       symbol: '﷼',   flag: '🇸🇦' },
+  { code: 'TRY', label: 'Turkish Lira',      symbol: '₺',   flag: '🇹🇷' },
+];
 
 const AVAILABLE_TOKENS = ['USDC', 'USDT', 'XLM', 'ETH', 'MATIC'];
 const AVAILABLE_CHAINS = ['stellar', 'polygon', 'ethereum', 'base', 'tron'];
@@ -42,6 +60,7 @@ const createInvoiceSchema = z.object({
   notes: z.string().optional(),
   terms: z.string().optional(),
   send_immediately: z.boolean(),
+  fiat_currency: z.string().min(1),
 });
 
 type CreateInvoiceFormData = z.infer<typeof createInvoiceSchema>;
@@ -65,6 +84,7 @@ export function CreateInvoiceForm() {
       accepted_tokens: ['USDC'],
       accepted_chains: ['polygon'],
       send_immediately: false,
+      fiat_currency: 'USD',
     },
   });
 
@@ -78,6 +98,8 @@ export function CreateInvoiceForm() {
   const discount = watch('discount') || 0;
   const acceptedTokens = watch('accepted_tokens');
   const acceptedChains = watch('accepted_chains');
+  const fiatCurrency = watch('fiat_currency') || 'USD';
+  const selectedCurrency = CURRENCIES.find(c => c.code === fiatCurrency) ?? CURRENCIES[0];
 
   const subtotal = invoicesService.calculateSubtotal(lineItems);
   const total = invoicesService.calculateTotal(lineItems, tax, discount);
@@ -96,6 +118,7 @@ export function CreateInvoiceForm() {
   const onSubmit = async (data: CreateInvoiceFormData) => {
     const input: any = {
       customer_email: data.customer_email,
+      fiat_currency: data.fiat_currency,
       line_items: data.line_items,
       tax: data.tax,
       discount: data.discount,
@@ -198,6 +221,14 @@ export function CreateInvoiceForm() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Column headers */}
+            <div className="grid grid-cols-12 gap-3 items-end pb-1 border-b border-border/40">
+              <div className="col-span-5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Description</div>
+              <div className="col-span-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Qty</div>
+              <div className="col-span-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Unit Price ({selectedCurrency.code})</div>
+              <div className="col-span-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide text-right">Total</div>
+              <div className="col-span-1" />
+            </div>
             <div className="space-y-3">
               {fields.map((field, index) => (
                 <div key={field.id} className="grid grid-cols-12 gap-3 items-start">
@@ -230,8 +261,8 @@ export function CreateInvoiceForm() {
                       placeholder="Unit Price"
                     />
                   </div>
-                  <div className="col-span-1 text-right font-medium py-2">
-                    ${((lineItems[index]?.quantity || 0) * (lineItems[index]?.unit_price || 0)).toFixed(2)}
+                  <div className="col-span-1 text-right font-medium py-2 text-sm">
+                    {selectedCurrency.symbol}{((lineItems[index]?.quantity || 0) * (lineItems[index]?.unit_price || 0)).toFixed(2)}
                   </div>
                   <div className="col-span-1">
                     <Button
@@ -281,19 +312,19 @@ export function CreateInvoiceForm() {
 
               <div className="text-right space-y-1 pt-2">
                 <p className="text-sm text-muted-foreground">
-                  Subtotal: {formatCurrency(subtotal, 'USD')}
+                  Subtotal: {formatCurrency(subtotal, fiatCurrency)}
                 </p>
                 {tax > 0 && (
                   <p className="text-sm text-muted-foreground">
-                    Tax: +{formatCurrency(tax, 'USD')}
+                    Tax: +{formatCurrency(tax, fiatCurrency)}
                   </p>
                 )}
                 {discount > 0 && (
                   <p className="text-sm text-muted-foreground">
-                    Discount: -{formatCurrency(discount, 'USD')}
+                    Discount: -{formatCurrency(discount, fiatCurrency)}
                   </p>
                 )}
-                <p className="text-2xl font-bold">{formatCurrency(total, 'USD')}</p>
+                <p className="text-2xl font-bold">{formatCurrency(total, fiatCurrency)}</p>
               </div>
             </div>
           </CardContent>
@@ -306,17 +337,41 @@ export function CreateInvoiceForm() {
             <CardDescription>Configure accepted payment methods</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="due_date">Due Date *</Label>
-              <Input
-                id="due_date"
-                type="date"
-                {...register('due_date')}
-                defaultValue={defaultDueDate.toISOString().split('T')[0]}
-              />
-              {errors.due_date && (
-                <p className="text-sm text-red-500">{errors.due_date.message}</p>
-              )}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="due_date">Due Date *</Label>
+                <Input
+                  id="due_date"
+                  type="date"
+                  {...register('due_date')}
+                  defaultValue={defaultDueDate.toISOString().split('T')[0]}
+                />
+                {errors.due_date && (
+                  <p className="text-sm text-red-500">{errors.due_date.message}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label>Currency</Label>
+                <Controller
+                  name="fiat_currency"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select currency" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CURRENCIES.map(c => (
+                          <SelectItem key={c.code} value={c.code}>
+                            <span className="mr-2">{c.flag}</span>
+                            {c.code} — {c.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
             </div>
 
             <div className="space-y-3">

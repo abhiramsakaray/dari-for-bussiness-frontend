@@ -112,7 +112,7 @@ export function AnalyticsDashboard() {
       labels: revenue.data.map((d) => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
       datasets: [
         {
-          label: 'Revenue (USD)',
+          label: 'Revenue (USDC)',
           data: revenue.data.map((d) => d.volume_usd),
           borderColor: 'rgb(59, 130, 246)',
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -140,7 +140,7 @@ export function AnalyticsDashboard() {
       labels: overview.volume_by_chain.map((c) => c.chain.toUpperCase()),
       datasets: [
         {
-          label: 'Volume (USD)',
+          label: 'Volume (USDC)',
           data: overview.volume_by_chain.map((c) => c.volume_usd),
           backgroundColor: 'rgb(59, 130, 246)',
         },
@@ -300,7 +300,7 @@ export function AnalyticsDashboard() {
                         y: {
                           beginAtZero: true,
                           ticks: {
-                            callback: (value) => `$${value}`,
+callback: (value) => `$${value}`,
                           },
                         },
                       },

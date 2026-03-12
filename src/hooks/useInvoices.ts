@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { invoicesService } from '@/services/invoices.service';
 import { CreateInvoiceInput, UpdateInvoiceInput, InvoiceStatus } from '@/types/api.types';
 import { toast } from 'sonner';
+import { extractErrorMessage } from '@/lib/utils';
 
 export const INVOICES_QUERY_KEY = 'invoices';
 
@@ -40,8 +41,8 @@ export function useCreateInvoice() {
       queryClient.invalidateQueries({ queryKey: [INVOICES_QUERY_KEY] });
       toast.success(`Invoice ${data.invoice_number} created`);
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to create invoice');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to create invoice'));
     },
   });
 }
@@ -57,8 +58,8 @@ export function useUpdateInvoice() {
       queryClient.invalidateQueries({ queryKey: [INVOICES_QUERY_KEY, data.id] });
       toast.success('Invoice updated');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to update invoice');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to update invoice'));
     },
   });
 }
@@ -74,8 +75,8 @@ export function useSendInvoice() {
       queryClient.invalidateQueries({ queryKey: [INVOICES_QUERY_KEY, data.id] });
       toast.success('Invoice sent successfully');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to send invoice');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to send invoice'));
     },
   });
 }
@@ -86,8 +87,8 @@ export function useSendReminder() {
     onSuccess: () => {
       toast.success('Reminder sent');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to send reminder');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to send reminder'));
     },
   });
 }
@@ -101,8 +102,8 @@ export function useCancelInvoice() {
       queryClient.invalidateQueries({ queryKey: [INVOICES_QUERY_KEY] });
       toast.success('Invoice cancelled');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to cancel invoice');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to cancel invoice'));
     },
   });
 }
@@ -116,8 +117,8 @@ export function useDuplicateInvoice() {
       queryClient.invalidateQueries({ queryKey: [INVOICES_QUERY_KEY] });
       toast.success(`Invoice duplicated as ${data.invoice_number}`);
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to duplicate invoice');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to duplicate invoice'));
     },
   });
 }

@@ -6,6 +6,7 @@ import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
 import { toast } from 'sonner';
 import { Wallet, CheckCircle, Loader2 } from 'lucide-react';
+import { extractErrorMessage } from '../../../lib/utils';
 
 interface WalletSetupProps {
   onComplete: () => void;
@@ -66,7 +67,7 @@ export function WalletSetup({ onComplete }: WalletSetupProps) {
         auto_generate: true,
       };
       console.log('Completing onboarding with payload:', payload);
-      
+
       const result = await onboardingService.completeOnboarding(payload);
 
       // Update API key if new one was generated
@@ -75,7 +76,7 @@ export function WalletSetup({ onComplete }: WalletSetupProps) {
       }
 
       toast.success('🎉 Onboarding completed successfully!');
-      
+
       // Show wallet addresses
       if (result.wallets && result.wallets.length > 0) {
         console.log('Generated wallets:', result.wallets);
@@ -89,9 +90,8 @@ export function WalletSetup({ onComplete }: WalletSetupProps) {
       console.error('Error response:', error.response?.data);
       console.error('Error status:', error.response?.status);
       console.error('Full error object:', JSON.stringify(error.response, null, 2));
-      
-      const errorMsg = error.response?.data?.detail || error.response?.data?.message || 'Failed to complete onboarding';
-      toast.error(typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg));
+
+      toast.error(extractErrorMessage(error, 'Failed to complete onboarding'));
     } finally {
       setLoading(false);
     }
@@ -117,11 +117,10 @@ export function WalletSetup({ onComplete }: WalletSetupProps) {
               {AVAILABLE_CHAINS.map((chain) => (
                 <div
                   key={chain.id}
-                  className={`flex items-start space-x-3 p-4 border rounded-lg cursor-pointer transition-colors ${
-                    selectedChains.includes(chain.id)
+                  className={`flex items-start space-x-3 p-4 border rounded-lg cursor-pointer transition-colors ${selectedChains.includes(chain.id)
                       ? 'border-primary bg-primary/5'
                       : 'border-border hover:border-primary/50'
-                  }`}
+                    }`}
                   onClick={() => toggleChain(chain.id)}
                 >
                   <Checkbox
@@ -144,11 +143,10 @@ export function WalletSetup({ onComplete }: WalletSetupProps) {
               {AVAILABLE_TOKENS.map((token) => (
                 <div
                   key={token.id}
-                  className={`flex items-start space-x-3 p-4 border rounded-lg cursor-pointer transition-colors ${
-                    selectedTokens.includes(token.id)
+                  className={`flex items-start space-x-3 p-4 border rounded-lg cursor-pointer transition-colors ${selectedTokens.includes(token.id)
                       ? 'border-primary bg-primary/5'
                       : 'border-border hover:border-primary/50'
-                  }`}
+                    }`}
                   onClick={() => toggleToken(token.id)}
                 >
                   <Checkbox

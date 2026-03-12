@@ -14,6 +14,7 @@ import {
 } from "./ui/table";
 import { usePaymentHistory, usePaymentStats } from "../../hooks/usePaymentHistory";
 import { useWallets, useWalletDashboard } from "../../hooks/useWallets";
+import { useMerchantCurrency } from "../../hooks/useMerchantCurrency";
 import { CHAIN_INFO } from "../../services/wallets.service";
 import { toast } from "sonner";
 import { displayAmount, displayDualAmount, hasLocalCurrency } from "../../lib/utils";
@@ -23,6 +24,7 @@ export function Dashboard() {
   const { stats } = usePaymentStats();
   const { data: walletsData, isLoading: walletsLoading } = useWallets();
   const { data: dashboardData } = useWalletDashboard(); // Get dashboard data too
+  const { currency, currencySymbol } = useMerchantCurrency();
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Use stats endpoint for accurate metrics across all payments
@@ -129,79 +131,79 @@ export function Dashboard() {
             {walletsLoading ? (
               <div className="text-center py-8 text-muted-foreground">Loading wallets...</div>
             ) : !hasWallets ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Wallet2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p className="mb-2">No wallets configured yet</p>
-                <p className="text-xs">
-                  Complete <a href="#/onboarding" className="text-primary hover:underline">onboarding</a> to set up your wallets
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {wallets.slice(0, 5).map((wallet, index) => {
-                  const chainInfo = CHAIN_INFO[wallet.chain as keyof typeof CHAIN_INFO];
-                  const walletId = (wallet as any).id || `wallet-${wallet.chain}`;
-                  const isCopied = copiedId === walletId;
+                <div className="text-center py-8 text-muted-foreground">
+                  <Wallet2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p className="mb-2">No wallets configured yet</p>
+                  <p className="text-xs">
+                    Complete <a href="#/onboarding" className="text-primary hover:underline">onboarding</a> to set up your wallets
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {wallets.slice(0, 5).map((wallet) => {
+                    const chainInfo = CHAIN_INFO[wallet.chain as keyof typeof CHAIN_INFO];
+                    const walletId = (wallet as any).id || `wallet-${wallet.chain}`;
+                    const isCopied = copiedId === walletId;
 
-                  const copyToClipboard = async () => {
-                    try {
-                      await navigator.clipboard.writeText(wallet.wallet_address);
-                      setCopiedId(walletId);
-                      toast.success('Wallet address copied');
-                      setTimeout(() => setCopiedId(null), 2000);
-                    } catch (err) {
-                      toast.error('Failed to copy address');
-                    }
-                  };
+                    const copyToClipboard = async () => {
+                      try {
+                        await navigator.clipboard.writeText(wallet.wallet_address);
+                        setCopiedId(walletId);
+                        toast.success('Wallet address copied');
+                        setTimeout(() => setCopiedId(null), 2000);
+                      } catch (err) {
+                        toast.error('Failed to copy address');
+                      }
+                    };
 
-                  return (
-                    <div
-                      key={walletId}
-                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="text-xl">{chainInfo?.icon || '🔗'}</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-sm">{chainInfo?.name || wallet.chain}</span>
-                            <Badge
-                              variant={wallet.is_active ? 'default' : 'secondary'}
-                              className={wallet.is_active ? 'bg-green-500 text-xs' : 'text-xs'}
-                            >
-                              {wallet.is_active ? 'Active' : 'Inactive'}
-                            </Badge>
-                          </div>
-                          <div className="font-mono text-xs text-muted-foreground truncate">
-                            {wallet.wallet_address}
+                    return (
+                      <div
+                        key={walletId}
+                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="text-xl">{chainInfo?.icon || '🔗'}</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-sm">{chainInfo?.name || wallet.chain}</span>
+                              <Badge
+                                variant={wallet.is_active ? 'default' : 'secondary'}
+                                className={wallet.is_active ? 'bg-green-500 text-xs' : 'text-xs'}
+                              >
+                                {wallet.is_active ? 'Active' : 'Inactive'}
+                              </Badge>
+                            </div>
+                            <div className="font-mono text-xs text-muted-foreground truncate">
+                              {wallet.wallet_address}
+                            </div>
                           </div>
                         </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={copyToClipboard}
+                          disabled={isCopied}
+                        >
+                          {isCopied ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <Copy className="w-4 h-4" />
+                          )}
+                        </Button>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={copyToClipboard}
-                        disabled={isCopied}
-                      >
-                        {isCopied ? (
-                          <Check className="w-4 h-4" />
-                        ) : (
-                          <Copy className="w-4 h-4" />
-                        )}
-                      </Button>
+                    );
+                  })}
+                  {wallets.length > 5 && (
+                    <div className="text-center pt-2">
+                      <a href="#/wallets" className="text-sm text-primary hover:underline">
+                        View {wallets.length - 5} more wallets →
+                      </a>
                     </div>
-                  );
-                })}
-                {wallets.length > 5 && (
-                  <div className="text-center pt-2">
-                    <a href="#/wallets" className="text-sm text-primary hover:underline">
-                      View {wallets.length - 5} more wallets →
-                    </a>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </Card>
+                  )}
+                </div>
+              )}
+            </div>
+          </Card>
 
         {/* Recent Payments */}
         <Card className="bg-card border-border">
@@ -214,73 +216,76 @@ export function Dashboard() {
                 Loading payments...
               </div>
             ) : (payments || []).length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground">
-                No payments yet. Create your first payment to get started!
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Session ID</TableHead>
-                    <TableHead>Amount (USDC)</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Tx Hash</TableHead>
-                    <TableHead>Created At</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {(payments || []).map((payment) => (
-                    <TableRow
-                      key={payment.id || payment.session_id}
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => window.location.href = `#/dashboard/payments/${payment.id || payment.session_id}`}
-                    >
-                      <TableCell className="font-mono text-sm">
-                        {payment.id || payment.session_id}
-                      </TableCell>
-                      <TableCell>${parseFloat(payment.amount_usdc).toFixed(2)}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            payment.status === "paid"
-                              ? "default"
-                              : payment.status === "created"
-                                ? "secondary"
-                                : "destructive"
-                          }
-                          className={
-                            payment.status === "paid"
-                              ? "bg-primary/20 text-primary border-primary/30"
-                              : ""
-                          }
-                        >
-                          {payment.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">
-                        {payment.tx_hash ? (
-                          <a
-                            href={`https://stellar.expert/explorer/testnet/tx/${payment.tx_hash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline"
-                          >
-                            {payment.tx_hash.slice(0, 12)}...
-                          </a>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {payment.created_at ? new Date(payment.created_at).toLocaleString() : '-'}
-                      </TableCell>
+                <div className="p-8 text-center text-muted-foreground">
+                  No payments yet. Create your first payment to get started!
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Session ID</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Tx Hash</TableHead>
+                      <TableHead>Created At</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </div>
-        </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {(payments || []).map((payment) => (
+                      <TableRow
+                        key={payment.id || payment.session_id}
+                        className="cursor-pointer hover:bg-muted/50 transition-colors"
+                        onClick={() => window.location.href = `#/dashboard/payments/${payment.id || payment.session_id}`}
+                      >
+                        <TableCell className="font-mono text-sm">
+                          {payment.id || payment.session_id}
+                        </TableCell>
+                        <TableCell>{displayDualAmount(
+                          payment.amount_fiat || parseFloat(payment.amount_usdc || '0'),
+                          payment.amount_fiat_local
+                        ).primary}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              payment.status === "paid"
+                                ? "default"
+                                : payment.status === "created"
+                                  ? "secondary"
+                                  : "destructive"
+                            }
+                            className={
+                              payment.status === "paid"
+                                ? "bg-primary/20 text-primary border-primary/30"
+                                : ""
+                            }
+                          >
+                            {payment.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-mono text-sm">
+                          {payment.tx_hash ? (
+                            <a
+                              href={`https://stellar.expert/explorer/testnet/tx/${payment.tx_hash}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline"
+                            >
+                              {payment.tx_hash.slice(0, 12)}...
+                            </a>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {payment.created_at ? new Date(payment.created_at).toLocaleString() : '-'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </div>
+          </Card>
       </div>
     </DashboardLayout>
   );

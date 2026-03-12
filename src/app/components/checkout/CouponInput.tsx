@@ -6,6 +6,7 @@ import { Badge } from '../ui/badge';
 import { Loader2, Tag, CheckCircle2, AlertCircle } from 'lucide-react';
 import { couponsService } from '@/services/coupons.service';
 import { ApplyCouponResult } from '@/types/api.types';
+import { extractErrorMessage } from '@/lib/utils';
 
 interface CouponInputProps {
   merchantId: string;
@@ -78,7 +79,7 @@ export function CouponInput({
           final_amount: orderAmount,
           coupon_code: null,
           discount_type: null,
-          message: error.response?.data?.detail || 'Network error. Please try again.',
+          message: extractErrorMessage(error, 'Network error. Please try again.'),
         });
       }
     } finally {
@@ -104,7 +105,7 @@ export function CouponInput({
       // Show error to user
       setResult(prev => prev ? {
         ...prev,
-        message: error.response?.data?.detail || 'Failed to complete payment. Please try again.',
+        message: extractErrorMessage(error, 'Failed to complete payment. Please try again.'),
       } : null);
     } finally {
       setCompletingPayment(false);

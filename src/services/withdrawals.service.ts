@@ -1,11 +1,11 @@
 import { api } from './api';
-import { 
-  Withdrawal, 
-  WithdrawalBalance, 
-  WithdrawalLimitResponse, 
-  CreateWithdrawalRequest, 
+import {
+  Withdrawal,
+  WithdrawalBalance,
+  WithdrawalLimitResponse,
+  CreateWithdrawalRequest,
   WithdrawalFilters,
-  PaginatedResponse 
+  PaginatedResponse
 } from '../types/api.types';
 
 export const withdrawalsService = {

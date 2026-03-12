@@ -4,12 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
-import { Copy, Check, Wallet, ArrowDownLeft } from 'lucide-react';
-import { CHAIN_INFO } from '../../services/wallets.service';
+import { Copy, Check, Wallet, ArrowDownLeft, RefreshCw } from 'lucide-react';
+import { CHAIN_INFO, type ChainType } from '../../services/wallets.service';
 import { DashboardLayout } from './DashboardLayout';
 
 export default function Wallets() {
-  const { data: dashboard, isLoading, error } = useWalletDashboard();
+  const { data: dashboard, isLoading, error, refetch, isFetching } = useWalletDashboard();
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const copyToClipboard = async (text: string, id: string) => {
@@ -52,9 +52,31 @@ export default function Wallets() {
   return (
     <DashboardLayout activePage="wallets">
       <div className="container mx-auto space-y-8">
-        <div>
-            <h1 className="text-3xl font-bold tracking-tight">Wallets & Balances</h1>
-            <p className="text-muted-foreground">Manage your funds and wallet addresses across all chains.</p>
+        <div className="flex items-start justify-between">
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight">Wallets & Balances</h1>
+                <p className="text-muted-foreground">Manage your funds and wallet addresses across all chains.</p>
+            </div>
+            <div className="flex items-center gap-2">
+                {dashboard.balance_source === 'onchain' ? (
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        <span className="mr-1">●</span> Live
+                    </Badge>
+                ) : (
+                    <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                        <span className="mr-1">⚠</span> Cached
+                    </Badge>
+                )}
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => refetch()}
+                    disabled={isFetching}
+                >
+                    <RefreshCw className={`w-4 h-4 mr-1 ${isFetching ? 'animate-spin' : ''}`} />
+                    Refresh
+                </Button>
+            </div>
         </div>
 
         {/* Total Balance Card */}
@@ -105,11 +127,36 @@ export default function Wallets() {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                {coin.balance_local.display_local}
+                                {coin.balance_local?.display_local ?? '₹0.00'}
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">
-                                {coin.balance_usdc.toLocaleString()} {coin.token}
+                                {coin.balance_usdc.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} {coin.token}
                             </p>
+
+                            {/* Per-chain breakdown */}
+                            {coin.chain_balances && coin.chain_balances.filter(cb => cb.balance > 0).length > 0 && (
+                                <div className="mt-3 pt-3 border-t space-y-2">
+                                    {coin.chain_balances
+                                        .filter(cb => cb.balance > 0)
+                                        .map(cb => {
+                                            const chainInfo = CHAIN_INFO[cb.chain as ChainType];
+                                            return (
+                                                <div key={`${cb.chain}-${cb.token}`} className="flex items-center justify-between text-xs">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span>{chainInfo?.icon || '🔗'}</span>
+                                                        <span className="text-muted-foreground">{chainInfo?.name || cb.chain}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-medium">{cb.balance.toFixed(2)} {cb.token}</span>
+                                                        <span className="text-muted-foreground font-mono" title={cb.wallet_address}>
+                                                            {cb.wallet_address.slice(0, 6)}…{cb.wallet_address.slice(-4)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                 ))}

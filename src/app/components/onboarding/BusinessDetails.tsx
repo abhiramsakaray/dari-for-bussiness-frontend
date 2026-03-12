@@ -14,6 +14,7 @@ import {
 } from '../ui/select';
 import { toast } from 'sonner';
 import { ArrowRight, Building2 } from 'lucide-react';
+import { extractErrorMessage } from '../../../lib/utils';
 
 interface BusinessDetailsFormData {
   business_name: string;
@@ -46,7 +47,7 @@ export function BusinessDetails({ onComplete }: BusinessDetailsProps) {
     setLoading(true);
     try {
       console.log('Form data received:', data);
-      
+
       // Ensure we have valid data
       const business_name = data.business_name?.trim();
       const country = data.country?.trim();
@@ -57,13 +58,13 @@ export function BusinessDetails({ onComplete }: BusinessDetailsProps) {
         setLoading(false);
         return;
       }
-      
+
       if (!country) {
         toast.error('Please select your country');
         setLoading(false);
         return;
       }
-      
+
       if (!merchant_category) {
         toast.error('Please select your business type');
         setLoading(false);
@@ -87,9 +88,7 @@ export function BusinessDetails({ onComplete }: BusinessDetailsProps) {
       onComplete();
     } catch (error: any) {
       console.error('Business details error:', error);
-      const errorMsg = error.response?.data?.detail || 'Failed to save business details';
-      console.error('Error details:', error.response?.data);
-      toast.error(typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg));
+      toast.error(extractErrorMessage(error, 'Failed to save business details'));
     } finally {
       setLoading(false);
     }

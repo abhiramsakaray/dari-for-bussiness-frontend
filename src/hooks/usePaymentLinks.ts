@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { paymentLinksService } from '@/services/payment-links.service';
 import { CreatePaymentLinkInput, UpdatePaymentLinkInput } from '@/types/api.types';
 import { toast } from 'sonner';
-import { copyToClipboard } from '@/lib/utils';
+import { copyToClipboard, extractErrorMessage } from '@/lib/utils';
 
 export const PAYMENT_LINKS_QUERY_KEY = 'payment-links';
 
@@ -52,12 +52,8 @@ export function useCreatePaymentLink() {
         // Clipboard copy failed, not critical
       }
     },
-    onError: (error: Error & { response?: { data?: { detail?: string | any } } }) => {
-      console.error('Payment link creation error:', error.response?.data);
-      const errorMsg = typeof error.response?.data?.detail === 'string' 
-        ? error.response.data.detail 
-        : JSON.stringify(error.response?.data?.detail || error.message);
-      toast.error(errorMsg || 'Failed to create payment link');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to create payment link'));
     },
   });
 }
@@ -73,8 +69,8 @@ export function useUpdatePaymentLink() {
       queryClient.invalidateQueries({ queryKey: [PAYMENT_LINKS_QUERY_KEY, data.id] });
       toast.success('Payment link updated');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to update payment link');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to update payment link'));
     },
   });
 }
@@ -88,8 +84,8 @@ export function useDeactivatePaymentLink() {
       queryClient.invalidateQueries({ queryKey: [PAYMENT_LINKS_QUERY_KEY] });
       toast.success('Payment link deactivated');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to deactivate payment link');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to deactivate payment link'));
     },
   });
 }

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { withdrawalsService } from '../services/withdrawals.service';
 import { CreateWithdrawalRequest, WithdrawalFilters } from '../types/api.types';
 import { toast } from 'sonner';
+import { extractErrorMessage } from '../lib/utils';
 
 export function useWithdrawalBalances() {
   return useQuery({
@@ -37,8 +38,7 @@ export function useCreateWithdrawal() {
       toast.success(`Withdrawal of ${newWithdrawal.amount} ${newWithdrawal.token} initiated`);
     },
     onError: (error: any) => {
-      const message = error.response?.data?.detail || "Failed to create withdrawal";
-      toast.error(message);
+      toast.error(extractErrorMessage(error, "Failed to create withdrawal"));
     }
   });
 }
@@ -54,8 +54,7 @@ export function useCancelWithdrawal() {
       toast.success("Withdrawal cancelled");
     },
     onError: (error: any) => {
-      const message = error.response?.data?.detail || "Failed to cancel withdrawal";
-      toast.error(message);
+      toast.error(extractErrorMessage(error, "Failed to cancel withdrawal"));
     }
   });
 }

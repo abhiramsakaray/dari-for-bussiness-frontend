@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { couponsService } from '@/services/coupons.service';
 import { CreatePromoCodeInput, UpdatePromoCodeInput } from '@/types/api.types';
 import { toast } from 'sonner';
+import { extractErrorMessage } from '@/lib/utils';
 
 export const COUPONS_QUERY_KEY = 'coupons';
 
@@ -39,8 +40,7 @@ export function useCreateCoupon() {
       toast.success('Coupon created successfully');
     },
     onError: (error: any) => {
-      const message = error.response?.data?.detail || 'Failed to create coupon';
-      toast.error(message);
+      toast.error(extractErrorMessage(error, 'Failed to create coupon'));
     },
   });
 }
@@ -57,8 +57,7 @@ export function useUpdateCoupon() {
       toast.success('Coupon updated successfully');
     },
     onError: (error: any) => {
-      const message = error.response?.data?.detail || 'Failed to update coupon';
-      toast.error(message);
+      toast.error(extractErrorMessage(error, 'Failed to update coupon'));
     },
   });
 }
@@ -74,8 +73,7 @@ export function useDeleteCoupon() {
       toast.success('Coupon deleted successfully');
     },
     onError: (error: any) => {
-      const message = error.response?.data?.detail || 'Failed to delete coupon';
-      toast.error(message);
+      toast.error(extractErrorMessage(error, 'Failed to delete coupon'));
     },
   });
 }
@@ -93,8 +91,7 @@ export function useToggleCouponStatus() {
       toast.success(`Coupon ${statusText} successfully`);
     },
     onError: (error: any) => {
-      const message = error.response?.data?.detail || 'Failed to update coupon status';
-      toast.error(message);
+      toast.error(extractErrorMessage(error, 'Failed to update coupon status'));
     },
   });
 }

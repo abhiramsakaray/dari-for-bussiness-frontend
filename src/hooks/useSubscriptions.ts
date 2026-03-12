@@ -7,6 +7,7 @@ import {
   SubscriptionStatus,
 } from '@/types/api.types';
 import { toast } from 'sonner';
+import { extractErrorMessage } from '@/lib/utils';
 
 export const SUBSCRIPTION_PLANS_QUERY_KEY = 'subscription-plans';
 export const SUBSCRIPTIONS_QUERY_KEY = 'subscriptions';
@@ -44,8 +45,8 @@ export function useCreateSubscriptionPlan() {
       queryClient.invalidateQueries({ queryKey: [SUBSCRIPTION_PLANS_QUERY_KEY] });
       toast.success('Plan created successfully');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to create plan');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to create plan'));
     },
   });
 }
@@ -61,8 +62,8 @@ export function useUpdateSubscriptionPlan() {
       queryClient.invalidateQueries({ queryKey: [SUBSCRIPTION_PLANS_QUERY_KEY, data.id] });
       toast.success('Plan updated');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to update plan');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to update plan'));
     },
   });
 }
@@ -76,8 +77,8 @@ export function useDeactivateSubscriptionPlan() {
       queryClient.invalidateQueries({ queryKey: [SUBSCRIPTION_PLANS_QUERY_KEY] });
       toast.success('Plan deactivated');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to deactivate plan');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to deactivate plan'));
     },
   });
 }
@@ -134,8 +135,8 @@ export function useCreateSubscription() {
       queryClient.invalidateQueries({ queryKey: [SUBSCRIPTION_PLANS_QUERY_KEY] });
       toast.success('Subscription created');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to create subscription');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to create subscription'));
     },
   });
 }
@@ -157,8 +158,8 @@ export function useCancelSubscription() {
       queryClient.invalidateQueries({ queryKey: [SUBSCRIPTIONS_QUERY_KEY] });
       toast.success('Subscription cancelled');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to cancel subscription');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to cancel subscription'));
     },
   });
 }
@@ -172,8 +173,8 @@ export function usePauseSubscription() {
       queryClient.invalidateQueries({ queryKey: [SUBSCRIPTIONS_QUERY_KEY] });
       toast.success('Subscription paused');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to pause subscription');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to pause subscription'));
     },
   });
 }
@@ -187,8 +188,8 @@ export function useResumeSubscription() {
       queryClient.invalidateQueries({ queryKey: [SUBSCRIPTIONS_QUERY_KEY] });
       toast.success('Subscription resumed');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to resume subscription');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to resume subscription'));
     },
   });
 }
@@ -207,8 +208,8 @@ export function useExtendTrial() {
       queryClient.invalidateQueries({ queryKey: [SUBSCRIPTIONS_QUERY_KEY] });
       toast.success('Trial extended');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to extend trial');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to extend trial'));
     },
   });
 }
@@ -222,8 +223,8 @@ export function useEndTrial() {
       queryClient.invalidateQueries({ queryKey: [SUBSCRIPTIONS_QUERY_KEY] });
       toast.success('Trial ended — subscription converted to paid');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to end trial');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to end trial'));
     },
   });
 }
@@ -247,8 +248,8 @@ export function useUpdatePaymentMethod() {
       queryClient.invalidateQueries({ queryKey: [SUBSCRIPTIONS_QUERY_KEY] });
       toast.success('Payment method updated');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to update payment method');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to update payment method'));
     },
   });
 }
@@ -262,8 +263,8 @@ export function useCollectPayment() {
       queryClient.invalidateQueries({ queryKey: [SUBSCRIPTIONS_QUERY_KEY] });
       toast.success('Payment collection initiated');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to collect payment');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to collect payment'));
     },
   });
 }
@@ -277,8 +278,8 @@ export function useRenewSubscription() {
       queryClient.invalidateQueries({ queryKey: [SUBSCRIPTIONS_QUERY_KEY] });
       toast.success('Subscription renewed');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to renew subscription');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to renew subscription'));
     },
   });
 }

@@ -3,6 +3,7 @@ import { analyticsService } from '@/services/analytics.service';
 import { checkoutService } from '@/services/checkout.service';
 import { AnalyticsPeriod, PayerDataCollect } from '@/types/api.types';
 import { toast } from 'sonner';
+import { extractErrorMessage } from '@/lib/utils';
 
 export const ANALYTICS_QUERY_KEY = 'analytics';
 
@@ -100,8 +101,8 @@ export function useSubmitPayerData() {
     onSuccess: () => {
       toast.success('Information submitted');
     },
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Failed to submit payer data');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Failed to submit payer data'));
     },
   });
 }
@@ -110,8 +111,8 @@ export function useSubmitPayerData() {
 export function useTokenizeCheckout() {
   return useMutation({
     mutationFn: (sessionId: string) => checkoutService.tokenize(sessionId),
-    onError: (error: Error & { response?: { data?: { detail?: string } } }) => {
-      toast.error(error.response?.data?.detail || 'Tokenization failed');
+    onError: (error: any) => {
+      toast.error(extractErrorMessage(error, 'Tokenization failed'));
     },
   });
 }
