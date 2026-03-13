@@ -68,6 +68,11 @@ export function AnalyticsDashboard() {
   const { data: overview, isLoading: overviewLoading, error: overviewError } = useAnalyticsOverview(period);
   const { data: revenue, isLoading: revenueLoading } = useRevenueTimeSeries(period);
   const { data: conversion } = useConversionMetrics(30);
+  const analyticsCurrency = overview?.currency || 'USD';
+
+  const totalVolume = overview?.payments?.total_volume ?? overview?.payments?.total_volume_usd ?? 0;
+  const avgPayment = overview?.payments?.avg_payment ?? overview?.payments?.avg_payment_usd ?? 0;
+  const invoiceVolume = overview?.invoice_volume ?? overview?.invoice_volume_usd ?? 0;
 
   if (overviewError) {
     const errorStatus = (overviewError as any)?.response?.status;
@@ -112,8 +117,8 @@ export function AnalyticsDashboard() {
       labels: revenue.data.map((d) => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
       datasets: [
         {
-          label: 'Revenue (USDC)',
-          data: revenue.data.map((d) => d.volume_usd),
+          label: `Revenue (${analyticsCurrency})`,
+          data: revenue.data.map((d) => d.revenue ?? d.volume ?? d.volume_usd ?? 0),
           borderColor: 'rgb(59, 130, 246)',
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
           fill: true,
@@ -128,7 +133,7 @@ export function AnalyticsDashboard() {
       labels: overview.volume_by_token.map((t) => t.token),
       datasets: [
         {
-          data: overview.volume_by_token.map((t) => t.volume_usd),
+          data: overview.volume_by_token.map((t) => t.volume ?? t.volume_usd ?? 0),
           backgroundColor: CHART_COLORS,
         },
       ],
@@ -140,8 +145,8 @@ export function AnalyticsDashboard() {
       labels: overview.volume_by_chain.map((c) => c.chain.toUpperCase()),
       datasets: [
         {
-          label: 'Volume (USDC)',
-          data: overview.volume_by_chain.map((c) => c.volume_usd),
+          label: `Volume (${analyticsCurrency})`,
+          data: overview.volume_by_chain.map((c) => c.volume ?? c.volume_usd ?? 0),
           backgroundColor: 'rgb(59, 130, 246)',
         },
       ],
@@ -175,7 +180,7 @@ export function AnalyticsDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
             title="Total Volume"
-            value={formatCurrency(overview?.payments?.total_volume_usd || 0, 'USD')}
+            value={formatCurrency(totalVolume, analyticsCurrency)}
             change={overview?.volume_change_pct}
             icon={<DollarSign className="w-5 h-5" />}
             iconBg="bg-green-500/10"
@@ -198,7 +203,7 @@ export function AnalyticsDashboard() {
           />
           <MetricCard
             title="Avg Payment"
-            value={formatCurrency(overview?.payments?.avg_payment_usd || 0, 'USD')}
+            value={formatCurrency(avgPayment, analyticsCurrency)}
             icon={<BarChart3 className="w-5 h-5" />}
             iconBg="bg-orange-500/10"
             iconColor="text-orange-500"
@@ -232,7 +237,7 @@ export function AnalyticsDashboard() {
                       y: {
                         beginAtZero: true,
                         ticks: {
-                          callback: (value) => `$${value}`,
+                            callback: (value) => formatCurrency(Number(value), analyticsCurrency),
                         },
                       },
                     },
@@ -300,7 +305,7 @@ export function AnalyticsDashboard() {
                         y: {
                           beginAtZero: true,
                           ticks: {
-callback: (value) => `$${value}`,
+                            callback: (value) => formatCurrency(Number(value), analyticsCurrency),
                           },
                         },
                       },
@@ -370,7 +375,7 @@ callback: (value) => `$${value}`,
                 <div className="space-y-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Monthly Recurring Revenue</p>
-                    <p className="text-3xl font-bold">{formatCurrency(overview.subscription_mrr, 'USD')}</p>
+                    <p className="text-3xl font-bold">{formatCurrency(overview.subscription_mrr, analyticsCurrency)}</p>
                   </div>
                   <div className="grid grid-cols-3 gap-4 pt-4 border-t">
                     <div>
@@ -410,7 +415,7 @@ callback: (value) => `$${value}`,
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">Invoice Volume</span>
-                    <span className="font-semibold">{formatCurrency(overview.invoice_volume_usd, 'USD')}</span>
+                    <span className="font-semibold">{formatCurrency(invoiceVolume, analyticsCurrency)}</span>
                   </div>
                   {overview.invoices_sent > 0 && (
                     <div className="flex justify-between items-center">

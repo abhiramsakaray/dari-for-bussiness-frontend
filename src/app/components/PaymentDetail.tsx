@@ -7,7 +7,8 @@ import { ArrowLeft, ExternalLink, Copy, Clock, CheckCircle2, XCircle, AlertCircl
 import { useEffect, useState } from "react";
 import { chainpeService, PaymentSession } from "../../services/chainpe";
 import { toast } from "sonner";
-import { displayAmount, displayDualAmount } from "../../lib/utils";
+import { displayAmount, displayDualAmount, formatCurrency } from "../../lib/utils";
+import { useMerchantCurrency } from "../../hooks/useMerchantCurrency";
 
 interface PaymentDetailProps {
   paymentId: string;
@@ -70,6 +71,7 @@ export function PaymentDetail({ paymentId }: PaymentDetailProps) {
   const [payment, setPayment] = useState<PaymentSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { currency } = useMerchantCurrency();
 
   useEffect(() => {
     const fetchPayment = async () => {
@@ -89,6 +91,13 @@ export function PaymentDetail({ paymentId }: PaymentDetailProps) {
 
   const status = payment?.status || "created";
   const config = statusConfig[status] || statusConfig.created;
+  const canonicalSessionId = payment?.id || payment?.session_id || paymentId;
+  const amountUsd = payment
+    ? (typeof payment.amount_fiat === 'number'
+      ? payment.amount_fiat
+      : Number((payment as any).amount ?? payment.amount_usdc ?? 0))
+    : 0;
+  const amountDual = payment ? displayDualAmount(amountUsd, payment.amount_fiat_local) : { primary: formatCurrency(0, currency), secondary: null };
 
   return (
     <DashboardLayout activePage="payments">
@@ -164,16 +173,11 @@ export function PaymentDetail({ paymentId }: PaymentDetailProps) {
                     // No coupon - show standard amount
                     <>
                       <p className="text-3xl font-bold">
-                        {displayAmount(
-                          typeof payment.amount_fiat === 'number' 
-                            ? payment.amount_fiat 
-                            : parseFloat(payment.amount_usdc || '0'),
-                          payment.amount_fiat_local
-                        )}
+                        {amountDual.primary}
                       </p>
-                      {payment.amount_fiat_local && (
+                      {amountDual.secondary && (
                         <p className="text-sm text-muted-foreground">
-                          ${parseFloat(payment.amount_usdc || '0').toFixed(2)} USDC
+                          {amountDual.secondary}
                         </p>
                       )}
                     </>
@@ -210,9 +214,9 @@ export function PaymentDetail({ paymentId }: PaymentDetailProps) {
                 <CardTitle>Payment Information</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <DetailRow label="Session ID" value={payment.id} mono copyable={payment.id} />
+                <DetailRow label="Session ID" value={canonicalSessionId} mono copyable={canonicalSessionId} />
                 <Separator />
-                {payment.session_id && payment.session_id !== payment.id && (
+                {payment.id && payment.session_id && payment.session_id !== payment.id && (
                   <>
                     <DetailRow label="Legacy Session ID" value={payment.session_id} mono copyable={payment.session_id} />
                     <Separator />
@@ -261,22 +265,17 @@ export function PaymentDetail({ paymentId }: PaymentDetailProps) {
                   <>
                     <DetailRow 
                       label="Amount" 
-                      value={displayAmount(
-                        typeof payment.amount_fiat === 'number' 
-                          ? payment.amount_fiat 
-                          : parseFloat(payment.amount_usdc || '0'),
-                        payment.amount_fiat_local
-                      )} 
+                      value={amountDual.primary}
                     />
                     <Separator />
                   </>
                 )}
                 
-                {payment.amount_fiat_local && (
+                {amountDual.secondary && (
                   <>
                     <DetailRow 
-                      label="Amount (USDC)" 
-                      value={`$${parseFloat(payment.amount_usdc || '0').toFixed(2)}`} 
+                      label="Amount (USD)" 
+                      value={amountDual.secondary}
                     />
                     <Separator />
                   </>

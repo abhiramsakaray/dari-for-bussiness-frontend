@@ -337,11 +337,15 @@ export type AnalyticsOverview = {
   period_start: string;
   period_end: string;
   period: AnalyticsPeriod;
+  currency?: string;
+  currency_symbol?: string;
   payments: {
     total_payments: number;
     successful_payments: number;
     failed_payments: number;
+    total_volume?: number;
     total_volume_usd: number;
+    avg_payment?: number;
     avg_payment_usd: number;
     conversion_rate: number;
     total_coupon_discount?: number; // Total discount given via coupons
@@ -349,16 +353,19 @@ export type AnalyticsOverview = {
   };
   volume_by_token: {
     token: string;
+    volume?: number;
     volume_usd: number;
     payment_count: number;
   }[];
   volume_by_chain: {
     chain: string;
+    volume?: number;
     volume_usd: number;
     payment_count: number;
   }[];
   invoices_sent: number;
   invoices_paid: number;
+  invoice_volume?: number;
   invoice_volume_usd: number;
   active_subscriptions: number;
   new_subscriptions: number;
@@ -370,6 +377,8 @@ export type AnalyticsOverview = {
 
 export type RevenueDataPoint = {
   date: string;
+  revenue?: number;
+  volume?: number;
   volume_usd: number;
   payment_count: number;
 };
@@ -634,6 +643,8 @@ export interface MRRLocalCurrency {
 }
 
 export interface MRRARRResponse {
+  mrr?: string | number;
+  arr?: string | number;
   mrr_usd: string;
   arr_usd: string;
   mrr_local: MRRLocalCurrency | null;
@@ -647,6 +658,8 @@ export interface MRRARRResponse {
 
 export interface MRRTrendPoint {
   date: string;
+  mrr?: number;
+  mrr_local?: MRRLocalCurrency | null;
   mrr_usd: number;
   subscription_count: number;
   new: number;

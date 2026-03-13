@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
+import { useMerchantCurrency } from '@/hooks/useMerchantCurrency';
 import { toast } from 'sonner';
 import { Check, ArrowRight, Zap, TrendingUp, Building, Crown } from 'lucide-react';
 
@@ -14,13 +15,13 @@ const PLANS = [
   {
     id: 'free',
     name: 'Free',
-    price: '$0',
+    price: '0',
     period: '/month',
     icon: Zap,
     description: 'Perfect for creators and freelancers',
     badge: null,
     features: [
-      'Up to $1,000 transaction volume',
+      'Up to 1,000 transaction volume',
       '2 payment links',
       '5 invoices per month',
       '1 team member',
@@ -36,13 +37,13 @@ const PLANS = [
   {
     id: 'growth',
     name: 'Growth',
-    price: '$29',
+    price: '29',
     period: '/month',
     icon: TrendingUp,
     description: 'For startups and small businesses',
     badge: 'Most Popular',
     features: [
-      'Up to $50,000 transaction volume',
+      'Up to 50,000 transaction volume',
       'Unlimited payment links',
       'Unlimited invoices',
       '3 team members',
@@ -56,13 +57,13 @@ const PLANS = [
   {
     id: 'business',
     name: 'Business',
-    price: '$99',
+    price: '99',
     period: '/month',
     icon: Building,
     description: 'For growing companies and SaaS platforms',
     badge: null,
     features: [
-      'Up to $500,000 transaction volume',
+      'Up to 500,000 transaction volume',
       'Everything in Growth',
       '10 team members',
       'Multi-chain payments',
@@ -99,6 +100,7 @@ const PLANS = [
 
 export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
   const [selectedPlan, setSelectedPlan] = useState<string>('free');
+  const { currencySymbol } = useMerchantCurrency();
 
   const handleContinue = () => {
     if (selectedPlan === 'enterprise') {
@@ -149,7 +151,9 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
                   </div>
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                   <div className="mt-4">
-                    <span className="text-4xl font-bold">{plan.price}</span>
+                    <span className="text-4xl font-bold">
+                      {plan.price === 'Custom' ? plan.price : `${currencySymbol}${plan.price}`}
+                    </span>
                     <span className="text-muted-foreground">{plan.period}</span>
                   </div>
                   <CardDescription className="mt-2">{plan.description}</CardDescription>
@@ -160,7 +164,7 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
                     {plan.features.map((feature, idx) => (
                       <div key={idx} className="flex items-start gap-2 text-sm">
                         <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                        <span>{feature}</span>
+                        <span>{feature.replace(/(\d[\d,]*)(\s+transaction volume)/i, `${currencySymbol}$1$2`)}</span>
                       </div>
                     ))}
                   </div>

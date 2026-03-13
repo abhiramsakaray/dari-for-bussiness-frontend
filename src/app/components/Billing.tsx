@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useBilling } from '../../hooks/useBilling';
+import { useMerchantCurrency } from '../../hooks/useMerchantCurrency';
 import { DashboardLayout } from './DashboardLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -30,6 +31,7 @@ import { PlanTier } from '../../services/billing.service';
 
 export function Billing() {
   const { billingInfo, isLoading, error, changePlan, isChangingPlan } = useBilling();
+  const { currencySymbol } = useMerchantCurrency();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [selectedPlanForUpgrade, setSelectedPlanForUpgrade] = useState<PlanTier | null>(null);
 
@@ -150,7 +152,7 @@ export function Billing() {
               </div>
               <div className="text-right">
                 <div className="text-3xl font-bold">
-                  ${billingInfo.monthly_price}
+                  {currencySymbol}{billingInfo.monthly_price}
                 </div>
                 <div className="text-sm text-muted-foreground">
                   per month
@@ -178,9 +180,9 @@ export function Billing() {
               <div className="flex justify-between text-sm">
                 <span className="font-medium">Transaction Volume</span>
                 <span className="text-muted-foreground">
-                  ${billingInfo.current_volume.toLocaleString()} /{' '}
+                  {currencySymbol}{billingInfo.current_volume.toLocaleString()} /{' '}
                   {billingInfo.monthly_volume_limit
-                    ? `$${billingInfo.monthly_volume_limit.toLocaleString()}`
+                    ? `${currencySymbol}${billingInfo.monthly_volume_limit.toLocaleString()}`
                     : 'Unlimited'}
                 </span>
               </div>
@@ -256,7 +258,7 @@ export function Billing() {
                       <PlanIcon className="w-6 h-6 mb-2" />
                       <CardTitle className="text-lg">{getPlanName(planId)}</CardTitle>
                       <div className="text-2xl font-bold">
-                        {typeof prices[planId] === 'number' ? `$${prices[planId]}` : prices[planId]}
+                        {typeof prices[planId] === 'number' ? `${currencySymbol}${prices[planId]}` : prices[planId]}
                       </div>
                     </CardHeader>
                     <CardContent>

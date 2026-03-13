@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { PayerDataForm } from "./checkout/PayerDataForm";
+import { Label } from "./ui/label";
+import { formatCurrency } from "../../lib/utils";
 
 interface CheckoutProps {
   sessionId: string;
@@ -106,7 +108,7 @@ export function Checkout({ sessionId }: CheckoutProps) {
           {/* Amount Display */}
           <div className="text-center mb-8">
             <div className="text-4xl mb-2">
-              ${sessionData.amount_fiat} {sessionData.fiat_currency}
+              {formatCurrency(Number(sessionData.amount_fiat), sessionData.fiat_currency)}
             </div>
             <div className="text-muted-foreground">
               ≈ {sessionData.amount_usdc} USDC
@@ -257,9 +259,4 @@ export function Checkout({ sessionId }: CheckoutProps) {
       </div>
     </div>
   );
-}
-
-// Label component inline since it's just used here
-function Label({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={className}>{children}</div>;
 }

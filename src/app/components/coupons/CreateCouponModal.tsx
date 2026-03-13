@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { useCreateCoupon } from '@/hooks/useCoupons';
+import { useMerchantCurrency } from '@/hooks/useMerchantCurrency';
 import { CreatePromoCodeInput } from '@/types/api.types';
 import { Loader2, Tag } from 'lucide-react';
 
@@ -29,6 +30,7 @@ interface CreateCouponModalProps {
 
 export function CreateCouponModal({ open, onClose, onSuccess }: CreateCouponModalProps) {
   const createCoupon = useCreateCoupon();
+  const { currencySymbol } = useMerchantCurrency();
 
   const [form, setForm] = useState({
     code: '',
@@ -194,7 +196,7 @@ export function CreateCouponModal({ open, onClose, onSuccess }: CreateCouponModa
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="percentage">Percentage (%)</SelectItem>
-                  <SelectItem value="fixed">Fixed Amount ($)</SelectItem>
+                  <SelectItem value="fixed">Fixed Amount ({currencySymbol})</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -215,7 +217,7 @@ export function CreateCouponModal({ open, onClose, onSuccess }: CreateCouponModa
                   placeholder={form.type === 'percentage' ? '10' : '5.00'}
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                  {form.type === 'percentage' ? '%' : '$'}
+                  {form.type === 'percentage' ? '%' : currencySymbol}
                 </span>
               </div>
               {errors.discount_value && (
@@ -227,7 +229,7 @@ export function CreateCouponModal({ open, onClose, onSuccess }: CreateCouponModa
           {/* Max Discount Amount (for percentage only) */}
           {form.type === 'percentage' && (
             <div className="space-y-2">
-              <Label htmlFor="max_discount_amount">Maximum Discount Amount ($)</Label>
+              <Label htmlFor="max_discount_amount">Maximum Discount Amount ({currencySymbol})</Label>
               <Input
                 id="max_discount_amount"
                 type="number"
@@ -238,14 +240,14 @@ export function CreateCouponModal({ open, onClose, onSuccess }: CreateCouponModa
                 placeholder="No cap"
               />
               <p className="text-xs text-muted-foreground">
-                Optional: Set a maximum dollar amount for percentage discounts
+                Optional: Set a maximum amount for percentage discounts
               </p>
             </div>
           )}
 
           {/* Min Order Amount */}
           <div className="space-y-2">
-            <Label htmlFor="min_order_amount">Minimum Order Amount ($)</Label>
+            <Label htmlFor="min_order_amount">Minimum Order Amount ({currencySymbol})</Label>
             <Input
               id="min_order_amount"
               type="number"

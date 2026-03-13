@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Header } from "./Header";
 import { useState, useEffect } from "react";
+import { useMerchantCurrency } from "../../hooks/useMerchantCurrency";
 
 const TypingEffect = ({ words, speed = 100, delayBetween = 1000 }: { words: string[]; speed?: number; delayBetween?: number }) => {
   const [displayText, setDisplayText] = useState("");
@@ -40,6 +41,8 @@ const TypingEffect = ({ words, speed = 100, delayBetween = 1000 }: { words: stri
 };
 
 export function Landing() {
+  const { currencySymbol } = useMerchantCurrency();
+
   const features = [
     {
       icon: Zap,
@@ -151,7 +154,7 @@ export function Landing() {
                   <div className="text-sm text-muted-foreground">Settlement Time</div>
                 </div>
                 <div>
-                  <div className="text-3xl md:text-4xl mb-2">$0.01</div>
+                  <div className="text-3xl md:text-4xl mb-2">{currencySymbol}0.01</div>
                   <div className="text-sm text-muted-foreground">Network Fee</div>
                 </div>
                 <div>

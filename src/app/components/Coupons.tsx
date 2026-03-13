@@ -36,6 +36,7 @@ import {
 } from './ui/tooltip';
 import { Plus, Power, PowerOff, Trash2, Edit, TrendingUp, Calendar, Users } from 'lucide-react';
 import { useCoupons, useToggleCouponStatus, useDeleteCoupon } from '@/hooks/useCoupons';
+import { useMerchantCurrency } from '@/hooks/useMerchantCurrency';
 import { CreateCouponModal } from './coupons/CreateCouponModal';
 import { PromoCode } from '@/types/api.types';
 
@@ -49,6 +50,7 @@ export function Coupons() {
   const { data, isLoading } = useCoupons(page, 20, statusFilter);
   const toggleStatus = useToggleCouponStatus();
   const deleteCoupon = useDeleteCoupon();
+  const { currencySymbol } = useMerchantCurrency();
 
   const coupons = data?.promo_codes || [];
   const total = data?.total || 0;
@@ -87,11 +89,11 @@ export function Coupons() {
   const getDiscountDisplay = (coupon: PromoCode) => {
     if (coupon.type === 'percentage') {
       const maxCap = coupon.max_discount_amount
-        ? ` (max $${coupon.max_discount_amount})`
+        ? ` (max ${currencySymbol}${coupon.max_discount_amount})`
         : '';
       return `${coupon.discount_value}%${maxCap}`;
     }
-    return `$${coupon.discount_value}`;
+    return `${currencySymbol}${coupon.discount_value}`;
   };
 
   return (
@@ -186,7 +188,7 @@ export function Coupons() {
                         {getDiscountDisplay(coupon)}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        ${coupon.min_order_amount}
+                        {currencySymbol}{coupon.min_order_amount}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">

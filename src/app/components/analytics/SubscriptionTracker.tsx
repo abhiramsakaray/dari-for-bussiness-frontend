@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSubscriptionTracking } from '../../../hooks/useAnalytics';
+import { useMerchantCurrency } from '../../../hooks/useMerchantCurrency';
 import { formatCurrency } from '../../../lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -41,6 +42,7 @@ const EVENT_ICONS: Record<string, React.ReactNode> = {
 
 function SubscriptionTrackingView({ subscriptionId }: { subscriptionId: string }) {
   const { data: tracking, isLoading, error } = useSubscriptionTracking(subscriptionId);
+  const { currency } = useMerchantCurrency();
 
   if (isLoading) {
     return (
@@ -106,7 +108,7 @@ function SubscriptionTrackingView({ subscriptionId }: { subscriptionId: string }
         <Card>
           <CardContent className="pt-4 pb-4">
             <p className="text-xs text-muted-foreground">Total Paid</p>
-            <p className="text-xl font-bold">{formatCurrency(tracking.total_paid_usd, 'USD')}</p>
+            <p className="text-xl font-bold">{formatCurrency(tracking.total_paid_usd, currency)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -202,7 +204,7 @@ function SubscriptionTrackingView({ subscriptionId }: { subscriptionId: string }
                           )}
                           {amountUsd != null && (
                             <p className="text-xs text-green-600 font-medium mt-0.5">
-                              {formatCurrency(amountUsd, 'USD')}
+                              {formatCurrency(amountUsd, currency)}
                             </p>
                           )}
                         </div>

@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
+import { useMerchantCurrency } from "../../hooks/useMerchantCurrency";
 import { toast } from "sonner";
 
 const mockMerchants = [
@@ -53,6 +54,8 @@ const mockMerchants = [
 ];
 
 export function Admin() {
+  const { currencySymbol } = useMerchantCurrency();
+
   const handleToggleStatus = (merchantId: string, currentStatus: boolean) => {
     toast.success(
       `Merchant ${currentStatus ? "disabled" : "enabled"} successfully!`
@@ -83,8 +86,8 @@ export function Admin() {
           </Card>
 
           <Card className="p-6 bg-card border-border">
-            <div className="text-2xl mb-1">$41,671.50</div>
-            <p className="text-sm text-muted-foreground">Platform Volume (USDC)</p>
+            <div className="text-2xl mb-1">{currencySymbol}41,671.50</div>
+            <p className="text-sm text-muted-foreground">Platform Volume</p>
           </Card>
 
           <Card className="p-6 bg-card border-border">
@@ -121,7 +124,7 @@ export function Admin() {
                     <TableCell className="font-mono text-sm">
                       {merchant.stellarAddress}
                     </TableCell>
-                    <TableCell>${merchant.totalVolume}</TableCell>
+                    <TableCell>{currencySymbol}{merchant.totalVolume}</TableCell>
                     <TableCell>{merchant.paymentCount}</TableCell>
                     <TableCell>
                       <Badge
@@ -161,7 +164,7 @@ export function Admin() {
               <div className="flex-1">
                 <p className="text-sm">
                   <span className="font-medium">Demo Store</span> received payment
-                  of <span className="text-primary">$150.00 USDC</span>
+                  of <span className="text-primary">{currencySymbol}150.00</span>
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   2 minutes ago
@@ -200,7 +203,7 @@ export function Admin() {
               <div className="flex-1">
                 <p className="text-sm">
                   <span className="font-medium">Tech Shop</span> received payment
-                  of <span className="text-primary">$89.99 USDC</span>
+                  of <span className="text-primary">{currencySymbol}89.99</span>
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   2 hours ago

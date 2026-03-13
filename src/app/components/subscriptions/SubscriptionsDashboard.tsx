@@ -24,6 +24,7 @@ import {
   CreateSubscriptionInput,
   TrialType,
 } from '../../../types/api.types';
+import { useMerchantCurrency } from '../../../hooks/useMerchantCurrency';
 import { formatCurrency, formatDate } from '../../../lib/utils';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -83,6 +84,7 @@ const SUPPORTED_CHAINS = ['polygon', 'ethereum', 'bsc', 'avalanche', 'arbitrum']
 const SUPPORTED_TOKENS = ['USDC', 'USDT', 'DAI', 'WETH', 'WBTC'];
 
 export function SubscriptionsDashboard() {
+  const { currency } = useMerchantCurrency();
   const [activeTab, setActiveTab] = useState('subscriptions');
   const [plansPage] = useState(1);
   const [subscriptionsPage] = useState(1);
@@ -387,7 +389,7 @@ export function SubscriptionsDashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Monthly Recurring Revenue</p>
-                  <p className="text-2xl font-bold">{formatCurrency(totalMRR, 'USD')}</p>
+                  <p className="text-2xl font-bold">{formatCurrency(totalMRR, currency)}</p>
                 </div>
               </div>
             </CardContent>

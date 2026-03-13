@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { usePaymentLinks, useDeactivatePaymentLink } from '../../../hooks/usePaymentLinks';
+import { useMerchantCurrency } from '../../../hooks/useMerchantCurrency';
 import { PaymentLink } from '../../../types/api.types';
 import { formatCurrency, formatDate, copyToClipboard } from '../../../lib/utils';
 import { Button } from '../ui/button';
@@ -32,6 +33,7 @@ export function PaymentLinksList() {
   const [page, setPage] = useState(1);
   const { data, isLoading, error } = usePaymentLinks(page, 20);
   const deactivateMutation = useDeactivatePaymentLink();
+  const { currency } = useMerchantCurrency();
 
   const handleCopy = async (url: string) => {
     try {
@@ -142,6 +144,7 @@ export function PaymentLinksList() {
                   <PaymentLinkRow
                     key={link.id}
                     link={link}
+                    currency={currency}
                     onCopy={handleCopy}
                     onDeactivate={handleDeactivate}
                   />
@@ -182,11 +185,12 @@ export function PaymentLinksList() {
 
 interface PaymentLinkRowProps {
   link: PaymentLink;
+  currency: string;
   onCopy: (url: string) => void;
   onDeactivate: (id: string) => void;
 }
 
-function PaymentLinkRow({ link, onCopy, onDeactivate }: PaymentLinkRowProps) {
+function PaymentLinkRow({ link, currency, onCopy, onDeactivate }: PaymentLinkRowProps) {
   return (
     <TableRow>
       <TableCell>
@@ -211,7 +215,7 @@ function PaymentLinkRow({ link, onCopy, onDeactivate }: PaymentLinkRowProps) {
       </TableCell>
       <TableCell>{link.view_count.toLocaleString()}</TableCell>
       <TableCell>{link.payment_count.toLocaleString()}</TableCell>
-      <TableCell>{formatCurrency(link.total_collected_usd, 'USD')}</TableCell>
+      <TableCell>{formatCurrency(link.total_collected_usd, currency)}</TableCell>
       <TableCell>
         <Badge variant={link.is_active ? 'default' : 'secondary'}>
           {link.is_active ? 'Active' : 'Inactive'}

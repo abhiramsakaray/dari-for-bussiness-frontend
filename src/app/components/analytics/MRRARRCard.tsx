@@ -59,9 +59,11 @@ export function MRRARRCard() {
 
   if (!data) return null;
 
-  const mrr = Number(data.mrr_usd);
-  const arr = Number(data.arr_usd);
-  const changePct = data.net_revenue_change_pct ? Number(data.net_revenue_change_pct) : null;
+  const displayCurrency = data.mrr_local?.currency || 'USD';
+  const mrr = Number(data.mrr_local?.amount ?? data.mrr ?? data.mrr_usd ?? 0);
+  const arr = Number(data.arr_local?.amount ?? data.arr ?? data.arr_usd ?? 0);
+  const rawChange = data.net_revenue_change_pct != null ? Number(data.net_revenue_change_pct) : null;
+  const changePct = rawChange != null && Number.isFinite(rawChange) ? rawChange : null;
   const isPositive = changePct !== null && changePct >= 0;
 
   const trendChartData = trend
@@ -71,8 +73,8 @@ export function MRRARRCard() {
         ),
         datasets: [
           {
-            label: 'MRR (USD)',
-            data: trend.points.map((p) => p.mrr_usd),
+            label: `MRR (${displayCurrency})`,
+            data: trend.points.map((p: any) => Number(p.mrr ?? p.mrr_local?.amount ?? p.mrr_usd ?? 0)),
             borderColor: 'rgb(59, 130, 246)',
             backgroundColor: 'rgba(59, 130, 246, 0.1)',
             fill: true,
@@ -92,7 +94,7 @@ export function MRRARRCard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Monthly Recurring Revenue</p>
-                <p className="text-2xl font-bold">{formatCurrency(mrr, 'USD')}</p>
+                <p className="text-2xl font-bold">{formatCurrency(mrr, displayCurrency)}</p>
                 {data.mrr_local && (
                   <p className="text-xs text-muted-foreground mt-1">
                     {data.mrr_local.currency} {Number(data.mrr_local.amount).toLocaleString()}
@@ -124,7 +126,7 @@ export function MRRARRCard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Annual Recurring Revenue</p>
-                <p className="text-2xl font-bold">{formatCurrency(arr, 'USD')}</p>
+                <p className="text-2xl font-bold">{formatCurrency(arr, displayCurrency)}</p>
                 {data.arr_local && (
                   <p className="text-xs text-muted-foreground mt-1">
                     {data.arr_local.currency} {Number(data.arr_local.amount).toLocaleString()}
@@ -206,7 +208,7 @@ export function MRRARRCard() {
                     legend: { display: false },
                     tooltip: {
                       callbacks: {
-                        label: (ctx) => `MRR: $${(ctx.parsed.y ?? 0).toLocaleString()}`,
+                        label: (ctx) => `MRR: ${formatCurrency(Number(ctx.parsed.y ?? 0), displayCurrency)}`,
                       },
                     },
                   },
@@ -214,7 +216,7 @@ export function MRRARRCard() {
                     y: {
                       beginAtZero: true,
                       ticks: {
-                        callback: (value) => `$${value}`,
+                        callback: (value) => formatCurrency(Number(value), displayCurrency),
                       },
                     },
                   },

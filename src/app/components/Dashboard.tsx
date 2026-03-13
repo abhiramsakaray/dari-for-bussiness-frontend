@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DashboardLayout } from "./DashboardLayout";
 import { Card } from "./ui/card";
+import { Skeleton } from "./ui/skeleton";
 import { TrendingUp, DollarSign, CheckCircle, Clock, Wallet2, Copy, Check, Tag } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -14,17 +15,15 @@ import {
 } from "./ui/table";
 import { usePaymentHistory, usePaymentStats } from "../../hooks/usePaymentHistory";
 import { useWallets, useWalletDashboard } from "../../hooks/useWallets";
-import { useMerchantCurrency } from "../../hooks/useMerchantCurrency";
 import { CHAIN_INFO } from "../../services/wallets.service";
 import { toast } from "sonner";
-import { displayAmount, displayDualAmount, hasLocalCurrency } from "../../lib/utils";
+import { displayAmount, displayDualAmount } from "../../lib/utils";
 
 export function Dashboard() {
   const { payments, isLoading } = usePaymentHistory({ limit: 10 });
-  const { stats } = usePaymentStats();
+  const { stats, isLoading: statsLoading } = usePaymentStats();
   const { data: walletsData, isLoading: walletsLoading } = useWallets();
-  const { data: dashboardData } = useWalletDashboard(); // Get dashboard data too
-  const { currency, currencySymbol } = useMerchantCurrency();
+  const { data: dashboardData, isLoading: dashboardLoading } = useWalletDashboard(); // Get dashboard data too
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Use stats endpoint for accurate metrics across all payments
@@ -39,6 +38,8 @@ export function Dashboard() {
   // Try to get wallets from either endpoint
   const wallets = walletsData?.wallets || dashboardData?.wallets || [];
   const hasWallets = wallets.length > 0;
+  const metricsLoading = statsLoading && !stats;
+  const combinedWalletsLoading = (walletsLoading || dashboardLoading) && !hasWallets;
 
   return (
     <DashboardLayout activePage="overview">
@@ -60,11 +61,20 @@ export function Dashboard() {
               </div>
               <TrendingUp className="h-4 w-4 text-green-500" />
             </div>
-            <div className="text-2xl mb-1">{revenueDisplay.primary}</div>
-            {revenueDisplay.secondary && (
-              <div className="text-sm text-muted-foreground mb-1">{revenueDisplay.secondary}</div>
+            {metricsLoading ? (
+              <>
+                <Skeleton className="h-8 w-24 mb-2" />
+                <Skeleton className="h-4 w-20" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl mb-1">{revenueDisplay.primary}</div>
+                {revenueDisplay.secondary && (
+                  <div className="text-sm text-muted-foreground mb-1">{revenueDisplay.secondary}</div>
+                )}
+                <p className="text-sm text-muted-foreground">Total Revenue</p>
+              </>
             )}
-            <p className="text-sm text-muted-foreground">Total Revenue</p>
           </Card>
 
           {hasCouponDiscounts && (
@@ -89,8 +99,17 @@ export function Dashboard() {
                 <TrendingUp className="h-5 w-5 text-primary" />
               </div>
             </div>
-            <div className="text-2xl mb-1">{paymentsToday}</div>
-            <p className="text-sm text-muted-foreground">Payments Today</p>
+            {metricsLoading ? (
+              <>
+                <Skeleton className="h-8 w-12 mb-2" />
+                <Skeleton className="h-4 w-24" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl mb-1">{paymentsToday}</div>
+                <p className="text-sm text-muted-foreground">Payments Today</p>
+              </>
+            )}
           </Card>
 
           <Card className="p-6 bg-card border-border">
@@ -99,8 +118,17 @@ export function Dashboard() {
                 <CheckCircle className="h-5 w-5 text-primary" />
               </div>
             </div>
-            <div className="text-2xl mb-1">{successRate}%</div>
-            <p className="text-sm text-muted-foreground">Success Rate</p>
+            {metricsLoading ? (
+              <>
+                <Skeleton className="h-8 w-16 mb-2" />
+                <Skeleton className="h-4 w-20" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl mb-1">{successRate}%</div>
+                <p className="text-sm text-muted-foreground">Success Rate</p>
+              </>
+            )}
           </Card>
 
           <Card className="p-6 bg-card border-border">
@@ -128,8 +156,21 @@ export function Dashboard() {
             </a>
           </div>
           <div className="p-6">
-            {walletsLoading ? (
-              <div className="text-center py-8 text-muted-foreground">Loading wallets...</div>
+            {combinedWalletsLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3, 4].map((idx) => (
+                  <div key={idx} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3 flex-1">
+                      <Skeleton className="w-6 h-6 rounded-full" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-3 w-64" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-8 w-8" />
+                  </div>
+                ))}
+              </div>
             ) : !hasWallets ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Wallet2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -212,8 +253,16 @@ export function Dashboard() {
           </div>
           <div className="overflow-x-auto">
             {isLoading ? (
-              <div className="p-8 text-center text-muted-foreground">
-                Loading payments...
+              <div className="p-6 space-y-3">
+                {[1, 2, 3, 4].map((idx) => (
+                  <div key={idx} className="grid grid-cols-5 gap-4">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-6 w-16" />
+                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-4 w-36" />
+                  </div>
+                ))}
               </div>
             ) : (payments || []).length === 0 ? (
                 <div className="p-8 text-center text-muted-foreground">

@@ -12,6 +12,8 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useCouponAnalytics } from '@/hooks/useCoupons';
+import { useMerchantCurrency } from '@/hooks/useMerchantCurrency';
+import { usePaymentHistory } from '@/hooks/usePaymentHistory';
 import { formatCurrency } from '@/lib/utils';
 
 export function CouponAnalytics() {
@@ -21,6 +23,8 @@ export function CouponAnalytics() {
   const couponId = match ? match[1] : '';
 
   const { data, isLoading, error } = useCouponAnalytics(couponId);
+  const { payments } = usePaymentHistory({ limit: 200 });
+  const { currency } = useMerchantCurrency();
 
   if (isLoading) {
     return (
@@ -56,13 +60,31 @@ export function CouponAnalytics() {
   const conversionRate = typeof data.conversion_rate === 'number' 
     ? data.conversion_rate 
     : (data.conversion_rate ? Number(data.conversion_rate) : 0);
+  const couponCode = (data.code || '').toUpperCase();
+  const matchedPayments = (payments || []).filter((p) => (p.coupon_code || '').toUpperCase() === couponCode);
+  const fallbackTotalUsed = matchedPayments.length;
+  const fallbackTotalDiscount = matchedPayments.reduce((sum, p) => sum + Number(p.discount_amount || 0), 0);
+  const fallbackRevenueGenerated = matchedPayments.reduce(
+    (sum, p) =>
+      sum + Number(
+        p.amount_paid ??
+        p.amount_fiat ??
+        p.amount_usdc ??
+        0
+      ),
+    0
+  );
+
+  const totalUsed = Math.max(Number(data.total_used || 0), fallbackTotalUsed);
+  const totalDiscountGiven = Math.max(Number(data.total_discount_given || 0), fallbackTotalDiscount);
+  const revenueGenerated = Math.max(Number(data.revenue_generated || 0), fallbackRevenueGenerated);
   const avgOrderValue =
-    data.total_used > 0 && typeof data.revenue_generated === 'number' 
-      ? data.revenue_generated / data.total_used 
+    totalUsed > 0
+      ? revenueGenerated / totalUsed
       : 0;
   const avgDiscount =
-    data.total_used > 0 && typeof data.total_discount_given === 'number' 
-      ? data.total_discount_given / data.total_used 
+    totalUsed > 0
+      ? totalDiscountGiven / totalUsed
       : 0;
 
   return (
@@ -96,7 +118,7 @@ export function CouponAnalytics() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Uses</p>
-                  <p className="text-3xl font-bold mt-2">{data.total_used}</p>
+                  <p className="text-3xl font-bold mt-2">{totalUsed}</p>
                 </div>
                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                   <Tag className="w-6 h-6 text-primary" />
@@ -112,7 +134,7 @@ export function CouponAnalytics() {
                 <div>
                   <p className="text-sm text-muted-foreground">Total Discount Given</p>
                   <p className="text-3xl font-bold mt-2">
-                    {formatCurrency(data.total_discount_given, 'USD')}
+                    {formatCurrency(totalDiscountGiven, currency)}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-orange-500/10 rounded-full flex items-center justify-center">
@@ -120,7 +142,7 @@ export function CouponAnalytics() {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Avg: {formatCurrency(avgDiscount, 'USD')} per use
+                Avg: {formatCurrency(avgDiscount, currency)} per use
               </p>
             </CardContent>
           </Card>
@@ -132,7 +154,7 @@ export function CouponAnalytics() {
                 <div>
                   <p className="text-sm text-muted-foreground">Revenue Generated</p>
                   <p className="text-3xl font-bold mt-2 text-green-600 dark:text-green-400">
-                    {formatCurrency(data.revenue_generated, 'USD')}
+                    {formatCurrency(revenueGenerated, currency)}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-green-500/10 rounded-full flex items-center justify-center">
@@ -140,7 +162,7 @@ export function CouponAnalytics() {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Avg: {formatCurrency(avgOrderValue, 'USD')} per order
+                Avg: {formatCurrency(avgOrderValue, currency)} per order
               </p>
             </CardContent>
           </Card>
@@ -188,20 +210,20 @@ export function CouponAnalytics() {
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-border">
                   <span className="text-sm text-muted-foreground">Times Applied</span>
-                  <span className="font-semibold">{data.total_used}</span>
+                  <span className="font-semibold">{totalUsed}</span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-border">
                   <span className="text-sm text-muted-foreground">
                     Average Discount per Use
                   </span>
-                  <span className="font-semibold">{formatCurrency(avgDiscount, 'USD')}</span>
+                  <span className="font-semibold">{formatCurrency(avgDiscount, currency)}</span>
                 </div>
                 <div className="flex justify-between items-center py-3">
                   <span className="text-sm text-muted-foreground">
                     Total Discount Amount
                   </span>
                   <span className="font-semibold text-orange-600 dark:text-orange-400">
-                    {formatCurrency(data.total_discount_given, 'USD')}
+                    {formatCurrency(totalDiscountGiven, currency)}
                   </span>
                 </div>
               </div>
@@ -212,14 +234,14 @@ export function CouponAnalytics() {
                   <span className="text-sm text-muted-foreground">
                     Average Order Value
                   </span>
-                  <span className="font-semibold">{formatCurrency(avgOrderValue, 'USD')}</span>
+                  <span className="font-semibold">{formatCurrency(avgOrderValue, currency)}</span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-border">
                   <span className="text-sm text-muted-foreground">
                     Total Revenue Generated
                   </span>
                   <span className="font-semibold text-green-600 dark:text-green-400">
-                    {formatCurrency(data.revenue_generated, 'USD')}
+                    {formatCurrency(revenueGenerated, currency)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-3 border-b border-border">
@@ -233,10 +255,8 @@ export function CouponAnalytics() {
                 <div className="flex justify-between items-center py-3">
                   <span className="text-sm text-muted-foreground">ROI</span>
                   <span className="font-semibold text-blue-600 dark:text-blue-400">
-                    {data.total_discount_given > 0 && 
-                     typeof data.revenue_generated === 'number' && 
-                     typeof data.total_discount_given === 'number'
-                      ? `${((data.revenue_generated / data.total_discount_given) * 100).toFixed(0)}%`
+                    {totalDiscountGiven > 0
+                      ? `${((revenueGenerated / totalDiscountGiven) * 100).toFixed(0)}%`
                       : 'N/A'}
                   </span>
                 </div>
@@ -262,13 +282,13 @@ export function CouponAnalytics() {
                     </p>
                   </div>
                 )}
-                {data.total_discount_given > 0 && data.revenue_generated > data.total_discount_given * 3 && (
+                {totalDiscountGiven > 0 && revenueGenerated > totalDiscountGiven * 3 && (
                   <div className="flex items-start gap-2">
                     <DollarSign className="w-4 h-4 text-green-600 mt-0.5" />
                     <p>
                       <strong>Strong ROI:</strong> This coupon generated{' '}
-                      {formatCurrency(data.revenue_generated, 'USD')} in revenue with only{' '}
-                      {formatCurrency(data.total_discount_given, 'USD')} in discounts.
+                      {formatCurrency(revenueGenerated, currency)} in revenue with only{' '}
+                      {formatCurrency(totalDiscountGiven, currency)} in discounts.
                     </p>
                   </div>
                 )}
@@ -277,11 +297,11 @@ export function CouponAnalytics() {
                     <Users className="w-4 h-4 text-blue-600 mt-0.5" />
                     <p>
                       The average order value with this coupon is{' '}
-                      {formatCurrency(avgOrderValue, 'USD')}, indicating strong customer spending.
+                      {formatCurrency(avgOrderValue, currency)}, indicating strong customer spending.
                     </p>
                   </div>
                 )}
-                {data.total_used === 0 && (
+                {totalUsed === 0 && (
                   <div className="flex items-start gap-2">
                     <Tag className="w-4 h-4 text-muted-foreground mt-0.5" />
                     <p className="text-muted-foreground">
