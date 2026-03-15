@@ -21,6 +21,7 @@ import CreatePaymentLinkForm from "./components/payment-links/CreatePaymentLinkF
 import InvoicesList from "./components/invoices/InvoicesList";
 import CreateInvoiceForm from "./components/invoices/CreateInvoiceForm";
 import SubscriptionsDashboard from "./components/subscriptions/SubscriptionsDashboard";
+import Web3SubscriptionCheckoutPage from "./components/subscriptions/Web3SubscriptionCheckoutPage";
 import RefundsList from "./components/refunds/RefundsList";
 import AnalyticsDashboard from "./components/analytics/AnalyticsDashboard";
 import { PaymentTracker } from "./components/analytics/PaymentTracker";
@@ -61,6 +62,10 @@ export default function App() {
   const paymentLinkId = paymentLinkMatch ? paymentLinkMatch[1] : null;
   const invoiceMatch = route.match(/^\/invoices\/([^/]+)$/);
   const invoiceId = invoiceMatch ? invoiceMatch[1] : null;
+
+  // Web3 subscription checkout routes
+  const web3SubscriptionCheckoutMatch = route.match(/^\/subscriptions\/web3-checkout(?:\/([^/?]+))?/);
+  const web3SubscriptionPlanId = web3SubscriptionCheckoutMatch ? web3SubscriptionCheckoutMatch[1] || '' : '';
 
   const renderPage = () => {
     switch (true) {
@@ -126,6 +131,8 @@ export default function App() {
         return <ProtectedRoute><SubscriptionsDashboard /></ProtectedRoute>;
       case route.startsWith("/subscriptions/plans/"):
         return <ProtectedRoute><SubscriptionsDashboard /></ProtectedRoute>;
+      case !!web3SubscriptionCheckoutMatch:
+        return <ProtectedRoute><Web3SubscriptionCheckoutPage planId={web3SubscriptionPlanId} /></ProtectedRoute>;
       case route.startsWith("/subscriptions/"):
         return <ProtectedRoute><SubscriptionsDashboard /></ProtectedRoute>;
 
