@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import logoUrl from '../../../assets/logo.png';
 import {
   LayoutDashboard,
@@ -65,6 +66,16 @@ export function DashboardLayout({ children, activePage, isAdmin = false }: Dashb
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(
     () => getDefaultOpenGroups(activePage)
   );
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const subId = params.get('subscription_id');
+    const status = params.get('status');
+    if (subId && status === 'PENDING_PAYMENT') {
+      toast.success('Subscription pending! The network is confirming your transaction.');
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('merchant_token');

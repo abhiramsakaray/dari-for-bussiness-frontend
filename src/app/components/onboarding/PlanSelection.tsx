@@ -102,9 +102,22 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
   const [selectedPlan, setSelectedPlan] = useState<string>('free');
   const { currencySymbol } = useMerchantCurrency();
 
+  const CHAINPE_PLAN_URLS: Record<string, string> = {
+    growth: 'http://localhost:8000/subscribe/plan_QzdDtYYNk8VvEw8g',
+    business: 'http://localhost:8000/subscribe/plan_pcLCq5HLYGafUGhq',
+  };
+
   const handleContinue = () => {
     if (selectedPlan === 'enterprise') {
       toast.info('Our team will contact you to discuss enterprise pricing');
+      return;
+    }
+    
+    if (selectedPlan === 'growth' || selectedPlan === 'business') {
+      const checkoutUrl = CHAINPE_PLAN_URLS[selectedPlan];
+      const successUrl = `${window.location.origin}/dashboard`;
+      window.location.href = `${checkoutUrl}?success_url=${encodeURIComponent(successUrl)}`;
+      return;
     }
     
     toast.success(`${PLANS.find(p => p.id === selectedPlan)?.name} plan selected!`);
