@@ -78,8 +78,8 @@ export function Billing() {
   };
 
   const CHAINPE_PLAN_URLS: Record<string, string> = {
-    growth: 'http://localhost:8000/subscribe/plan_QzdDtYYNk8VvEw8g',
-    business: 'http://localhost:8000/subscribe/plan_pcLCq5HLYGafUGhq',
+    growth: 'https://api.daripay.xyz/subscribe/plan_QzdDtYYNk8VvEw8g',
+    business: 'https://api.daripay.xyz/subscribe/plan_pcLCq5HLYGafUGhq',
   };
 
   const handlePlanChange = (planId: PlanTier) => {

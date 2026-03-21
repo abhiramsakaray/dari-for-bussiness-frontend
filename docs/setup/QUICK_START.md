@@ -197,7 +197,7 @@ curl -X POST http://localhost:8000/api/sessions/create ^
 
 Make sure your `.env` file contains:
 ```bash
-VITE_API_URL=http://localhost:8000
+VITE_API_URL=https://api.daripay.xyz
 VITE_CHAINPE_API_KEY=your_api_key_here
 ```
 
