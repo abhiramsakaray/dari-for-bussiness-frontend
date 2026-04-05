@@ -1,0 +1,503 @@
+.formContainer {
+  width: 100%;
+}
+
+.searchStep,
+.transactionsStep,
+.refundStep {
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+h3 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  margin: 16px 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.subtitle {
+  margin: 0 0 20px 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 11px;
+  margin-bottom: 16px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.backBtn:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.backBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Search Step */
+.searchTypeToggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.toggleBtn {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+  color: #4b5563;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.toggleBtn:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+  background: #f0f9ff;
+}
+
+.toggleBtn.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+.formGroup {
+  margin-bottom: 16px;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: 500;
+  font-size: 13px;
+  color: #4b5563;
+  margin-bottom: 6px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.input,
+.inputReadonly,
+.textarea {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 0.15s;
+  box-sizing: border-box;
+  background: white;
+  color: #1f2937;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.05);
+}
+
+.inputReadonly {
+  background-color: #f9fafb;
+  color: #6b7280;
+  cursor: not-allowed;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.input:disabled,
+.textarea:disabled,
+.inputReadonly:disabled {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.textarea {
+  resize: vertical;
+  font-family: inherit;
+  min-height: 80px;
+}
+
+.formGroup small {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.error {
+  padding: 10px 12px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  color: #dc2626;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.warningBox {
+  padding: 12px;
+  background-color: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 6px;
+  color: #92400e;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.warningBox strong {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.warningBox p {
+  margin: 4px 0;
+  font-size: 12px;
+}
+
+/* Customer Header */
+.customerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.customerName {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.customerStats {
+  display: flex;
+  gap: 20px;
+}
+
+.stat {
+  text-align: right;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 4px;
+  letter-spacing: 0.3px;
+}
+
+.statValue {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+/* Transactions List */
+.transactionsList {
+  display: grid;
+  gap: 10px;
+}
+
+.transactionCard {
+  padding: 12px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.transactionCard:hover {
+  background: #f9fafb;
+  border-color: #2563eb;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.1);
+}
+
+.transactionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.transactionType {
+  font-weight: 600;
+  font-size: 13px;
+  color: #1f2937;
+}
+
+.transactionStatus {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.transactionDetails {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+  letter-spacing: 0.3px;
+}
+
+.value {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.valueMonospace {
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 11px;
+  word-break: break-all;
+}
+
+.valueGreen {
+  color: #10b981;
+  font-weight: 700;
+}
+
+.valueGray {
+  color: #9ca3af;
+}
+
+.selectTransactionBtn {
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid #f3f4f6;
+  font-size: 11px;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.noTransactions {
+  padding: 32px 16px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+/* Transaction Summary */
+.transactionSummary {
+  background: #f9fafb;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 18px;
+  border: 1px solid #e5e7eb;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 13px;
+}
+
+.summaryRow:last-child {
+  border-bottom: none;
+}
+
+.summaryRow .label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: none;
+}
+
+.summaryRow .value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Options Section */
+.optionsSection {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.checkboxLabel:last-child {
+  margin-bottom: 0;
+}
+
+.checkboxLabel input[type='checkbox'] {
+  margin-top: 3px;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: #2563eb;
+}
+
+.checkboxLabel span {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.checkboxLabel strong {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 13px;
+}
+
+.checkboxLabel small {
+  display: block;
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* Action Buttons */
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.primaryBtn,
+.secondaryBtn {
+  flex: 1;
+  padding: 9px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.primaryBtn {
+  background: #2563eb;
+  color: white;
+}
+
+.primaryBtn:hover:not(:disabled) {
+  background: #1d4ed8;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
+}
+
+.primaryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondaryBtn {
+  background: white;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}
+
+.secondaryBtn:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.secondaryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .searchStep,
+  .transactionsStep,
+  .refundStep {
+    padding: 0;
+  }
+
+  .customerHeader {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .customerStats {
+    width: 100%;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .transactionDetails {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .primaryBtn,
+  .secondaryBtn {
+    flex: 1;
+  }
+}

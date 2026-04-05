@@ -54,6 +54,10 @@ export class RefundsService {
   async processQueued(): Promise<void> {
     return apiClient.post<void>(`${this.basePath}/process-queued`);
   }
+
+  async triggerScheduler(): Promise<any> {
+    return apiClient.post<any>('/admin/scheduler/refunds/trigger');
+  }
 }
 
 export const refundsService = new RefundsService();

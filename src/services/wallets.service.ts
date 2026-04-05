@@ -24,7 +24,7 @@ export const walletsService = {
 
   // Get wallet dashboard (balance overview)
   getDashboard: async () => {
-    const response = await api.get<BalanceDashboardResponse>('/merchant/wallets/dashboard');
+    const response = await api.get<BalanceDashboardResponse>('/merchant/wallets/balance');
     return response.data;
   },
 

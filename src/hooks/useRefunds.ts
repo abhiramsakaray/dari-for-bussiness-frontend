@@ -13,6 +13,8 @@ export function useRefunds(
   status?: RefundStatus,
   paymentSessionId?: string
 ) {
+  const token = localStorage.getItem('merchant_token');
+  
   return useQuery({
     queryKey: [REFUNDS_QUERY_KEY, { page, pageSize, status, paymentSessionId }],
     queryFn: () =>
@@ -22,6 +24,7 @@ export function useRefunds(
         status,
         payment_session_id: paymentSessionId,
       }),
+    enabled: !!token, // Only run query if token exists
   });
 }
 
@@ -102,6 +105,31 @@ export function useProcessQueuedRefunds() {
     },
     onError: (error: any) => {
       toast.error(extractErrorMessage(error, 'Failed to process queued refunds'));
+    },
+  });
+}
+
+export function useTriggerRefundScheduler() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => refundsService.triggerScheduler(),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [REFUNDS_QUERY_KEY] });
+      const stats = data.statistics;
+      toast.success(
+        `Refund scheduler triggered — ${stats.successfully_processed} processed, ${stats.failed} failed`
+      );
+    },
+    onError: (error: any) => {
+      const status = error?.response?.status;
+      if (status === 403) {
+        toast.error('Admin access required to trigger the scheduler');
+      } else if (status === 401) {
+        toast.error('Your session has expired. Please log in again.');
+      } else {
+        toast.error(extractErrorMessage(error, 'Failed to trigger refund scheduler'));
+      }
     },
   });
 }

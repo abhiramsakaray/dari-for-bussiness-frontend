@@ -1,5 +1,11 @@
 import axios from 'axios';
 
+// Generate a random nonce for replay protection
+function generateNonce(): string {
+  return Math.random().toString(36).substring(2, 15) + 
+         Math.random().toString(36).substring(2, 15);
+}
+
 // Use relative URL in development to leverage Vite proxy, or VITE_API_URL in production
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -23,6 +29,12 @@ api.interceptors.request.use((config) => {
   const apiKey = localStorage.getItem('api_key');
   if (apiKey) {
     config.headers['X-API-Key'] = apiKey;
+  }
+
+  // Add replay protection headers for state-changing requests
+  if (['post', 'patch', 'put', 'delete'].includes(config.method?.toLowerCase() || '')) {
+    config.headers['X-Request-Nonce'] = generateNonce();
+    config.headers['X-Request-Timestamp'] = Math.floor(Date.now() / 1000).toString();
   }
 
   return config;

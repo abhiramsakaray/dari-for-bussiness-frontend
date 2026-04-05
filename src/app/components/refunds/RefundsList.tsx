@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useRefunds, useRetryRefund, useCancelRefund, useCreateRefund, useRefundEligibility, useProcessQueuedRefunds } from '../../../hooks/useRefunds';
+import { useRefunds, useRetryRefund, useCancelRefund, useCreateRefund, useRefundEligibility, useProcessQueuedRefunds, useTriggerRefundScheduler } from '../../../hooks/useRefunds';
 import { Refund, RefundStatus, RefundEligibility, CreateRefundInput } from '../../../types/api.types';
 import { formatCurrency, formatDate, truncateAddress } from '../../../lib/utils';
 import { Button } from '../ui/button';
@@ -26,18 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '../ui/dialog';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
+import RefundForm from '../../../components/RefundForm';
 import {
   MoreVertical,
   RefreshCw,
@@ -48,9 +37,10 @@ import {
   Clock,
   AlertCircle,
   Plus,
-  Wallet,
   Timer,
   DollarSign,
+  Zap,
+  Wallet,
 } from 'lucide-react';
 import { DashboardLayout } from '../DashboardLayout';
 
@@ -63,27 +53,36 @@ const STATUS_CONFIG: Record<RefundStatus, { variant: 'default' | 'secondary' | '
   [RefundStatus.INSUFFICIENT_FUNDS]: { variant: 'destructive', icon: <DollarSign className="w-3 h-3" /> },
 };
 
-function formatSettlement(status: string): string {
-  switch (status) {
-    case 'in_platform': return 'Funds in ChainPe';
-    case 'settled_external': return 'Settled to external wallet';
-    case 'partially_settled': return 'Partially settled';
-    default: return status;
-  }
-}
-
 export function RefundsList() {
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<RefundStatus | 'all'>('all');
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogStep, setDialogStep] = useState<'form' | 'eligibility'>('form');
-  const [eligibilityPaymentId, setEligibilityPaymentId] = useState('');
-  const [refundForm, setRefundForm] = useState<CreateRefundInput>({
-    payment_session_id: '',
-    refund_address: '',
-    amount: undefined,
-    reason: '',
-  });
+  const [showRefundForm, setShowRefundForm] = useState(false);
+
+  const token = localStorage.getItem('merchant_token');
+
+  // If no token, redirect to login
+  if (!token) {
+    return (
+      <DashboardLayout activePage="refunds">
+        <Card className="border-yellow-200">
+          <CardHeader>
+            <CardTitle className="text-yellow-600 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              Authentication Required
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">
+              You need to be logged in to view refunds.
+            </p>
+            <Button onClick={() => window.location.href = '#/login'}>
+              Go to Login
+            </Button>
+          </CardContent>
+        </Card>
+      </DashboardLayout>
+    );
+  }
 
   const { data, isLoading, error } = useRefunds(
     page,
@@ -91,23 +90,10 @@ export function RefundsList() {
     statusFilter === 'all' ? undefined : statusFilter
   );
 
-  const { data: eligibility, isLoading: eligibilityLoading, error: eligibilityError } =
-    useRefundEligibility(eligibilityPaymentId);
-
   const retryMutation = useRetryRefund();
   const cancelMutation = useCancelRefund();
-  const createMutation = useCreateRefund();
   const processQueuedMutation = useProcessQueuedRefunds();
-
-  // When eligibility loads, prefill amount
-  useEffect(() => {
-    if (eligibility && eligibility.max_refundable > 0) {
-      setRefundForm((f) => ({
-        ...f,
-        amount: eligibility.max_refundable,
-      }));
-    }
-  }, [eligibility]);
+  const triggerSchedulerMutation = useTriggerRefundScheduler();
 
   const handleRetry = (refundId: string) => {
     retryMutation.mutate(refundId);
@@ -116,43 +102,6 @@ export function RefundsList() {
   const handleCancel = (refundId: string) => {
     if (window.confirm('Are you sure you want to cancel this refund?')) {
       cancelMutation.mutate(refundId);
-    }
-  };
-
-  const handleCheckEligibility = () => {
-    if (!refundForm.payment_session_id) return;
-    setEligibilityPaymentId(refundForm.payment_session_id);
-    setDialogStep('eligibility');
-  };
-
-  const handleCreateRefund = (force = false, queue = false) => {
-    if (!refundForm.payment_session_id || !refundForm.refund_address) return;
-    createMutation.mutate(
-      {
-        payment_session_id: refundForm.payment_session_id,
-        refund_address: refundForm.refund_address,
-        amount: refundForm.amount || undefined,
-        reason: refundForm.reason || undefined,
-        force,
-        queue_if_insufficient: queue,
-      },
-      {
-        onSuccess: () => {
-          setDialogOpen(false);
-          setDialogStep('form');
-          setEligibilityPaymentId('');
-          setRefundForm({ payment_session_id: '', refund_address: '', amount: undefined, reason: '' });
-        },
-      }
-    );
-  };
-
-  const handleDialogOpenChange = (open: boolean) => {
-    setDialogOpen(open);
-    if (!open) {
-      setDialogStep('form');
-      setEligibilityPaymentId('');
-      setRefundForm({ payment_session_id: '', refund_address: '', amount: undefined, reason: '' });
     }
   };
 
@@ -168,25 +117,47 @@ export function RefundsList() {
 
   if (error) {
     const errorStatus = (error as any)?.response?.status;
-    const errorMessage = errorStatus === 403 
-      ? 'Refunds are not available on your current plan. Please upgrade to access this feature.'
-      : 'Error loading refunds. Please try again.';
+    const errorData = (error as any)?.response?.data;
+    
+    let errorMessage = 'Error loading refunds. Please try again.';
+    let errorTitle = 'Error';
+    
+    if (errorStatus === 401) {
+      errorMessage = 'Your session has expired. Please log in again.';
+      errorTitle = 'Session Expired';
+    } else if (errorStatus === 403) {
+      errorMessage = 'Refunds are not available on your current plan. Please upgrade to access this feature.';
+      errorTitle = 'Access Restricted';
+    } else if (errorStatus === 400) {
+      errorMessage = errorData?.detail || 'Invalid request. Please check your configuration.';
+      errorTitle = 'Bad Request';
+    }
     
     return (
       <DashboardLayout activePage="refunds">
         <Card className="border-red-200">
           <CardHeader>
             <CardTitle className="text-red-600 flex items-center gap-2">
-              <RefreshCw className="w-5 h-5" />
-              {errorStatus === 403 ? 'Access Restricted' : 'Error'}
+              <AlertCircle className="w-5 h-5" />
+              {errorTitle}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">{errorMessage}</p>
+            <p className="text-muted-foreground mb-4">{errorMessage}</p>
+            {errorStatus === 401 && (
+              <Button onClick={() => window.location.href = '#/login'}>
+                Go to Login
+              </Button>
+            )}
             {errorStatus === 403 && (
-              <Button className="mt-4" onClick={() => window.location.href = '#/settings'}>
+              <Button onClick={() => window.location.href = '#/settings'}>
                 View Plans & Billing
               </Button>
+            )}
+            {errorStatus === 400 && (
+              <div className="text-xs text-muted-foreground mt-4 p-3 bg-muted rounded">
+                <p className="font-mono">{JSON.stringify(errorData, null, 2)}</p>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -205,12 +176,25 @@ export function RefundsList() {
   return (
     <DashboardLayout activePage="refunds">
       <div className="space-y-6">
+        {showRefundForm ? (
+          <RefundForm onBack={() => setShowRefundForm(false)} />
+        ) : (
+          <>
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Refunds</h1>
             <p className="text-muted-foreground">Process and track customer refunds</p>
           </div>
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => triggerSchedulerMutation.mutate()}
+              disabled={triggerSchedulerMutation.isPending}
+              title="Manually trigger the automatic refund scheduler to process all pending refunds"
+            >
+              <Zap className={`w-4 h-4 mr-2 ${triggerSchedulerMutation.isPending ? 'animate-spin' : ''}`} />
+              Process Pending
+            </Button>
             {(queued > 0 || insufficientFunds > 0) && (
               <Button
                 variant="outline"
@@ -221,174 +205,10 @@ export function RefundsList() {
                 Process Queued
               </Button>
             )}
-            <Dialog open={dialogOpen} onOpenChange={handleDialogOpenChange}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Issue Refund
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-lg">
-                <DialogHeader>
-                  <DialogTitle>Issue Refund</DialogTitle>
-                  <DialogDescription>
-                    {dialogStep === 'form'
-                      ? 'Enter payment details to check eligibility and process a refund.'
-                      : 'Review eligibility and choose how to process the refund.'}
-                  </DialogDescription>
-                </DialogHeader>
-
-                {dialogStep === 'form' ? (
-                  <>
-                    <div className="space-y-4 py-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="payment_session_id">Payment Session ID *</Label>
-                        <Input
-                          id="payment_session_id"
-                          placeholder="Enter payment session ID"
-                          value={refundForm.payment_session_id}
-                          onChange={(e) => setRefundForm((f) => ({ ...f, payment_session_id: e.target.value }))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="refund_address">Refund Address *</Label>
-                        <Input
-                          id="refund_address"
-                          placeholder="Wallet address to send refund to"
-                          value={refundForm.refund_address}
-                          onChange={(e) => setRefundForm((f) => ({ ...f, refund_address: e.target.value }))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="reason">Reason (optional)</Label>
-                        <Textarea
-                          id="reason"
-                          placeholder="Reason for refund"
-                          value={refundForm.reason ?? ''}
-                          onChange={(e) => setRefundForm((f) => ({ ...f, reason: e.target.value }))}
-                        />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button variant="outline" onClick={() => handleDialogOpenChange(false)}>
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleCheckEligibility}
-                        disabled={!refundForm.payment_session_id || !refundForm.refund_address}
-                      >
-                        Check Eligibility
-                      </Button>
-                    </DialogFooter>
-                  </>
-                ) : (
-                  <>
-                    <div className="space-y-4 py-4">
-                      {eligibilityLoading && (
-                        <div className="flex items-center justify-center py-8">
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                          <span className="ml-2 text-sm text-muted-foreground">Checking eligibility...</span>
-                        </div>
-                      )}
-
-                      {eligibilityError && (
-                        <div className="rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20 p-4">
-                          <p className="text-sm text-red-600 dark:text-red-400">
-                            Failed to check eligibility. The payment may not exist or may not be eligible for refund.
-                          </p>
-                        </div>
-                      )}
-
-                      {eligibility && (
-                        <>
-                          <div className={`rounded-lg border p-4 ${eligibility.sufficient_balance ? 'border-green-200 bg-green-50 dark:bg-green-950/20' : 'border-yellow-200 bg-yellow-50 dark:bg-yellow-950/20'}`}>
-                            <div className="space-y-2 text-sm">
-                              <div className="flex justify-between">
-                                <span className="text-muted-foreground">Settlement</span>
-                                <span className="font-medium">{formatSettlement(eligibility.settlement_status)}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-muted-foreground">Your Balance</span>
-                                <span className="font-medium">${eligibility.merchant_balance.toFixed(2)}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-muted-foreground">Max Refundable</span>
-                                <span className="font-medium">${eligibility.max_refundable.toFixed(2)}</span>
-                              </div>
-                              {eligibility.already_refunded > 0 && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Already Refunded</span>
-                                  <span className="font-medium">${eligibility.already_refunded.toFixed(2)}</span>
-                                </div>
-                              )}
-                              <p className="pt-2 text-muted-foreground border-t">{eligibility.message}</p>
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="refund_amount">Refund Amount</Label>
-                            <Input
-                              id="refund_amount"
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              max={eligibility.max_refundable}
-                              value={refundForm.amount ?? ''}
-                              onChange={(e) =>
-                                setRefundForm((f) => ({
-                                  ...f,
-                                  amount: e.target.value ? Number(e.target.value) : undefined,
-                                }))
-                              }
-                            />
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    <DialogFooter className="flex-col gap-2 sm:flex-row">
-                      <Button variant="outline" onClick={() => setDialogStep('form')}>
-                        Back
-                      </Button>
-
-                      {eligibility?.sufficient_balance && (
-                        <Button
-                          onClick={() => handleCreateRefund(false, false)}
-                          disabled={createMutation.isPending}
-                        >
-                          {createMutation.isPending ? 'Processing...' : 'Refund from Balance'}
-                        </Button>
-                      )}
-
-                      {eligibility && !eligibility.sufficient_balance && eligibility.can_queue && (
-                        <Button
-                          variant="secondary"
-                          onClick={() => handleCreateRefund(false, true)}
-                          disabled={createMutation.isPending}
-                        >
-                          <Timer className="w-4 h-4 mr-2" />
-                          {createMutation.isPending ? 'Processing...' : 'Queue Refund (7 days)'}
-                        </Button>
-                      )}
-
-                      {eligibility?.can_force_external && (
-                        <Button
-                          variant="outline"
-                          onClick={() => handleCreateRefund(true, false)}
-                          disabled={createMutation.isPending}
-                        >
-                          <Wallet className="w-4 h-4 mr-2" />
-                          {createMutation.isPending ? 'Processing...' : 'Refund via External Wallet'}
-                        </Button>
-                      )}
-
-                      {eligibility && !eligibility.eligible && (
-                        <p className="text-sm text-red-500">{eligibility.message}</p>
-                      )}
-                    </DialogFooter>
-                  </>
-                )}
-              </DialogContent>
-            </Dialog>
+            <Button onClick={() => setShowRefundForm(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Issue Refund
+            </Button>
           </div>
         </div>
 
@@ -522,6 +342,8 @@ export function RefundsList() {
           </CardContent>
         </Card>
       )}
+          </>
+        )}
       </div>
     </DashboardLayout>
   );
@@ -534,7 +356,10 @@ interface RefundRowProps {
 }
 
 function RefundRow({ refund, onRetry, onCancel }: RefundRowProps) {
-  const config = STATUS_CONFIG[refund.status];
+  const config = STATUS_CONFIG[refund.status] || { 
+    variant: 'outline' as const, 
+    icon: <AlertCircle className="w-3 h-3" /> 
+  };
   const canRetry = refund.status === RefundStatus.FAILED || refund.status === RefundStatus.INSUFFICIENT_FUNDS;
   const canCancel = refund.status === RefundStatus.PENDING || refund.status === RefundStatus.QUEUED;
 
