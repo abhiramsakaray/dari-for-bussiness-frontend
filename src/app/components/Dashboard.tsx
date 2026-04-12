@@ -26,8 +26,10 @@ import { useWallets, useWalletDashboard } from "../../hooks/useWallets";
 import { CHAIN_INFO } from "../../services/wallets.service";
 import { toast } from "sonner";
 import { displayAmount, displayDualAmount } from "../../lib/utils";
+import { getPermissions } from "../../utils/rolePermissions";
 
 export function Dashboard() {
+  const permissions = getPermissions();
   const { payments, isLoading } = usePaymentHistory({ limit: 10 });
   const { stats, isLoading: statsLoading } = usePaymentStats();
   const { data: walletsData, isLoading: walletsLoading } = useWallets();
@@ -81,13 +83,21 @@ export function Dashboard() {
             </>
           ) : (
             <>
-              <BentoKPICard
-                label="TOTAL REVENUE"
-                value={revenueDisplay.primary}
-                trend={{ value: 12.5, direction: "up" }}
-              />
+              {permissions.canSeeRevenue ? (
+                <BentoKPICard
+                  label="TOTAL REVENUE"
+                  value={revenueDisplay.primary}
+                  trend={{ value: 12.5, direction: "up" }}
+                />
+              ) : (
+                <BentoKPICard
+                  label="TOTAL PAYMENTS"
+                  value={stats?.total_count?.toString() || '0'}
+                  trend={{ value: 12.5, direction: "up" }}
+                />
+              )}
               
-              {hasCouponDiscounts ? (
+              {hasCouponDiscounts && permissions.canSeeRevenue ? (
                 <BentoKPICard
                   label="COUPON DISCOUNTS"
                   value={displayAmount(stats.revenue.total_coupon_discount, totalCouponDiscountLocal)}
@@ -114,111 +124,113 @@ export function Dashboard() {
         </BentoGrid>
 
         {/* Row 2 - Wallets Widget */}
-        <BentoGrid>
-          <BentoCard span={12} hover={false}>
-            <BentoCardHeader>
-              <div>
-                <BentoCardTitle>Your Wallets</BentoCardTitle>
-                <BentoCardSubtitle>Quick access to your blockchain addresses</BentoCardSubtitle>
-              </div>
-              <a href="#/wallets">
-                <Button variant="outline" size="sm">
-                  View All
-                  <ArrowUpRight className="h-4 w-4 ml-1" />
-                </Button>
-              </a>
-            </BentoCardHeader>
-            <BentoCardContent>
-              {combinedWalletsLoading ? (
-                <div className="space-y-3">
-                  {[1, 2, 3, 4].map((idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3 flex-1">
-                        <Skeleton className="w-6 h-6 rounded-full" />
-                        <div className="flex-1 space-y-2">
-                          <Skeleton className="h-4 w-24" />
-                          <Skeleton className="h-3 w-64" />
-                        </div>
-                      </div>
-                      <Skeleton className="h-8 w-8" />
-                    </div>
-                  ))}
+        {permissions.canSeeWallets && (
+          <BentoGrid>
+            <BentoCard span={12} hover={false}>
+              <BentoCardHeader>
+                <div>
+                  <BentoCardTitle>Your Wallets</BentoCardTitle>
+                  <BentoCardSubtitle>Quick access to your blockchain addresses</BentoCardSubtitle>
                 </div>
-              ) : !hasWallets ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Wallet2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p className="mb-2">No wallets configured yet</p>
-                  <p className="text-xs">
-                    Complete <a href="#/onboarding" className="text-primary hover:underline">onboarding</a> to set up your wallets
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {wallets.slice(0, 5).map((wallet) => {
-                    const chainInfo = CHAIN_INFO[wallet.chain as keyof typeof CHAIN_INFO];
-                    const walletId = (wallet as any).id || `wallet-${wallet.chain}`;
-                    const isCopied = copiedId === walletId;
-
-                    const copyToClipboard = async () => {
-                      try {
-                        await navigator.clipboard.writeText(wallet.wallet_address);
-                        setCopiedId(walletId);
-                        toast.success('Wallet address copied');
-                        setTimeout(() => setCopiedId(null), 2000);
-                      } catch (err) {
-                        toast.error('Failed to copy address');
-                      }
-                    };
-
-                    return (
-                      <div
-                        key={walletId}
-                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/40 transition-dari"
-                      >
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className="text-xl">{chainInfo?.icon || '🔗'}</div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-sm">{chainInfo?.name || wallet.chain}</span>
-                              <Badge
-                                variant={wallet.is_active ? 'success' : 'default'}
-                                className="text-xs"
-                              >
-                                {wallet.is_active ? 'Active' : 'Inactive'}
-                              </Badge>
-                            </div>
-                            <div className="font-mono text-xs text-muted-foreground truncate">
-                              {wallet.wallet_address}
-                            </div>
+                <a href="#/wallets">
+                  <Button variant="outline" size="sm">
+                    View All
+                    <ArrowUpRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </a>
+              </BentoCardHeader>
+              <BentoCardContent>
+                {combinedWalletsLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3, 4].map((idx) => (
+                      <div key={idx} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3 flex-1">
+                          <Skeleton className="w-6 h-6 rounded-full" />
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-4 w-24" />
+                            <Skeleton className="h-3 w-64" />
                           </div>
                         </div>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={copyToClipboard}
-                          disabled={isCopied}
-                        >
-                          {isCopied ? (
-                            <Check className="w-4 h-4" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
-                        </Button>
+                        <Skeleton className="h-8 w-8" />
                       </div>
-                    );
-                  })}
-                  {wallets.length > 5 && (
-                    <div className="text-center pt-2">
-                      <a href="#/wallets" className="text-sm text-primary hover:underline">
-                        View {wallets.length - 5} more wallets →
-                      </a>
-                    </div>
-                  )}
-                </div>
-              )}
-            </BentoCardContent>
-          </BentoCard>
-        </BentoGrid>
+                    ))}
+                  </div>
+                ) : !hasWallets ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Wallet2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p className="mb-2">No wallets configured yet</p>
+                    <p className="text-xs">
+                      Complete <a href="#/onboarding" className="text-primary hover:underline">onboarding</a> to set up your wallets
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {wallets.slice(0, 5).map((wallet) => {
+                      const chainInfo = CHAIN_INFO[wallet.chain as keyof typeof CHAIN_INFO];
+                      const walletId = (wallet as any).id || `wallet-${wallet.chain}`;
+                      const isCopied = copiedId === walletId;
+
+                      const copyToClipboard = async () => {
+                        try {
+                          await navigator.clipboard.writeText(wallet.wallet_address);
+                          setCopiedId(walletId);
+                          toast.success('Wallet address copied');
+                          setTimeout(() => setCopiedId(null), 2000);
+                        } catch (err) {
+                          toast.error('Failed to copy address');
+                        }
+                      };
+
+                      return (
+                        <div
+                          key={walletId}
+                          className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/40 transition-dari"
+                        >
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className="text-xl">{chainInfo?.icon || '🔗'}</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-sm">{chainInfo?.name || wallet.chain}</span>
+                                <Badge
+                                  variant={wallet.is_active ? 'success' : 'default'}
+                                  className="text-xs"
+                                >
+                                  {wallet.is_active ? 'Active' : 'Inactive'}
+                                </Badge>
+                              </div>
+                              <div className="font-mono text-xs text-muted-foreground truncate">
+                                {wallet.wallet_address}
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={copyToClipboard}
+                            disabled={isCopied}
+                          >
+                            {isCopied ? (
+                              <Check className="w-4 h-4" />
+                            ) : (
+                              <Copy className="w-4 h-4" />
+                            )}
+                          </Button>
+                        </div>
+                      );
+                    })}
+                    {wallets.length > 5 && (
+                      <div className="text-center pt-2">
+                        <a href="#/wallets" className="text-sm text-primary hover:underline">
+                          View {wallets.length - 5} more wallets →
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </BentoCardContent>
+            </BentoCard>
+          </BentoGrid>
+        )}
 
         {/* Row 3 - Recent Payments */}
         <BentoGrid>
@@ -269,10 +281,14 @@ export function Dashboard() {
                           {payment.id || payment.session_id}
                         </DataTableCell>
                         <DataTableCell className="font-semibold">
-                          {displayDualAmount(
-                            payment.amount_fiat || parseFloat(payment.amount_usdc || '0'),
-                            payment.amount_fiat_local
-                          ).primary}
+                          {permissions.canSeeRevenue ? (
+                            displayDualAmount(
+                              payment.amount_fiat || parseFloat(payment.amount_usdc || '0'),
+                              payment.amount_fiat_local
+                            ).primary
+                          ) : (
+                            <span className="text-muted-foreground">***</span>
+                          )}
                         </DataTableCell>
                         <DataTableCell>
                           <Badge

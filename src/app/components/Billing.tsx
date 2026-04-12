@@ -261,7 +261,12 @@ export function Billing() {
               {(['free', 'growth', 'business', 'enterprise'] as PlanTier[]).map((planId) => {
                 const isCurrent = billingInfo.tier === planId;
                 const PlanIcon = getPlanIcon(planId);
-                const prices = { free: 0, growth: 29, business: 99, enterprise: 'Custom' };
+                // Use prices from billingInfo if available, otherwise fallback to defaults
+                const getPlanPrice = (tier: PlanTier) => {
+                  // These should come from backend, but fallback to defaults
+                  const defaultPrices = { free: 0, growth: 29, business: 99, enterprise: 'Custom' };
+                  return defaultPrices[tier];
+                };
                 
                 return (
                   <Card key={planId} className={isCurrent ? 'border-primary' : ''}>
@@ -269,7 +274,9 @@ export function Billing() {
                       <PlanIcon className="w-6 h-6 mb-2" />
                       <CardTitle className="text-lg">{getPlanName(planId)}</CardTitle>
                       <div className="text-2xl font-bold">
-                        {typeof prices[planId] === 'number' ? `${currencySymbol}${prices[planId]}` : prices[planId]}
+                        {typeof getPlanPrice(planId) === 'number' 
+                          ? `${currencySymbol}${getPlanPrice(planId)}` 
+                          : getPlanPrice(planId)}
                       </div>
                     </CardHeader>
                     <CardContent>

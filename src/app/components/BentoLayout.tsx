@@ -16,6 +16,7 @@ import {
   Command,
   LogOut
 } from "lucide-react";
+import { getPermissions, getUserInfo, getRoleLabel } from "../../utils/rolePermissions";
 
 interface BentoLayoutProps {
   children: React.ReactNode;
@@ -57,6 +58,7 @@ const navGroups: NavGroup[] = [
       { id: 'reports', label: 'Reports', icon: FileText, href: '#/reports' },
       { id: 'subscriptions', label: 'Subscriptions', icon: Users, href: '#/subscriptions' },
       { id: 'team', label: 'Team', icon: Users, href: '#/team' },
+      { id: 'billing', label: 'Billing & Plans', icon: Settings, href: '#/billing' },
     ],
   },
   {
@@ -80,6 +82,10 @@ const topNavItems: NavItem[] = [
 ];
 
 export function BentoLayout({ children, activePage }: BentoLayoutProps) {
+  // Get user permissions
+  const permissions = getPermissions();
+  const userInfo = getUserInfo();
+  
   // Persist sidebar state in localStorage
   const [sidebarOpen, setSidebarOpen] = useState(() => {
     const saved = localStorage.getItem('sidebar_open');
@@ -107,10 +113,11 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
     localStorage.setItem('sidebar_collapsed', String(sidebarCollapsed));
   }, [sidebarCollapsed]);
 
-  // Get real user data from localStorage
-  const merchantEmail = localStorage.getItem('merchant_email') || 'user@dari.io';
-  const merchantName = localStorage.getItem('merchant_name') || merchantEmail.split('@')[0];
-  const organizationName = localStorage.getItem('organization_name') || 'Organization';
+  // Get real user data from localStorage or userInfo
+  const merchantEmail = userInfo?.email || localStorage.getItem('merchant_email') || 'user@dari.io';
+  const merchantName = userInfo?.name || localStorage.getItem('merchant_name') || merchantEmail.split('@')[0];
+  const organizationName = userInfo?.organizationName || localStorage.getItem('organization_name') || 'Organization';
+  const userRole = userInfo?.role ? getRoleLabel(userInfo.role) : 'Admin';
   
   // Generate initials from email or name
   const getInitials = (email: string) => {
@@ -122,6 +129,56 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
   };
   
   const initials = getInitials(merchantEmail);
+
+  // Filter navigation items based on permissions
+  const filteredNavGroups = navGroups.map(group => ({
+    ...group,
+    items: group.items.filter(item => {
+      switch (item.id) {
+        case 'overview':
+          return permissions.canViewOverview;
+        case 'transactions':
+          return permissions.canViewTransactions;
+        case 'payment-links':
+          return permissions.canViewPaymentLinks;
+        case 'invoices':
+          return permissions.canViewInvoices;
+        case 'analytics':
+          return permissions.canViewAnalytics;
+        case 'reports':
+          return permissions.canViewReports;
+        case 'subscriptions':
+          return permissions.canViewSubscriptions;
+        case 'team':
+          return permissions.canViewTeam;
+        case 'billing':
+          return permissions.canManageBilling;
+        case 'settings':
+          return permissions.canViewSettings;
+        case 'integrations':
+          return permissions.canViewIntegrations;
+        default:
+          return true;
+      }
+    })
+  })).filter(group => group.items.length > 0); // Remove empty groups
+
+  const filteredTopNavItems = topNavItems.filter(item => {
+    switch (item.id) {
+      case 'overview':
+        return permissions.canViewOverview;
+      case 'transactions':
+        return permissions.canViewTransactions;
+      case 'analytics':
+        return permissions.canViewAnalytics;
+      case 'reports':
+        return permissions.canViewReports;
+      case 'users':
+        return permissions.canViewTeam;
+      default:
+        return true;
+    }
+  });
 
   const toggleGroup = (groupId: string) => {
     setExpandedGroups(prev => ({
@@ -168,7 +225,11 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
   };
 
   const handleLogout = () => {
+    // Clear both merchant and team member tokens
     localStorage.removeItem('merchant_token');
+    localStorage.removeItem('team_access_token');
+    localStorage.removeItem('team_refresh_token');
+    localStorage.removeItem('team_member');
     window.location.href = '#/';
   };
 
@@ -206,7 +267,7 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
 
           {/* Center Zone - Desktop Nav */}
           <div className="hidden lg:flex items-center gap-9">
-            {topNavItems.map((item) => (
+            {filteredTopNavItems.map((item) => (
               <a
                 key={item.id}
                 href={item.href}
@@ -326,7 +387,7 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
         <div className="h-full flex flex-col overflow-hidden">
           {/* Nav Items */}
           <div className="flex-1 px-3 py-5 space-y-1 overflow-y-auto overflow-x-hidden">
-            {navGroups.map((group) => {
+            {filteredNavGroups.map((group) => {
               const isExpanded = expandedGroups[group.id];
 
               return (
@@ -393,7 +454,7 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
                 <div className="flex-1 min-w-0">
                   <div className="text-[12px] font-medium text-foreground truncate">{merchantName}</div>
                   <div className="inline-flex items-center px-1.5 py-0.5 rounded-full bg-muted">
-                    <span className="text-[10px] font-mono text-muted-foreground">Admin</span>
+                    <span className="text-[10px] font-mono text-muted-foreground">{userRole}</span>
                   </div>
                 </div>
               </div>
