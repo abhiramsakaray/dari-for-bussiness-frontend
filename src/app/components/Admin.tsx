@@ -1,4 +1,4 @@
-import { DashboardLayout } from "./DashboardLayout";
+import { BentoLayout } from "./BentoLayout";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -63,7 +63,7 @@ export function Admin() {
   };
 
   return (
-    <DashboardLayout activePage="merchants" isAdmin>
+    <BentoLayout activePage="merchants" isAdmin>
       <div className="space-y-8">
         {/* Header */}
         <div>
@@ -213,6 +213,6 @@ export function Admin() {
           </div>
         </Card>
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }

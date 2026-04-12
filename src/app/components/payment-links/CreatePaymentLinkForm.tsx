@@ -9,7 +9,7 @@ import { Textarea } from '../ui/textarea';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { DashboardLayout } from '../DashboardLayout';
+import { BentoLayout } from "../BentoLayout";
 import { ArrowLeft } from 'lucide-react';
 
 // Hash-based navigation helper
@@ -102,7 +102,7 @@ export function CreatePaymentLinkForm() {
   };
 
   return (
-    <DashboardLayout activePage="payment-links">
+    <BentoLayout activePage="payment-links">
       <div className="space-y-6">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigateTo('/payment-links')}>
@@ -320,7 +320,7 @@ export function CreatePaymentLinkForm() {
         </div>
       </form>
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }
 

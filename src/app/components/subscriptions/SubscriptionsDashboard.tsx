@@ -70,7 +70,7 @@ import {
   Wallet,
   Zap,
 } from 'lucide-react';
-import { DashboardLayout } from '../DashboardLayout';
+import { BentoLayout } from "../BentoLayout";
 
 const STATUS_VARIANTS: Record<SubscriptionStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
   [SubscriptionStatus.ACTIVE]: 'default',
@@ -179,7 +179,7 @@ export function SubscriptionsDashboard() {
       : 'Error loading subscriptions. Please try again.';
 
     return (
-      <DashboardLayout activePage="subscriptions">
+      <BentoLayout activePage="subscriptions">
         <Card className="border-red-200">
           <CardHeader>
             <CardTitle className="text-red-600 flex items-center gap-2">
@@ -196,7 +196,7 @@ export function SubscriptionsDashboard() {
             )}
           </CardContent>
         </Card>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
@@ -330,7 +330,7 @@ export function SubscriptionsDashboard() {
   const labelCls = 'block text-sm font-medium mb-1';
 
   return (
-    <DashboardLayout activePage="subscriptions">
+    <BentoLayout activePage="subscriptions">
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -1040,7 +1040,7 @@ export function SubscriptionsDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }
 

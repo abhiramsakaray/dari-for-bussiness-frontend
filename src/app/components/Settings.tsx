@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
-import { DashboardLayout } from "./DashboardLayout";
+import { BentoLayout } from "./BentoLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -79,7 +79,7 @@ export function Settings() {
     copiedId === id ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />;
 
   return (
-    <DashboardLayout activePage="settings">
+    <BentoLayout activePage="settings">
       <div className="max-w-3xl space-y-6">
         {/* Header */}
         <div>
@@ -448,6 +448,6 @@ export function Settings() {
           </TabsContent>
         </Tabs>
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }

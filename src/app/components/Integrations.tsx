@@ -1,4 +1,4 @@
-import { DashboardLayout } from "./DashboardLayout";
+import { BentoLayout } from "./BentoLayout";
 import { Card } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Code, Copy, ExternalLink } from "lucide-react";
@@ -16,7 +16,7 @@ export function Integrations() {
   const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
 
   return (
-    <DashboardLayout activePage="integrations">
+    <BentoLayout activePage="integrations">
       <div className="max-w-5xl space-y-8">
         {/* Header */}
         <div>
@@ -541,6 +541,6 @@ def create_checkout(amount, order_id):
           </p>
         </Card>
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }

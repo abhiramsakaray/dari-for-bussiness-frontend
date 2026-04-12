@@ -22,7 +22,7 @@ import {
 } from '../ui/dropdown-menu';
 import { Copy, ExternalLink, Edit, Trash2, BarChart3, MoreVertical, Plus, Link } from 'lucide-react';
 import { toast } from 'sonner';
-import { DashboardLayout } from '../DashboardLayout';
+import { BentoLayout } from "../BentoLayout";
 
 // Hash-based navigation helper
 const navigateTo = (path: string) => {
@@ -52,11 +52,11 @@ export function PaymentLinksList() {
 
   if (isLoading) {
     return (
-      <DashboardLayout activePage="payment-links">
+      <BentoLayout activePage="payment-links">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
@@ -67,7 +67,7 @@ export function PaymentLinksList() {
       : 'Error loading payment links. Please try again.';
     
     return (
-      <DashboardLayout activePage="payment-links">
+      <BentoLayout activePage="payment-links">
         <Card className="border-red-200">
           <CardHeader>
             <CardTitle className="text-red-600 flex items-center gap-2">
@@ -84,12 +84,12 @@ export function PaymentLinksList() {
             )}
           </CardContent>
         </Card>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
   return (
-    <DashboardLayout activePage="payment-links">
+    <BentoLayout activePage="payment-links">
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -179,7 +179,7 @@ export function PaymentLinksList() {
         </Card>
       )}
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }
 

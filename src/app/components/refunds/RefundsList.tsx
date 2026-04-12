@@ -42,7 +42,7 @@ import {
   Zap,
   Wallet,
 } from 'lucide-react';
-import { DashboardLayout } from '../DashboardLayout';
+import { BentoLayout } from "../BentoLayout";
 
 const STATUS_CONFIG: Record<RefundStatus, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
   [RefundStatus.PENDING]: { variant: 'outline', icon: <Clock className="w-3 h-3" /> },
@@ -63,7 +63,7 @@ export function RefundsList() {
   // If no token, redirect to login
   if (!token) {
     return (
-      <DashboardLayout activePage="refunds">
+      <BentoLayout activePage="refunds">
         <Card className="border-yellow-200">
           <CardHeader>
             <CardTitle className="text-yellow-600 flex items-center gap-2">
@@ -80,7 +80,7 @@ export function RefundsList() {
             </Button>
           </CardContent>
         </Card>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
@@ -107,11 +107,11 @@ export function RefundsList() {
 
   if (isLoading) {
     return (
-      <DashboardLayout activePage="refunds">
+      <BentoLayout activePage="refunds">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
@@ -134,7 +134,7 @@ export function RefundsList() {
     }
     
     return (
-      <DashboardLayout activePage="refunds">
+      <BentoLayout activePage="refunds">
         <Card className="border-red-200">
           <CardHeader>
             <CardTitle className="text-red-600 flex items-center gap-2">
@@ -161,7 +161,7 @@ export function RefundsList() {
             )}
           </CardContent>
         </Card>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
@@ -174,7 +174,7 @@ export function RefundsList() {
   const insufficientFunds = data?.items?.filter((r) => r.status === RefundStatus.INSUFFICIENT_FUNDS).length || 0;
 
   return (
-    <DashboardLayout activePage="refunds">
+    <BentoLayout activePage="refunds">
       <div className="space-y-6">
         {showRefundForm ? (
           <RefundForm onBack={() => setShowRefundForm(false)} />
@@ -345,7 +345,7 @@ export function RefundsList() {
           </>
         )}
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }
 

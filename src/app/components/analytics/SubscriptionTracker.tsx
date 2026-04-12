@@ -21,7 +21,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { DashboardLayout } from '../DashboardLayout';
+import { BentoLayout } from "../BentoLayout";
 
 const SUB_STATUS_CONFIG: Record<string, { color: string; label: string }> = {
   active: { color: 'bg-green-500', label: 'Active' },
@@ -226,7 +226,7 @@ export function SubscriptionTracker() {
   const [activeId, setActiveId] = useState('');
 
   return (
-    <DashboardLayout activePage="subscriptions">
+    <BentoLayout activePage="subscriptions">
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Subscription Tracking</h1>
@@ -253,7 +253,7 @@ export function SubscriptionTracker() {
 
         {activeId && <SubscriptionTrackingView subscriptionId={activeId} />}
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }
 

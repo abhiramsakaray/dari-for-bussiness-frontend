@@ -1,43 +1,51 @@
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-
 import { cn } from "./utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
+  "inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-mono font-medium uppercase tracking-wide transition-all",
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
-        destructive:
-          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline:
-          "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+        // Default: Border with gray text
+        default: "border border-border bg-transparent text-muted-foreground",
+        
+        // Success/Active: Green background (Dari spec)
+        success: "border-0 bg-[#dcfce7] text-[#15803d]",
+        
+        // Pending: Yellow/Orange background (Dari spec)
+        pending: "border-0 bg-[#fef3c7] text-[#92400e]",
+        
+        // Error/Failed: Red background (Dari spec)
+        destructive: "border-0 bg-[#fee2e2] text-[#991b1b]",
+        
+        // Info: Blue background
+        info: "border-0 bg-blue-50 text-blue-700",
+        
+        // Warning: Orange background
+        warning: "border-0 bg-orange-50 text-orange-700",
       },
     },
     defaultVariants: {
       variant: "default",
     },
-  },
+  }
 );
 
-function Badge({
-  className,
-  variant,
-  asChild = false,
-  ...props
-}: React.ComponentProps<"span"> &
-  VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
-  const Comp = asChild ? Slot : "span";
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof badgeVariants> {
+  pulse?: boolean;
+}
 
+function Badge({ className, variant, pulse, ...props }: BadgeProps) {
   return (
-    <Comp
-      data-slot="badge"
-      className={cn(badgeVariants({ variant }), className)}
+    <div
+      className={cn(
+        badgeVariants({ variant }),
+        pulse && "animate-pulse",
+        className
+      )}
       {...props}
     />
   );

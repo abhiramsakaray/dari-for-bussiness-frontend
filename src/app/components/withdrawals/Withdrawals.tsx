@@ -3,14 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Wallet, Info, Activity } from "lucide-react";
 import { CreateWithdrawalDialog } from "./CreateWithdrawalDialog";
 import { WithdrawalsList } from "./WithdrawalsList";
-import { DashboardLayout } from "../DashboardLayout";
+import { BentoLayout } from "../BentoLayout";
 
 export function Withdrawals() {
   const { data: balances, isLoading: loadingBalances } = useWithdrawalBalances();
   const { data: limits, isLoading: loadingLimits } = useWithdrawalLimits();
 
   return (
-    <DashboardLayout activePage="withdrawals">
+    <BentoLayout activePage="withdrawals">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -103,6 +103,6 @@ export function Withdrawals() {
         <h2 className="text-xl font-semibold mt-8">Recent Withdrawals</h2>
         <WithdrawalsList />
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }

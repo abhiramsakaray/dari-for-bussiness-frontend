@@ -27,7 +27,7 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { FileText, Send, Eye, MoreVertical, Plus, Copy, XCircle, ExternalLink } from 'lucide-react';
-import { DashboardLayout } from '../DashboardLayout';
+import { BentoLayout } from "../BentoLayout";
 
 // Hash-based navigation helper
 const navigateTo = (path: string) => {
@@ -68,11 +68,11 @@ export function InvoicesList() {
 
   if (isLoading) {
     return (
-      <DashboardLayout activePage="invoices">
+      <BentoLayout activePage="invoices">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
@@ -83,7 +83,7 @@ export function InvoicesList() {
       : 'Error loading invoices. Please try again.';
     
     return (
-      <DashboardLayout activePage="invoices">
+      <BentoLayout activePage="invoices">
         <Card className="border-red-200">
           <CardHeader>
             <CardTitle className="text-red-600 flex items-center gap-2">
@@ -100,12 +100,12 @@ export function InvoicesList() {
             )}
           </CardContent>
         </Card>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
   return (
-    <DashboardLayout activePage="invoices">
+    <BentoLayout activePage="invoices">
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -213,7 +213,7 @@ export function InvoicesList() {
         </Card>
       )}
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }
 

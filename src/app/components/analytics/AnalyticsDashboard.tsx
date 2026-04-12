@@ -21,7 +21,7 @@ import {
   BarChart3,
   Clock,
 } from 'lucide-react';
-import { DashboardLayout } from '../DashboardLayout';
+import { BentoLayout } from "../BentoLayout";
 import { MRRARRCard } from './MRRARRCard';
 import { CacheStatsCard } from './CacheStatsCard';
 import {
@@ -74,6 +74,10 @@ export function AnalyticsDashboard() {
   const avgPayment = overview?.payments?.avg_payment ?? overview?.payments?.avg_payment_usd ?? 0;
   const invoiceVolume = overview?.invoice_volume ?? overview?.invoice_volume_usd ?? 0;
 
+  // Determine active page based on current route
+  const currentRoute = window.location.hash.slice(1);
+  const activePage = currentRoute.includes('reports') ? 'reports' : 'analytics';
+
   if (overviewError) {
     const errorStatus = (overviewError as any)?.response?.status;
     const errorMessage = errorStatus === 403
@@ -81,7 +85,7 @@ export function AnalyticsDashboard() {
       : 'Error loading analytics. Please try again.';
 
     return (
-      <DashboardLayout activePage="analytics">
+      <BentoLayout activePage={activePage}>
         <Card className="border-red-200">
           <CardHeader>
             <CardTitle className="text-red-600 flex items-center gap-2">
@@ -98,17 +102,17 @@ export function AnalyticsDashboard() {
             )}
           </CardContent>
         </Card>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
   if (overviewLoading) {
     return (
-      <DashboardLayout activePage="analytics">
+      <BentoLayout activePage={activePage}>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
@@ -154,11 +158,11 @@ export function AnalyticsDashboard() {
     : null;
 
   return (
-    <DashboardLayout activePage="analytics">
+    <BentoLayout activePage={activePage}>
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Analytics Dashboard</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Analytics & Reports</h1>
             <p className="text-muted-foreground">
               Track your payment performance and trends
             </p>
@@ -440,7 +444,7 @@ export function AnalyticsDashboard() {
         {/* V3 — Cache Performance */}
         <CacheStatsCard />
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }
 
@@ -454,8 +458,17 @@ interface MetricCardProps {
 }
 
 function MetricCard({ title, value, change, icon, iconBg, iconColor }: MetricCardProps) {
+  const isPositive = change != null && Number(change) >= 0;
+  const isNegative = change != null && Number(change) < 0;
+  
   return (
-    <Card>
+    <Card 
+      className={
+        isPositive ? 'bg-green-50 border-green-200' : 
+        isNegative ? 'bg-red-50 border-red-200' : 
+        ''
+      }
+    >
       <CardContent className="pt-6">
         <div className="flex justify-between items-start mb-2">
           <p className="text-sm text-muted-foreground">{title}</p>
@@ -466,15 +479,15 @@ function MetricCard({ title, value, change, icon, iconBg, iconColor }: MetricCar
         <p className="text-2xl font-bold mb-1">{value}</p>
         {change != null && (
           <div className="flex items-center text-sm">
-            {Number(change) >= 0 ? (
+            {isPositive ? (
               <>
-                <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-                <span className="text-green-500">+{Number(change).toFixed(1)}%</span>
+                <TrendingUp className="w-4 h-4 text-green-600 mr-1" />
+                <span className="text-green-600 font-medium">+{Number(change).toFixed(1)}%</span>
               </>
             ) : (
               <>
-                <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
-                <span className="text-red-500">{Number(change).toFixed(1)}%</span>
+                <TrendingDown className="w-4 h-4 text-red-600 mr-1" />
+                <span className="text-red-600 font-medium">{Number(change).toFixed(1)}%</span>
               </>
             )}
             <span className="text-muted-foreground ml-1">vs last period</span>

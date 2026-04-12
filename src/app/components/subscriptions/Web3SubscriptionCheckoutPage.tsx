@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Loader2, CheckCircle2, AlertTriangle, Wallet, ShieldCheck, History } from 'lucide-react';
-import { DashboardLayout } from '../DashboardLayout';
+import { BentoLayout } from "../BentoLayout";
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -998,7 +998,7 @@ export default function Web3SubscriptionCheckoutPage({ planId = '' }: Web3Subscr
   }, [amountDecimal, selectedTokenSymbol]);
 
   return (
-    <DashboardLayout activePage="subscriptions">
+    <BentoLayout activePage="subscriptions">
       <div className="max-w-5xl mx-auto space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Wallet Recurring Billing</h1>
@@ -1224,6 +1224,6 @@ export default function Web3SubscriptionCheckoutPage({ planId = '' }: Web3Subscr
           {latestSigningNonce}
         </div>
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }

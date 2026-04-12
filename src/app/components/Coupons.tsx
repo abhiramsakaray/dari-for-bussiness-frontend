@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DashboardLayout } from './DashboardLayout';
+import { BentoLayout } from "./BentoLayout";
 import { Card } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -97,7 +97,7 @@ export function Coupons() {
   };
 
   return (
-    <DashboardLayout activePage="coupons">
+    <BentoLayout activePage="coupons">
       <div className="space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -363,6 +363,6 @@ export function Coupons() {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }

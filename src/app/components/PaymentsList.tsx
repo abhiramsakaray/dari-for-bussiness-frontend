@@ -1,4 +1,4 @@
-import { DashboardLayout } from "./DashboardLayout";
+import { BentoLayout } from "./BentoLayout";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
@@ -34,7 +34,7 @@ export function PaymentsList() {
   });
 
   return (
-    <DashboardLayout activePage="payments">
+    <BentoLayout activePage="payments">
       <div className="space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -185,6 +185,6 @@ export function PaymentsList() {
           </div>
         </Card>
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }

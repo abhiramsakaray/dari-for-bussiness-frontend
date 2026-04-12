@@ -1,9 +1,9 @@
-import { DashboardLayout } from "./DashboardLayout";
+import { BentoLayout } from "./BentoLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
-import { ArrowLeft, ExternalLink, Copy, Clock, CheckCircle2, XCircle, AlertCircle, UserCircle2, Tag } from "lucide-react";
+import { ArrowLeft, ExternalLink, Copy, Clock, CheckCircle2, XCircle, AlertCircle, UserCircle2, Tag, Download, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { chainpeService, PaymentSession } from "../../services/chainpe";
 import { toast } from "sonner";
@@ -71,7 +71,110 @@ export function PaymentDetail({ paymentId }: PaymentDetailProps) {
   const [payment, setPayment] = useState<PaymentSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isGeneratingReceipt, setIsGeneratingReceipt] = useState(false);
+  const [isDownloadingReceipt, setIsDownloadingReceipt] = useState(false);
   const { currency } = useMerchantCurrency();
+
+  const handleGenerateReceipt = async () => {
+    if (!payment || payment.status?.toLowerCase() !== 'paid') {
+      toast.error('Receipt can only be generated for paid payments');
+      return;
+    }
+
+    setIsGeneratingReceipt(true);
+    try {
+      const token = localStorage.getItem('merchant_token');
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+      
+      const response = await fetch(
+        `${API_BASE_URL}/receipts/payment/${payment.id || payment.session_id}/generate?send_email=false`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Failed to generate receipt');
+      }
+
+      const receiptData = await response.json();
+      toast.success('Receipt generated successfully!');
+      
+      // Automatically download the receipt
+      handleDownloadReceipt(receiptData.id);
+    } catch (err: any) {
+      console.error('Receipt generation error:', err);
+      toast.error(err.message || 'Failed to generate receipt');
+    } finally {
+      setIsGeneratingReceipt(false);
+    }
+  };
+
+  const handleDownloadReceipt = async (receiptId?: string) => {
+    if (!payment) return;
+
+    setIsDownloadingReceipt(true);
+    try {
+      const token = localStorage.getItem('merchant_token');
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+      
+      // If receiptId is provided, use it; otherwise try to fetch receipt for this payment
+      let downloadUrl = '';
+      if (receiptId) {
+        downloadUrl = `${API_BASE_URL}/receipts/${receiptId}/download`;
+      } else {
+        // Try to get existing receipt for this payment
+        const listResponse = await fetch(`${API_BASE_URL}/receipts?payment_session_id=${payment.id || payment.session_id}`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        
+        if (listResponse.ok) {
+          const receipts = await listResponse.json();
+          if (receipts.items && receipts.items.length > 0) {
+            downloadUrl = `${API_BASE_URL}/receipts/${receipts.items[0].id}/download`;
+          } else {
+            // No receipt exists, generate one first
+            await handleGenerateReceipt();
+            return;
+          }
+        } else {
+          // Can't check, try to generate
+          await handleGenerateReceipt();
+          return;
+        }
+      }
+
+      const response = await fetch(downloadUrl, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to download receipt');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `receipt_${payment.id || payment.session_id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.success('Receipt downloaded successfully!');
+    } catch (err: any) {
+      console.error('Receipt download error:', err);
+      toast.error(err.message || 'Failed to download receipt');
+    } finally {
+      setIsDownloadingReceipt(false);
+    }
+  };
 
   useEffect(() => {
     const fetchPayment = async () => {
@@ -89,7 +192,7 @@ export function PaymentDetail({ paymentId }: PaymentDetailProps) {
     fetchPayment();
   }, [paymentId]);
 
-  const status = payment?.status || "created";
+  const status = payment?.status?.toLowerCase() || "created";
   const config = statusConfig[status] || statusConfig.created;
   const canonicalSessionId = payment?.id || payment?.session_id || paymentId;
   const amountUsd = payment
@@ -100,7 +203,7 @@ export function PaymentDetail({ paymentId }: PaymentDetailProps) {
   const amountDual = payment ? displayDualAmount(amountUsd, payment.amount_fiat_local) : { primary: formatCurrency(0, currency), secondary: null };
 
   return (
-    <DashboardLayout activePage="payments">
+    <BentoLayout activePage="payments">
       <div className="space-y-6">
         {/* Back button + header */}
         <div className="flex items-center gap-4">
@@ -148,39 +251,60 @@ export function PaymentDetail({ paymentId }: PaymentDetailProps) {
                     </p>
                   </div>
                 </div>
-                <div className="text-right space-y-2">
-                  {payment.coupon_code && payment.discount_amount ? (
-                    // Show coupon breakdown
-                    <div className="space-y-1">
-                      <div className="text-sm text-muted-foreground line-through">
-                        {displayAmount(payment.amount_fiat || 0, payment.amount_fiat_local)}
+                <div className="flex items-center gap-4">
+                  <div className="text-right space-y-2">
+                    {payment.coupon_code && payment.discount_amount ? (
+                      // Show coupon breakdown
+                      <div className="space-y-1">
+                        <div className="text-sm text-muted-foreground line-through">
+                          {displayAmount(payment.amount_fiat || 0, payment.amount_fiat_local)}
+                        </div>
+                        <div className="flex items-center justify-end gap-2 text-green-600 dark:text-green-400">
+                          <Tag className="h-4 w-4" />
+                          <span className="text-sm font-medium">
+                            -{displayAmount(payment.discount_amount, payment.discount_amount_local)}
+                          </span>
+                          <Badge variant="secondary" className="font-mono text-xs">
+                            {payment.coupon_code}
+                          </Badge>
+                        </div>
+                        <div className="text-3xl font-bold">
+                          {displayAmount(payment.amount_paid || 0, payment.amount_paid_local)}
+                        </div>
+                        <p className="text-sm text-muted-foreground">Amount Paid</p>
                       </div>
-                      <div className="flex items-center justify-end gap-2 text-green-600 dark:text-green-400">
-                        <Tag className="h-4 w-4" />
-                        <span className="text-sm font-medium">
-                          -{displayAmount(payment.discount_amount, payment.discount_amount_local)}
-                        </span>
-                        <Badge variant="secondary" className="font-mono text-xs">
-                          {payment.coupon_code}
-                        </Badge>
-                      </div>
-                      <div className="text-3xl font-bold">
-                        {displayAmount(payment.amount_paid || 0, payment.amount_paid_local)}
-                      </div>
-                      <p className="text-sm text-muted-foreground">Amount Paid</p>
-                    </div>
-                  ) : (
-                    // No coupon - show standard amount
-                    <>
-                      <p className="text-3xl font-bold">
-                        {amountDual.primary}
-                      </p>
-                      {amountDual.secondary && (
-                        <p className="text-sm text-muted-foreground">
-                          {amountDual.secondary}
+                    ) : (
+                      // No coupon - show standard amount
+                      <>
+                        <p className="text-3xl font-bold">
+                          {amountDual.primary}
                         </p>
+                        {amountDual.secondary && (
+                          <p className="text-sm text-muted-foreground">
+                            {amountDual.secondary}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                  {status === "paid" && (
+                    <Button
+                      onClick={() => handleDownloadReceipt()}
+                      disabled={isGeneratingReceipt || isDownloadingReceipt}
+                      className="bg-primary hover:bg-primary/90 gap-2"
+                    >
+                      {isGeneratingReceipt || isDownloadingReceipt ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          {isGeneratingReceipt ? 'Generating...' : 'Downloading...'}
+                        </>
+                      ) : (
+                        <>
+                          <Download className="h-4 w-4" />
+                          Download Receipt
+                        </>
                       )}
-                    </>
+                    </Button>
                   )}
                 </div>
               </CardContent>
@@ -386,6 +510,6 @@ export function PaymentDetail({ paymentId }: PaymentDetailProps) {
           </div>
         ) : null}
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }

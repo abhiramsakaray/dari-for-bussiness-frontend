@@ -1,4 +1,4 @@
-import { DashboardLayout } from '../DashboardLayout';
+import { BentoLayout } from "../BentoLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -28,17 +28,17 @@ export function CouponAnalytics() {
 
   if (isLoading) {
     return (
-      <DashboardLayout activePage="coupons">
+      <BentoLayout activePage="coupons">
         <div className="flex items-center justify-center h-64">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
   if (error || !data) {
     return (
-      <DashboardLayout activePage="coupons">
+      <BentoLayout activePage="coupons">
         <div className="space-y-6">
           <Button
             variant="ghost"
@@ -53,7 +53,7 @@ export function CouponAnalytics() {
             </CardContent>
           </Card>
         </div>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
@@ -88,7 +88,7 @@ export function CouponAnalytics() {
       : 0;
 
   return (
-    <DashboardLayout activePage="coupons">
+    <BentoLayout activePage="coupons">
       <div className="space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -314,6 +314,6 @@ export function CouponAnalytics() {
           </Card>
         )}
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }

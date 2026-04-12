@@ -18,7 +18,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { DashboardLayout } from '../DashboardLayout';
+import { BentoLayout } from "../BentoLayout";
 
 const STATUS_CONFIG: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
   created: { color: 'bg-gray-500', icon: <Clock className="w-4 h-4" />, label: 'Created' },
@@ -227,7 +227,7 @@ export function PaymentTracker() {
   const [activeId, setActiveId] = useState('');
 
   return (
-    <DashboardLayout activePage="analytics">
+    <BentoLayout activePage="analytics">
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Payment Tracking</h1>
@@ -254,7 +254,7 @@ export function PaymentTracker() {
 
         {activeId && <PaymentTrackingView sessionId={activeId} />}
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }
 

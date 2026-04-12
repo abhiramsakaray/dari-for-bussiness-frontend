@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "../lib/queryClient";
 import { Toaster } from "./components/ui/sonner";
 
 // Import all page components
@@ -35,6 +37,8 @@ import { ApiDebugger } from "./components/ApiDebugger";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Coupons } from "./components/Coupons";
 import { CouponAnalytics } from "./components/coupons/CouponAnalytics";
+import { DariDesignShowcase } from "./components/DariDesignShowcase";
+import { BentoDashboard } from "./components/BentoDashboard";
 
 // Simple router based on URL hash
 export default function App() {
@@ -150,6 +154,8 @@ export default function App() {
       // Analytics Routes (protected)
       case route === "/analytics":
         return <ProtectedRoute><AnalyticsDashboard /></ProtectedRoute>;
+      case route === "/reports":
+        return <ProtectedRoute><AnalyticsDashboard /></ProtectedRoute>;
       case route === "/analytics/payment-tracking":
         return <ProtectedRoute><PaymentTracker /></ProtectedRoute>;
       case route.startsWith("/analytics/payments/") && route.endsWith("/track"):
@@ -179,15 +185,23 @@ export default function App() {
       case route === "/debug":
         return <ProtectedRoute><ApiDebugger /></ProtectedRoute>;
 
+      // Dari Design System Showcase
+      case route === "/design-system":
+        return <ProtectedRoute><DariDesignShowcase /></ProtectedRoute>;
+
+      // Bento Dashboard (New Glassmorphism Layout)
+      case route === "/bento-dashboard":
+        return <ProtectedRoute><BentoDashboard /></ProtectedRoute>;
+
       default:
         return <Landing />;
     }
   };
 
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       {renderPage()}
       <Toaster position="top-right" />
-    </>
+    </QueryClientProvider>
   );
 }

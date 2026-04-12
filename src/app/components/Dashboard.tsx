@@ -1,18 +1,26 @@
 import { useState } from "react";
-import { DashboardLayout } from "./DashboardLayout";
-import { Card } from "./ui/card";
+import { BentoLayout } from "./BentoLayout";
+import { 
+  BentoGrid, 
+  BentoCard, 
+  BentoKPICard,
+  BentoCardHeader,
+  BentoCardTitle,
+  BentoCardSubtitle,
+  BentoCardContent 
+} from "./ui/bento-grid";
 import { Skeleton } from "./ui/skeleton";
-import { TrendingUp, DollarSign, CheckCircle, Clock, Wallet2, Copy, Check, Tag } from "lucide-react";
+import { TrendingUp, DollarSign, CheckCircle, Clock, Wallet2, Copy, Check, Tag, ArrowUpRight } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "./ui/table";
+  DataTable,
+  DataTableHeader,
+  DataTableBody,
+  DataTableHead,
+  DataTableRow,
+  DataTableCell,
+} from "./ui/data-table";
 import { usePaymentHistory, usePaymentStats } from "../../hooks/usePaymentHistory";
 import { useWallets, useWalletDashboard } from "../../hooks/useWallets";
 import { CHAIN_INFO } from "../../services/wallets.service";
@@ -23,7 +31,7 @@ export function Dashboard() {
   const { payments, isLoading } = usePaymentHistory({ limit: 10 });
   const { stats, isLoading: statsLoading } = usePaymentStats();
   const { data: walletsData, isLoading: walletsLoading } = useWallets();
-  const { data: dashboardData, isLoading: dashboardLoading } = useWalletDashboard(); // Get dashboard data too
+  const { data: dashboardData, isLoading: dashboardLoading } = useWalletDashboard();
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Use stats endpoint for accurate metrics across all payments
@@ -42,136 +50,101 @@ export function Dashboard() {
   const combinedWalletsLoading = (walletsLoading || dashboardLoading) && !hasWallets;
 
   return (
-    <DashboardLayout activePage="overview">
-      <div className="space-y-8">
+    <BentoLayout activePage="overview">
+      <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl mb-2">Overview</h1>
-          <p className="text-muted-foreground">
-            Monitor your payment activity and performance
-          </p>
-        </div>
-
-        {/* Metrics */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="p-6 bg-card border-border">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <DollarSign className="h-5 w-5 text-primary" />
-              </div>
-              <TrendingUp className="h-4 w-4 text-green-500" />
-            </div>
-            {metricsLoading ? (
-              <>
-                <Skeleton className="h-8 w-24 mb-2" />
-                <Skeleton className="h-4 w-20" />
-              </>
-            ) : (
-              <>
-                <div className="text-2xl mb-1">{revenueDisplay.primary}</div>
-                {revenueDisplay.secondary && (
-                  <div className="text-sm text-muted-foreground mb-1">{revenueDisplay.secondary}</div>
-                )}
-                <p className="text-sm text-muted-foreground">Total Revenue</p>
-              </>
-            )}
-          </Card>
-
-          {hasCouponDiscounts && (
-            <Card className="p-6 bg-card border-border">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 bg-green-500/10 border border-green-500/20 flex items-center justify-center">
-                  <Tag className="h-5 w-5 text-green-600" />
-                </div>
-              </div>
-              <div className="text-2xl mb-1">
-                {displayAmount(stats.revenue.total_coupon_discount, totalCouponDiscountLocal)}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Coupon Discounts ({stats.revenue.coupon_payment_count} payments)
-              </p>
-            </Card>
-          )}
-
-          <Card className="p-6 bg-card border-border">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-primary" />
-              </div>
-            </div>
-            {metricsLoading ? (
-              <>
-                <Skeleton className="h-8 w-12 mb-2" />
-                <Skeleton className="h-4 w-24" />
-              </>
-            ) : (
-              <>
-                <div className="text-2xl mb-1">{paymentsToday}</div>
-                <p className="text-sm text-muted-foreground">Payments Today</p>
-              </>
-            )}
-          </Card>
-
-          <Card className="p-6 bg-card border-border">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <CheckCircle className="h-5 w-5 text-primary" />
-              </div>
-            </div>
-            {metricsLoading ? (
-              <>
-                <Skeleton className="h-8 w-16 mb-2" />
-                <Skeleton className="h-4 w-20" />
-              </>
-            ) : (
-              <>
-                <div className="text-2xl mb-1">{successRate}%</div>
-                <p className="text-sm text-muted-foreground">Success Rate</p>
-              </>
-            )}
-          </Card>
-
-          <Card className="p-6 bg-card border-border">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <Clock className="h-5 w-5 text-primary" />
-              </div>
-            </div>
-            <div className="text-2xl mb-1">~3.1s</div>
-            <p className="text-sm text-muted-foreground">Avg Settlement Time</p>
-          </Card>
-        </div>
-
-        {/* Wallet Widget */}
-        <Card className="bg-card border-border">
-          <div className="p-6 border-b border-border flex items-center justify-between">
-            <div>
-              <h2 className="text-xl mb-1">Your Wallets</h2>
-              <p className="text-sm text-muted-foreground">Quick access to your blockchain addresses</p>
-            </div>
-            <a href="#/wallets">
-              <Button variant="outline" size="sm">
-                View All
-              </Button>
-            </a>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-[32px] font-bold tracking-tight text-foreground">Overview</h1>
+            <p className="text-[13px] text-muted-foreground mt-1">
+              Monitor your payment activity and performance
+            </p>
           </div>
-          <div className="p-6">
-            {combinedWalletsLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3, 4].map((idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex items-center gap-3 flex-1">
-                      <Skeleton className="w-6 h-6 rounded-full" />
-                      <div className="flex-1 space-y-2">
-                        <Skeleton className="h-4 w-24" />
-                        <Skeleton className="h-3 w-64" />
-                      </div>
-                    </div>
-                    <Skeleton className="h-8 w-8" />
-                  </div>
-                ))}
+        </div>
+
+        {/* Row 1 - KPI Metrics */}
+        <BentoGrid>
+          {metricsLoading ? (
+            <>
+              <BentoCard span={3}>
+                <Skeleton className="h-32" />
+              </BentoCard>
+              <BentoCard span={3}>
+                <Skeleton className="h-32" />
+              </BentoCard>
+              <BentoCard span={3}>
+                <Skeleton className="h-32" />
+              </BentoCard>
+              <BentoCard span={3}>
+                <Skeleton className="h-32" />
+              </BentoCard>
+            </>
+          ) : (
+            <>
+              <BentoKPICard
+                label="TOTAL REVENUE"
+                value={revenueDisplay.primary}
+                trend={{ value: 12.5, direction: "up" }}
+              />
+              
+              {hasCouponDiscounts ? (
+                <BentoKPICard
+                  label="COUPON DISCOUNTS"
+                  value={displayAmount(stats.revenue.total_coupon_discount, totalCouponDiscountLocal)}
+                />
+              ) : (
+                <BentoKPICard
+                  label="PAYMENTS TODAY"
+                  value={paymentsToday.toString()}
+                />
+              )}
+              
+              <BentoKPICard
+                label="SUCCESS RATE"
+                value={`${successRate}%`}
+                trend={{ value: 5.2, direction: "up" }}
+              />
+              
+              <BentoKPICard
+                label="AVG SETTLEMENT"
+                value="~3.1s"
+              />
+            </>
+          )}
+        </BentoGrid>
+
+        {/* Row 2 - Wallets Widget */}
+        <BentoGrid>
+          <BentoCard span={12} hover={false}>
+            <BentoCardHeader>
+              <div>
+                <BentoCardTitle>Your Wallets</BentoCardTitle>
+                <BentoCardSubtitle>Quick access to your blockchain addresses</BentoCardSubtitle>
               </div>
-            ) : !hasWallets ? (
+              <a href="#/wallets">
+                <Button variant="outline" size="sm">
+                  View All
+                  <ArrowUpRight className="h-4 w-4 ml-1" />
+                </Button>
+              </a>
+            </BentoCardHeader>
+            <BentoCardContent>
+              {combinedWalletsLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3, 4].map((idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center gap-3 flex-1">
+                        <Skeleton className="w-6 h-6 rounded-full" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-24" />
+                          <Skeleton className="h-3 w-64" />
+                        </div>
+                      </div>
+                      <Skeleton className="h-8 w-8" />
+                    </div>
+                  ))}
+                </div>
+              ) : !hasWallets ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Wallet2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
                   <p className="mb-2">No wallets configured yet</p>
@@ -200,7 +173,7 @@ export function Dashboard() {
                     return (
                       <div
                         key={walletId}
-                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/40 transition-dari"
                       >
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           <div className="text-xl">{chainInfo?.icon || '🔗'}</div>
@@ -208,8 +181,8 @@ export function Dashboard() {
                             <div className="flex items-center gap-2">
                               <span className="font-medium text-sm">{chainInfo?.name || wallet.chain}</span>
                               <Badge
-                                variant={wallet.is_active ? 'default' : 'secondary'}
-                                className={wallet.is_active ? 'bg-green-500 text-xs' : 'text-xs'}
+                                variant={wallet.is_active ? 'success' : 'default'}
+                                className="text-xs"
                               >
                                 {wallet.is_active ? 'Active' : 'Inactive'}
                               </Badge>
@@ -243,99 +216,104 @@ export function Dashboard() {
                   )}
                 </div>
               )}
-            </div>
-          </Card>
+            </BentoCardContent>
+          </BentoCard>
+        </BentoGrid>
 
-        {/* Recent Payments */}
-        <Card className="bg-card border-border">
-          <div className="p-6 border-b border-border">
-            <h2 className="text-xl">Recent Payments</h2>
-          </div>
-          <div className="overflow-x-auto">
-            {isLoading ? (
-              <div className="p-6 space-y-3">
-                {[1, 2, 3, 4].map((idx) => (
-                  <div key={idx} className="grid grid-cols-5 gap-4">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-4 w-16" />
-                    <Skeleton className="h-6 w-16" />
-                    <Skeleton className="h-4 w-28" />
-                    <Skeleton className="h-4 w-36" />
-                  </div>
-                ))}
+        {/* Row 3 - Recent Payments */}
+        <BentoGrid>
+          <BentoCard span={12} hover={false}>
+            <BentoCardHeader>
+              <div>
+                <BentoCardTitle>Recent Payments</BentoCardTitle>
+                <BentoCardSubtitle>Latest payment transactions</BentoCardSubtitle>
               </div>
-            ) : (payments || []).length === 0 ? (
-                <div className="p-8 text-center text-muted-foreground">
-                  No payments yet. Create your first payment to get started!
+            </BentoCardHeader>
+            <BentoCardContent>
+              {isLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3, 4].map((idx) => (
+                    <div key={idx} className="grid grid-cols-5 gap-4">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-4 w-16" />
+                      <Skeleton className="h-6 w-16" />
+                      <Skeleton className="h-4 w-28" />
+                      <Skeleton className="h-4 w-36" />
+                    </div>
+                  ))}
+                </div>
+              ) : (payments || []).length === 0 ? (
+                <div className="py-12 text-center text-muted-foreground">
+                  <p className="text-[15px] font-semibold mb-2">No payments yet</p>
+                  <p className="text-[13px]">Create your first payment to get started!</p>
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Session ID</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Tx Hash</TableHead>
-                      <TableHead>Created At</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                <DataTable>
+                  <DataTableHeader>
+                    <DataTableRow>
+                      <DataTableHead>Session ID</DataTableHead>
+                      <DataTableHead>Amount</DataTableHead>
+                      <DataTableHead>Status</DataTableHead>
+                      <DataTableHead>Tx Hash</DataTableHead>
+                      <DataTableHead>Created At</DataTableHead>
+                    </DataTableRow>
+                  </DataTableHeader>
+                  <DataTableBody>
                     {(payments || []).map((payment) => (
-                      <TableRow
+                      <DataTableRow
                         key={payment.id || payment.session_id}
-                        className="cursor-pointer hover:bg-muted/50 transition-colors"
+                        className="cursor-pointer"
                         onClick={() => window.location.href = `#/dashboard/payments/${payment.id || payment.session_id}`}
                       >
-                        <TableCell className="font-mono text-sm">
+                        <DataTableCell className="font-mono text-xs">
                           {payment.id || payment.session_id}
-                        </TableCell>
-                        <TableCell>{displayDualAmount(
-                          payment.amount_fiat || parseFloat(payment.amount_usdc || '0'),
-                          payment.amount_fiat_local
-                        ).primary}</TableCell>
-                        <TableCell>
+                        </DataTableCell>
+                        <DataTableCell className="font-semibold">
+                          {displayDualAmount(
+                            payment.amount_fiat || parseFloat(payment.amount_usdc || '0'),
+                            payment.amount_fiat_local
+                          ).primary}
+                        </DataTableCell>
+                        <DataTableCell>
                           <Badge
                             variant={
                               payment.status === "paid"
-                                ? "default"
+                                ? "success"
                                 : payment.status === "created"
-                                  ? "secondary"
+                                  ? "pending"
                                   : "destructive"
                             }
-                            className={
-                              payment.status === "paid"
-                                ? "bg-primary/20 text-primary border-primary/30"
-                                : ""
-                            }
                           >
-                            {payment.status}
+                            {payment.status.toUpperCase()}
                           </Badge>
-                        </TableCell>
-                        <TableCell className="font-mono text-sm">
+                        </DataTableCell>
+                        <DataTableCell className="font-mono text-xs">
                           {payment.tx_hash ? (
                             <a
                               href={`https://stellar.expert/explorer/testnet/tx/${payment.tx_hash}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-primary hover:underline"
+                              onClick={(e) => e.stopPropagation()}
                             >
                               {payment.tx_hash.slice(0, 12)}...
                             </a>
                           ) : (
                             <span className="text-muted-foreground">-</span>
                           )}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
+                        </DataTableCell>
+                        <DataTableCell secondary className="font-mono text-xs">
                           {payment.created_at ? new Date(payment.created_at).toLocaleString() : '-'}
-                        </TableCell>
-                      </TableRow>
+                        </DataTableCell>
+                      </DataTableRow>
                     ))}
-                  </TableBody>
-                </Table>
+                  </DataTableBody>
+                </DataTable>
               )}
-            </div>
-          </Card>
+            </BentoCardContent>
+          </BentoCard>
+        </BentoGrid>
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useBilling } from '../../hooks/useBilling';
 import { useMerchantCurrency } from '../../hooks/useMerchantCurrency';
-import { DashboardLayout } from './DashboardLayout';
+import { BentoLayout } from "./BentoLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -37,20 +37,20 @@ export function Billing() {
 
   if (isLoading) {
     return (
-      <DashboardLayout activePage="billing">
+      <BentoLayout activePage="billing">
         <div className="p-6">
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-muted rounded w-1/4"></div>
             <div className="h-64 bg-muted rounded"></div>
           </div>
         </div>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
   if (!billingInfo) {
     return (
-      <DashboardLayout activePage="billing">
+      <BentoLayout activePage="billing">
         <div className="p-6">
           <Alert>
             <AlertCircle className="h-4 w-4" />
@@ -60,7 +60,7 @@ export function Billing() {
             </AlertDescription>
           </Alert>
         </div>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
@@ -129,7 +129,7 @@ export function Billing() {
   };
 
   return (
-    <DashboardLayout activePage="billing">
+    <BentoLayout activePage="billing">
       <div className="p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">Billing & Plans</h1>
@@ -335,6 +335,6 @@ export function Billing() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }

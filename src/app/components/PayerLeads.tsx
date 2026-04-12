@@ -1,4 +1,4 @@
-import { DashboardLayout } from "./DashboardLayout";
+import { BentoLayout } from "./BentoLayout";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -61,7 +61,7 @@ export function PayerLeads() {
   };
 
   return (
-    <DashboardLayout activePage="payer-leads">
+    <BentoLayout activePage="payer-leads">
       <div className="space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -212,6 +212,6 @@ export function PayerLeads() {
           </div>
         </Card>
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }

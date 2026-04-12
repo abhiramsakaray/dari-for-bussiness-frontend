@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -54,7 +54,7 @@ import {
   UserCog,
 } from 'lucide-react';
 import { useMerchantStore } from '../../../stores/merchant-store';
-import { DashboardLayout } from '../DashboardLayout';
+import { BentoLayout } from "../BentoLayout";
 
 const ROLE_CONFIG: Record<MerchantRole, {
   label: string;
@@ -162,18 +162,18 @@ export default function TeamMembersList() {
 
   if (isLoading) {
     return (
-      <DashboardLayout activePage="team">
+      <BentoLayout activePage="team">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         </div>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
   if (error) {
     const is403 = (error as any)?.response?.status === 403;
     return (
-      <DashboardLayout activePage="team">
+      <BentoLayout activePage="team">
         <Card className="border-destructive/30 mt-8">
           <CardHeader>
             <CardTitle className="text-destructive flex items-center gap-2">
@@ -194,15 +194,15 @@ export default function TeamMembersList() {
             )}
           </CardContent>
         </Card>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
   return (
-    <DashboardLayout activePage="team">
+    <BentoLayout activePage="team">
       <div className="h-[calc(100vh-7rem)] flex flex-col gap-4 overflow-hidden">
 
-        {/* â”€â”€ Header â”€â”€ */}
+        {/* ── Header ── */}
         <div className="flex items-center justify-between shrink-0">
           <div>
             <h1 className="text-2xl font-semibold">Team Management</h1>
@@ -215,7 +215,7 @@ export default function TeamMembersList() {
           )}
         </div>
 
-        {/* â”€â”€ Stats row â”€â”€ */}
+        {/* ── Stats row ── */}
         <div className="grid grid-cols-4 gap-4 shrink-0">
           <Card className="bg-card border-border p-4 text-center">
             <p className="text-2xl font-bold">{members.length}</p>
@@ -235,10 +235,10 @@ export default function TeamMembersList() {
           </Card>
         </div>
 
-        {/* â”€â”€ Main bento â”€â”€ */}
+        {/* ── Main bento ── */}
         <div className="flex-1 grid grid-cols-3 gap-4 min-h-0">
 
-          {/* Members area â€” col span 2 */}
+          {/* Members area — col span 2 */}
           <div className="col-span-2 flex flex-col gap-3 overflow-hidden">
             {members.length === 0 ? (
               <Card className="flex-1 bg-card border-border flex flex-col items-center justify-center gap-4 p-8">
@@ -274,7 +274,7 @@ export default function TeamMembersList() {
             )}
           </div>
 
-          {/* Right column â€” Role guide */}
+          {/* Right column — Role guide */}
           <Card className="bg-secondary/40 border-border flex flex-col overflow-hidden">
             <div className="p-5 border-b border-border shrink-0">
               <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Role Permissions</p>
@@ -311,7 +311,7 @@ export default function TeamMembersList() {
         </div>
       </div>
 
-      {/* â”€â”€ Invite Dialog â”€â”€ */}
+      {/* ── Invite Dialog ── */}
       <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -340,7 +340,7 @@ export default function TeamMembersList() {
                         <span className="flex items-center gap-2">
                           <span className={cfg.color}>{cfg.icon}</span>
                           <span>{cfg.label}</span>
-                          <span className="text-xs text-muted-foreground">â€” {cfg.description}</span>
+                          <span className="text-xs text-muted-foreground">— {cfg.description}</span>
                         </span>
                       </SelectItem>
                     );
@@ -351,14 +351,14 @@ export default function TeamMembersList() {
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => { reset(); setInviteDialogOpen(false); }}>Cancel</Button>
               <Button type="submit" disabled={inviteMutation.isPending} className="bg-primary hover:bg-primary/90">
-                {inviteMutation.isPending ? 'Sendingâ€¦' : 'Send Invitation'}
+                {inviteMutation.isPending ? 'Sending…' : 'Send Invitation'}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* â”€â”€ Edit Role Dialog â”€â”€ */}
+      {/* ── Edit Role Dialog ── */}
       <Dialog open={!!editMember} onOpenChange={() => setEditMember(null)}>
         <DialogContent>
           <DialogHeader>
@@ -378,7 +378,7 @@ export default function TeamMembersList() {
                       <span className="flex items-center gap-2">
                         <span className={cfg.color}>{cfg.icon}</span>
                         <span>{cfg.label}</span>
-                        <span className="text-xs text-muted-foreground">â€” {cfg.description}</span>
+                        <span className="text-xs text-muted-foreground">— {cfg.description}</span>
                       </span>
                     </SelectItem>
                   );
@@ -399,13 +399,13 @@ export default function TeamMembersList() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditMember(null)}>Cancel</Button>
             <Button onClick={handleRoleUpdate} disabled={updateMutation.isPending} className="bg-primary hover:bg-primary/90">
-              {updateMutation.isPending ? 'Savingâ€¦' : 'Save Role'}
+              {updateMutation.isPending ? 'Saving…' : 'Save Role'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* â”€â”€ Remove Confirm Dialog â”€â”€ */}
+      {/* ── Remove Confirm Dialog ── */}
       <Dialog open={!!removeDialogMember} onOpenChange={() => setRemoveDialogMember(null)}>
         <DialogContent>
           <DialogHeader>
@@ -417,16 +417,16 @@ export default function TeamMembersList() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setRemoveDialogMember(null)}>Cancel</Button>
             <Button variant="destructive" onClick={handleRemoveConfirm} disabled={removeMutation.isPending}>
-              {removeMutation.isPending ? 'Removingâ€¦' : 'Remove Member'}
+              {removeMutation.isPending ? 'Removing…' : 'Remove Member'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }
 
-/* â”€â”€â”€ Member Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Member Card ─────────────────────────────────────────── */
 interface MemberCardProps {
   member: TeamMember;
   currentUserEmail: string | null;

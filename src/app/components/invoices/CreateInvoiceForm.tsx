@@ -11,7 +11,7 @@ import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { DashboardLayout } from '../DashboardLayout';
+import { BentoLayout } from "../BentoLayout";
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { formatCurrency } from '../../../lib/utils';
 
@@ -145,7 +145,7 @@ export function CreateInvoiceForm() {
   defaultDueDate.setDate(defaultDueDate.getDate() + 30);
 
   return (
-    <DashboardLayout activePage="invoices">
+    <BentoLayout activePage="invoices">
       <div className="space-y-6">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigateTo('/invoices')}>
@@ -475,7 +475,7 @@ export function CreateInvoiceForm() {
         </div>
       </form>
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }
 

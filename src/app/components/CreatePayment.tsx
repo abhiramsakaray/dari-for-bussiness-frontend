@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { DashboardLayout } from "./DashboardLayout";
+import { BentoLayout } from "./BentoLayout";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -121,7 +121,7 @@ export function CreatePayment() {
   /* ─── SUCCESS STATE ─────────────────────────────────────────── */
   if (sessionData) {
     return (
-      <DashboardLayout activePage="create">
+      <BentoLayout activePage="create">
         <div className="h-[calc(100vh-7rem)] flex flex-col gap-4 overflow-hidden">
           <div className="flex items-center justify-between shrink-0">
             <div>
@@ -201,13 +201,13 @@ export function CreatePayment() {
             </Card>
           </div>
         </div>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
   /* ─── CREATE FORM ────────────────────────────────────────────── */
   return (
-    <DashboardLayout activePage="create">
+    <BentoLayout activePage="create">
       <form onSubmit={handleCreate} className="h-[calc(100vh-7rem)] flex flex-col gap-4 overflow-hidden">
         <div className="shrink-0">
           <h1 className="text-2xl font-semibold">Create Payment</h1>
@@ -359,7 +359,7 @@ export function CreatePayment() {
 
         </div>
       </form>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }
 

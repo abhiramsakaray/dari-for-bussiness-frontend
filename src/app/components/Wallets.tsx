@@ -6,7 +6,7 @@ import { Button } from './ui/button';
 import { toast } from 'sonner';
 import { Copy, Check, Wallet, ArrowDownLeft, RefreshCw } from 'lucide-react';
 import { CHAIN_INFO, type ChainType } from '../../services/wallets.service';
-import { DashboardLayout } from './DashboardLayout';
+import { BentoLayout } from "./BentoLayout";
 
 export default function Wallets() {
   const { data: dashboard, isLoading, error, refetch, isFetching } = useWalletDashboard();
@@ -25,32 +25,32 @@ export default function Wallets() {
 
   if (isLoading) {
     return (
-      <DashboardLayout activePage="wallets">
+      <BentoLayout activePage="wallets">
         <div className="container mx-auto p-6 animate-pulse">
             <div className="h-40 bg-muted rounded-lg mb-8"></div>
              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {[1, 2, 3].map(i => <div key={i} className="h-32 bg-muted rounded-lg"></div>)}
              </div>
         </div>
-      </DashboardLayout>
+      </BentoLayout>
     );
   }
 
   if (error || !dashboard) {
     return (
-       <DashboardLayout activePage="wallets">
+       <BentoLayout activePage="wallets">
         <div className="container mx-auto p-6">
             <h1 className="text-3xl font-bold mb-6">Wallets & Balances</h1>
             <div className="p-8 text-center border rounded-lg bg-red-50 text-red-600">
                 Failed to load wallet dashboard. Please try again later.
             </div>
         </div>
-       </DashboardLayout>
+       </BentoLayout>
     );
   }
 
   return (
-    <DashboardLayout activePage="wallets">
+    <BentoLayout activePage="wallets">
       <div className="container mx-auto space-y-8">
         <div className="flex items-start justify-between">
             <div>
@@ -217,6 +217,6 @@ export default function Wallets() {
             </div>
         </div>
       </div>
-    </DashboardLayout>
+    </BentoLayout>
   );
 }
