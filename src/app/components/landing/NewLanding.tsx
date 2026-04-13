@@ -62,10 +62,15 @@ export function NewLanding() {
       {/* CTA Section */}
       <section id="cta" className="py-24 bg-white">
         <div className="max-w-[1160px] mx-auto px-6">
-          <div className="bg-black rounded-3xl p-20 relative overflow-hidden min-h-[360px] flex flex-col items-center justify-center text-center">
-            <div className="absolute inset-0 opacity-30">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500"></div>
-            </div>
+          <div 
+            className="bg-black rounded-3xl p-20 relative overflow-hidden min-h-[360px] flex flex-col items-center justify-center text-center"
+            style={{
+              backgroundImage: 'url(/assets/grad1.png)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
+            <div className="absolute inset-0 bg-black/20"></div>
             <div className="relative z-10">
               <p className="font-mono text-xs text-white tracking-widest uppercase mb-4">
                 Get started

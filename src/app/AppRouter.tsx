@@ -58,10 +58,12 @@ import { SubscriptionTracker } from './components/analytics/SubscriptionTracker'
 import TeamMembersList from './components/team/TeamMembersList';
 
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ScrollToTop } from './components/ScrollToTop';
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         {/* Landing Pages */}
         <Route path="/" element={<NewLanding />} />
