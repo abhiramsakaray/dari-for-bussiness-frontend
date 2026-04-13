@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 
 export function Header() {
@@ -27,16 +28,18 @@ export function Header() {
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
-            onClick={() => window.location.href = '#/login'}
+            asChild
           >
-            Login
+            <Link to="/login">Login</Link>
           </Button>
           <Button
-            onClick={() => window.location.href = '#/register'}
+            asChild
             className="bg-primary hover:bg-primary/90"
           >
-            Get Started
-            <ArrowRight className="ml-2 h-4 w-4" />
+            <Link to="/register">
+              Get Started
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
           </Button>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BentoLayout } from "./BentoLayout";
 import { Card } from './ui/card';
 import { Badge } from './ui/badge';
@@ -41,6 +42,7 @@ import { CreateCouponModal } from './coupons/CreateCouponModal';
 import { PromoCode } from '@/types/api.types';
 
 export function Coupons() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<'active' | 'inactive' | undefined>(undefined);
   const [showCreate, setShowCreate] = useState(false);
@@ -267,7 +269,7 @@ export function Coupons() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() =>
-                                    (window.location.href = `#/dashboard/coupons/${coupon.id}/analytics`)
+                                    navigate(`/dashboard/coupons/${coupon.id}/analytics`)
                                   }
                                 >
                                   <TrendingUp className="w-4 h-4" />

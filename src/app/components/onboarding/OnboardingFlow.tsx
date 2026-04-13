@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BusinessDetails } from './BusinessDetails';
 import { PlanSelection } from './PlanSelection';
 import { WalletSetup } from './WalletSetup';
@@ -8,6 +9,7 @@ import { Loader2 } from 'lucide-react';
 type OnboardingStep = 'loading' | 'business_details' | 'plan_selection' | 'wallet_setup' | 'complete';
 
 export function OnboardingFlow() {
+  const navigate = useNavigate();
   const [step, setStep] = useState<OnboardingStep>('loading');
   const [selectedPlan, setSelectedPlan] = useState<string>('free');
 
@@ -23,7 +25,7 @@ export function OnboardingFlow() {
       
       if (!token || !apiKey) {
         console.warn('Not authenticated, redirecting to login');
-        window.location.hash = '#/login';
+        navigate('/login');
         return;
       }
 
@@ -36,7 +38,7 @@ export function OnboardingFlow() {
       if (status.onboarding_completed) {
         // Already completed, redirect to dashboard
         console.log('Onboarding already completed, redirecting to dashboard');
-        window.location.hash = '#/dashboard';
+        navigate('/dashboard');
         return;
       }
 
@@ -57,7 +59,7 @@ export function OnboardingFlow() {
       const err = error as any;
       if (err?.response?.status === 401) {
         console.warn('Authentication error, redirecting to login');
-        window.location.hash = '#/login';
+        navigate('/login');
         return;
       }
       
@@ -92,7 +94,7 @@ export function OnboardingFlow() {
     
     // Redirect to dashboard
     setTimeout(() => {
-      window.location.hash = '#/dashboard';
+      navigate('/dashboard');
     }, 500);
   };
 

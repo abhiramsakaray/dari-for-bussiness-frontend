@@ -4,6 +4,7 @@ import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Search, Tag } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -17,6 +18,7 @@ import { useState } from "react";
 import { displayAmount, displayDualAmount } from "../../lib/utils";
 
 export function PaymentsList() {
+  const navigate = useNavigate();
   const { payments, isLoading } = usePaymentHistory({ limit: 50 });
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -46,7 +48,7 @@ export function PaymentsList() {
           </div>
           <Button
             className="bg-primary hover:bg-primary/90"
-            onClick={() => window.location.href = '#/dashboard/create'}
+            onClick={() => navigate('/dashboard/create')}
           >
             Create Payment
           </Button>
@@ -104,7 +106,7 @@ export function PaymentsList() {
                     <TableRow
                       key={payment.id || payment.session_id}
                       className="cursor-pointer hover:bg-muted/50 transition-colors"
-                      onClick={() => window.location.href = `#/dashboard/payments/${payment.id || payment.session_id}`}
+                      onClick={() => navigate(`/dashboard/payments/${payment.id || payment.session_id}`)}
                     >
                       <TableCell className="font-mono text-sm">
                         {payment.id || payment.session_id}

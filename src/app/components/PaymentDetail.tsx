@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { ArrowLeft, ExternalLink, Copy, Clock, CheckCircle2, XCircle, AlertCircle, UserCircle2, Tag, Download, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { chainpeService, PaymentSession } from "../../services/chainpe";
 import { toast } from "sonner";
 import { displayAmount, displayDualAmount, formatCurrency } from "../../lib/utils";
@@ -68,6 +69,7 @@ function DetailRow({ label, value, mono, copyable }: { label: string; value: Rea
 }
 
 export function PaymentDetail({ paymentId }: PaymentDetailProps) {
+  const navigate = useNavigate();
   const [payment, setPayment] = useState<PaymentSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -210,7 +212,7 @@ export function PaymentDetail({ paymentId }: PaymentDetailProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => window.location.href = "#/dashboard/payments"}
+            onClick={() => navigate('/dashboard/payments')}
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -227,7 +229,7 @@ export function PaymentDetail({ paymentId }: PaymentDetailProps) {
         ) : error ? (
           <Card className="bg-card border-border p-12 text-center">
             <p className="text-destructive mb-4">{error}</p>
-            <Button variant="outline" onClick={() => window.location.href = "#/dashboard/payments"}>
+            <Button variant="outline" onClick={() => navigate('/dashboard/payments')}>
               Back to Payments
             </Button>
           </Card>

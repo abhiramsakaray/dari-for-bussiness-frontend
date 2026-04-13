@@ -57,8 +57,8 @@ export function CreatePayment() {
     amount: "",
     orderId: generateOrderId(),
     currency: "USD",
-    successUrl: `${window.location.origin}/#/dashboard?payment=success`,
-    cancelUrl: `${window.location.origin}/#/dashboard?payment=cancelled`,
+    successUrl: `${window.location.origin}/dashboard?payment=success`,
+    cancelUrl: `${window.location.origin}/dashboard?payment=cancelled`,
   });
   const [sessionData, setSessionData] = useState<PaymentSession | null>(null);
   const [rates, setRates] = useState<Record<string, number>>({});

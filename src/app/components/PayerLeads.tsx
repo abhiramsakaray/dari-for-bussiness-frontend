@@ -2,6 +2,7 @@ import { BentoLayout } from "./BentoLayout";
 import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -19,6 +20,7 @@ import { Mail, UserCircle2, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 export function PayerLeads() {
+  const navigate = useNavigate();
   const [leads, setLeads] = useState<PaymentSession[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -155,7 +157,7 @@ export function PayerLeads() {
                       key={lead.id || lead.session_id}
                       className="cursor-pointer hover:bg-muted/50 transition-colors"
                       onClick={() =>
-                        window.location.href = `#/dashboard/payments/${lead.id || lead.session_id}`
+                        navigate(`/dashboard/payments/${lead.id || lead.session_id}`)
                       }
                     >
                       <TableCell>

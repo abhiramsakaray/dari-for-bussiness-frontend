@@ -125,7 +125,7 @@ const BentoKPICard = React.forwardRef<HTMLDivElement, BentoKPICardProps>(
         </div>
 
         {/* Value */}
-        <div className="text-[44px] font-bold tracking-tight text-foreground leading-none mb-3">
+        <div className="text-[32px] font-bold tracking-tight text-foreground leading-none mb-3">
           {value}
         </div>
 

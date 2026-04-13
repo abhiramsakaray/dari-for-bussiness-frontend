@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -13,6 +13,7 @@ import { toast } from "sonner";
 type LoginType = 'merchant' | 'team';
 
 export function Login() {
+  const navigate = useNavigate();
   const [loginType, setLoginType] = useState<LoginType>('merchant');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -54,15 +55,15 @@ export function Login() {
         
         // Check if admin
         if (email.includes('admin')) {
-          window.location.href = '#/admin';
+          navigate('/admin');
           return;
         }
         
         // Redirect based on onboarding status
         if (response.onboarding_completed === false) {
-          window.location.href = '#/onboarding';
+          navigate('/onboarding');
         } else {
-          window.location.href = '#/dashboard';
+          navigate('/dashboard');
         }
       } else {
         // Team member login
@@ -71,7 +72,7 @@ export function Login() {
         toast.success("Login successful!");
         
         // Redirect to regular dashboard (same as merchants, but with role-based permissions)
-        window.location.href = '#/dashboard';
+        navigate('/dashboard');
       }
     } catch (err: any) {
       const errorMessage = err.response?.data?.detail || 'Login failed. Please check your credentials.';

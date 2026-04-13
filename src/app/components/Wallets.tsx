@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useWalletDashboard } from '../../hooks/useWallets';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Badge } from './ui/badge';
@@ -170,7 +171,7 @@ export default function Wallets() {
                     <ArrowDownLeft className="w-5 h-5" /> Deposit Addresses
                 </h2>
                 <Button variant="outline" size="sm" asChild>
-                    <a href="#/dashboard/settings">Manage Wallets</a>
+                    <Link to="/dashboard/settings">Manage Wallets</Link>
                 </Button>
             </div>
             

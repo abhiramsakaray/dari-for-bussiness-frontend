@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import logoUrl from '../../../assets/logo.png';
 import {
@@ -11,7 +12,7 @@ import {
   X,
   ShieldCheck,
   Code,
-  Link,
+  Link as LinkIcon,
   FileText,
   RefreshCw,
   BarChart3,
@@ -62,6 +63,7 @@ function getDefaultOpenGroups(activePage: string): Record<string, boolean> {
 }
 
 export function DashboardLayout({ children, activePage, isAdmin = false }: DashboardLayoutProps) {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(
     () => getDefaultOpenGroups(activePage)
@@ -79,7 +81,7 @@ export function DashboardLayout({ children, activePage, isAdmin = false }: Dashb
 
   const handleLogout = () => {
     localStorage.removeItem('merchant_token');
-    window.location.href = '#/';
+    navigate('/');
   };
 
   const toggleGroup = (id: string) =>
@@ -91,15 +93,15 @@ export function DashboardLayout({ children, activePage, isAdmin = false }: Dashb
       label: 'Payments',
       icon: CreditCard,
       items: [
-        { id: 'overview',       label: 'Overview',       icon: LayoutDashboard, href: '#/dashboard' },
-        { id: 'payments',       label: 'Transactions',   icon: CreditCard,      href: '#/dashboard/payments' },
-        { id: 'payer-leads',    label: 'Payer Leads',    icon: UserCircle2,     href: '#/dashboard/payer-leads' },
-        { id: 'create',         label: 'Create Payment', icon: Plus,            href: '#/dashboard/create' },
-        { id: 'payment-links',  label: 'Payment Links',  icon: Link,            href: '#/payment-links' },
-        { id: 'invoices',       label: 'Invoices',       icon: FileText,        href: '#/invoices' },
-        { id: 'subscriptions',  label: 'Subscriptions',  icon: Repeat,          href: '#/subscriptions' },
-        { id: 'coupons',        label: 'Promo Codes',    icon: Tag,             href: '#/dashboard/coupons' },
-        { id: 'refunds',        label: 'Refunds',        icon: RefreshCw,       href: '#/refunds' },
+        { id: 'overview',       label: 'Overview',       icon: LayoutDashboard, href: '/dashboard' },
+        { id: 'payments',       label: 'Transactions',   icon: CreditCard,      href: '/dashboard/payments' },
+        { id: 'payer-leads',    label: 'Payer Leads',    icon: UserCircle2,     href: '/dashboard/payer-leads' },
+        { id: 'create',         label: 'Create Payment', icon: Plus,            href: '/dashboard/create' },
+        { id: 'payment-links',  label: 'Payment Links',  icon: LinkIcon,        href: '/payment-links-dashboard' },
+        { id: 'invoices',       label: 'Invoices',       icon: FileText,        href: '/invoices-dashboard' },
+        { id: 'subscriptions',  label: 'Subscriptions',  icon: Repeat,          href: '/subscriptions-dashboard' },
+        { id: 'coupons',        label: 'Promo Codes',    icon: Tag,             href: '/dashboard/coupons' },
+        { id: 'refunds',        label: 'Refunds',        icon: RefreshCw,       href: '/refunds' },
       ],
     },
     {
@@ -107,11 +109,11 @@ export function DashboardLayout({ children, activePage, isAdmin = false }: Dashb
       label: 'Business',
       icon: BarChart3,
       items: [
-        { id: 'analytics',   label: 'Analytics',    icon: BarChart3,  href: '#/analytics' },
-        { id: 'team',        label: 'Team',         icon: Users,      href: '#/team' },
-        { id: 'wallets',     label: 'Wallets',      icon: Wallet2,    href: '#/wallets' },
-        { id: 'withdrawals', label: 'Withdrawals',  icon: ArrowUpLeft,href: '#/withdrawals' },
-        { id: 'billing',     label: 'Billing',      icon: Wallet,     href: '#/billing' },
+        { id: 'analytics',   label: 'Analytics',    icon: BarChart3,  href: '/analytics-dashboard' },
+        { id: 'team',        label: 'Team',         icon: Users,      href: '/team' },
+        { id: 'wallets',     label: 'Wallets',      icon: Wallet2,    href: '/wallets' },
+        { id: 'withdrawals', label: 'Withdrawals',  icon: ArrowUpLeft,href: '/withdrawals' },
+        { id: 'billing',     label: 'Billing',      icon: Wallet,     href: '/billing' },
       ],
     },
     {
@@ -119,8 +121,8 @@ export function DashboardLayout({ children, activePage, isAdmin = false }: Dashb
       label: 'Developer',
       icon: Code,
       items: [
-        { id: 'integrations', label: 'Integrations', icon: Code,     href: '#/dashboard/integrations' },
-        { id: 'settings',     label: 'Settings',     icon: Settings, href: '#/dashboard/settings' },
+        { id: 'integrations', label: 'Integrations', icon: Code,     href: '/dashboard/integrations' },
+        { id: 'settings',     label: 'Settings',     icon: Settings, href: '/dashboard/settings' },
       ],
     },
   ];
@@ -131,8 +133,8 @@ export function DashboardLayout({ children, activePage, isAdmin = false }: Dashb
       label: 'Admin',
       icon: ShieldCheck,
       items: [
-        { id: 'merchants', label: 'Merchants',    icon: ShieldCheck, href: '#/admin' },
-        { id: 'payments',  label: 'All Payments', icon: CreditCard,  href: '#/admin/payments' },
+        { id: 'merchants', label: 'Merchants',    icon: ShieldCheck, href: '/admin' },
+        { id: 'payments',  label: 'All Payments', icon: CreditCard,  href: '/admin/payments' },
       ],
     },
   ];
@@ -182,9 +184,9 @@ export function DashboardLayout({ children, activePage, isAdmin = false }: Dashb
                     const Icon = item.icon;
                     const isActive = activePage === item.id;
                     return (
-                      <a
+                      <Link
                         key={item.id}
-                        href={item.href}
+                        to={item.href}
                         className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-150 ${
                           isActive
                             ? 'bg-primary/15 text-primary font-semibold'
@@ -196,7 +198,7 @@ export function DashboardLayout({ children, activePage, isAdmin = false }: Dashb
                         {isActive && (
                           <span className="ml-auto w-2 h-2 rounded-full bg-primary shrink-0" />
                         )}
-                      </a>
+                      </Link>
                     );
                   })}
                 </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   Menu, 
   X, 
@@ -43,10 +44,10 @@ const navGroups: NavGroup[] = [
     label: 'Payments',
     icon: LayoutGrid,
     items: [
-      { id: 'overview', label: 'Overview', icon: LayoutGrid, href: '#/dashboard' },
-      { id: 'transactions', label: 'Transactions', icon: ArrowLeftRight, href: '#/dashboard/payments' },
-      { id: 'payment-links', label: 'Payment Links', icon: FileText, href: '#/payment-links' },
-      { id: 'invoices', label: 'Invoices', icon: FileText, href: '#/invoices' },
+      { id: 'overview', label: 'Overview', icon: LayoutGrid, href: '/dashboard' },
+      { id: 'transactions', label: 'Transactions', icon: ArrowLeftRight, href: '/dashboard/payments' },
+      { id: 'payment-links', label: 'Payment Links', icon: FileText, href: '/payment-links-dashboard' },
+      { id: 'invoices', label: 'Invoices', icon: FileText, href: '/invoices-dashboard' },
     ],
   },
   {
@@ -54,11 +55,11 @@ const navGroups: NavGroup[] = [
     label: 'Business',
     icon: BarChart3,
     items: [
-      { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '#/analytics' },
-      { id: 'reports', label: 'Reports', icon: FileText, href: '#/reports' },
-      { id: 'subscriptions', label: 'Subscriptions', icon: Users, href: '#/subscriptions' },
-      { id: 'team', label: 'Team', icon: Users, href: '#/team' },
-      { id: 'billing', label: 'Billing & Plans', icon: Settings, href: '#/billing' },
+      { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/analytics-dashboard' },
+      { id: 'reports', label: 'Reports', icon: FileText, href: '/reports' },
+      { id: 'subscriptions', label: 'Subscriptions', icon: Users, href: '/subscriptions-dashboard' },
+      { id: 'team', label: 'Team', icon: Users, href: '/team' },
+      { id: 'billing', label: 'Billing & Plans', icon: Settings, href: '/billing' },
     ],
   },
   {
@@ -66,22 +67,23 @@ const navGroups: NavGroup[] = [
     label: 'Settings',
     icon: Settings,
     items: [
-      { id: 'settings', label: 'Settings', icon: Settings, href: '#/dashboard/settings' },
-      { id: 'integrations', label: 'Integrations', icon: Settings, href: '#/dashboard/integrations' },
-      { id: 'help', label: 'Help & Support', icon: HelpCircle, href: '#/dashboard/settings' },
+      { id: 'settings', label: 'Settings', icon: Settings, href: '/dashboard/settings' },
+      { id: 'integrations', label: 'Integrations', icon: Settings, href: '/dashboard/integrations' },
+      { id: 'help', label: 'Help & Support', icon: HelpCircle, href: '/dashboard/settings' },
     ],
   },
 ];
 
 const topNavItems: NavItem[] = [
-  { id: 'overview', label: 'Overview', icon: LayoutGrid, href: '#/dashboard' },
-  { id: 'transactions', label: 'Transactions', icon: ArrowLeftRight, href: '#/dashboard/payments' },
-  { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '#/analytics' },
-  { id: 'reports', label: 'Reports', icon: FileText, href: '#/reports' },
-  { id: 'users', label: 'Users', icon: Users, href: '#/team' },
+  { id: 'overview', label: 'Overview', icon: LayoutGrid, href: '/dashboard' },
+  { id: 'transactions', label: 'Transactions', icon: ArrowLeftRight, href: '/dashboard/payments' },
+  { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/analytics-dashboard' },
+  { id: 'reports', label: 'Reports', icon: FileText, href: '/reports' },
+  { id: 'users', label: 'Users', icon: Users, href: '/team' },
 ];
 
 export function BentoLayout({ children, activePage }: BentoLayoutProps) {
+  const navigate = useNavigate();
   // Get user permissions
   const permissions = getPermissions();
   const userInfo = getUserInfo();
@@ -230,7 +232,7 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
     localStorage.removeItem('team_access_token');
     localStorage.removeItem('team_refresh_token');
     localStorage.removeItem('team_member');
-    window.location.href = '#/';
+    navigate('/');
   };
 
   const sidebarWidth = sidebarCollapsed ? 80 : 280;
@@ -268,9 +270,9 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
           {/* Center Zone - Desktop Nav */}
           <div className="hidden lg:flex items-center gap-9">
             {filteredTopNavItems.map((item) => (
-              <a
+              <Link
                 key={item.id}
-                href={item.href}
+                to={item.href}
                 className={`text-[13px] font-medium transition-dari ${
                   activePage === item.id
                     ? 'text-foreground border-b-2 border-foreground pb-0.5'
@@ -278,7 +280,7 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
                 }`}
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </div>
 
@@ -413,9 +415,9 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
                         const isActive = activePage === item.id;
                         
                         return (
-                          <a
+                          <Link
                             key={item.id}
-                            href={item.href}
+                            to={item.href}
                             className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-[10px] transition-dari group relative ${
                               isActive
                                 ? 'bg-foreground text-white'
@@ -434,7 +436,7 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
                                 {item.label}
                               </div>
                             )}
-                          </a>
+                          </Link>
                         );
                       })}
                     </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -21,6 +22,7 @@ interface CheckoutProps {
 }
 
 export function Checkout({ sessionId }: CheckoutProps) {
+  const navigate = useNavigate();
   const [step, setStep] = useState<"payer-data" | "payment">("payment");
   const [status, setStatus] = useState<"waiting" | "processing" | "success" | "expired">(
     "waiting"
@@ -76,7 +78,7 @@ export function Checkout({ sessionId }: CheckoutProps) {
   };
 
   const handleCancel = () => {
-    window.location.href = "#/dashboard";
+    navigate('/dashboard');
   };
 
   return (
@@ -238,7 +240,7 @@ export function Checkout({ sessionId }: CheckoutProps) {
           {status === "expired" && (
             <Button
               className="w-full bg-primary hover:bg-primary/90"
-              onClick={() => window.location.href = "#/dashboard/create"}
+              onClick={() => navigate('/dashboard/create')}
             >
               Create New Payment
             </Button>

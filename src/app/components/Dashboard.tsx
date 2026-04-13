@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { BentoLayout } from "./BentoLayout";
 import { 
   BentoGrid, 
@@ -27,14 +28,20 @@ import { CHAIN_INFO } from "../../services/wallets.service";
 import { toast } from "sonner";
 import { displayAmount, displayDualAmount } from "../../lib/utils";
 import { getPermissions } from "../../utils/rolePermissions";
+import { useUpgradeMessages } from "../../hooks/useUpgradeMessages";
+import { UpgradeBanner } from "./ui/upgrade-banner";
 
 export function Dashboard() {
+  const navigate = useNavigate();
   const permissions = getPermissions();
   const { payments, isLoading } = usePaymentHistory({ limit: 10 });
   const { stats, isLoading: statsLoading } = usePaymentStats();
   const { data: walletsData, isLoading: walletsLoading } = useWallets();
   const { data: dashboardData, isLoading: dashboardLoading } = useWalletDashboard();
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  
+  // Upgrade messaging
+  const { dashboardBanner, dismissMessage } = useUpgradeMessages();
 
   // Use stats endpoint for accurate metrics across all payments
   const totalVolume = stats?.revenue.total_usdc ?? 0;
@@ -63,6 +70,16 @@ export function Dashboard() {
             </p>
           </div>
         </div>
+
+        {/* Upgrade Banner */}
+        {dashboardBanner && (
+          <UpgradeBanner
+            message={dashboardBanner}
+            onDismiss={() => dismissMessage(dashboardBanner.id)}
+            onUpgrade={() => navigate('/billing')}
+            onSecondaryAction={() => navigate('/pricing')}
+          />
+        )}
 
         {/* Row 1 - KPI Metrics */}
         <BentoGrid>
@@ -132,7 +149,7 @@ export function Dashboard() {
                   <BentoCardTitle>Your Wallets</BentoCardTitle>
                   <BentoCardSubtitle>Quick access to your blockchain addresses</BentoCardSubtitle>
                 </div>
-                <a href="#/wallets">
+                <a href="/wallets">
                   <Button variant="outline" size="sm">
                     View All
                     <ArrowUpRight className="h-4 w-4 ml-1" />
@@ -160,7 +177,7 @@ export function Dashboard() {
                     <Wallet2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
                     <p className="mb-2">No wallets configured yet</p>
                     <p className="text-xs">
-                      Complete <a href="#/onboarding" className="text-primary hover:underline">onboarding</a> to set up your wallets
+                      Complete <Link to="/onboarding" className="text-primary hover:underline">onboarding</Link> to set up your wallets
                     </p>
                   </div>
                 ) : (
@@ -220,9 +237,9 @@ export function Dashboard() {
                     })}
                     {wallets.length > 5 && (
                       <div className="text-center pt-2">
-                        <a href="#/wallets" className="text-sm text-primary hover:underline">
+                        <Link to="/wallets" className="text-sm text-primary hover:underline">
                           View {wallets.length - 5} more wallets →
-                        </a>
+                        </Link>
                       </div>
                     )}
                   </div>
@@ -275,7 +292,7 @@ export function Dashboard() {
                       <DataTableRow
                         key={payment.id || payment.session_id}
                         className="cursor-pointer"
-                        onClick={() => window.location.href = `#/dashboard/payments/${payment.id || payment.session_id}`}
+                        onClick={() => navigate(`/dashboard/payments/${payment.id || payment.session_id}`)}
                       >
                         <DataTableCell className="font-mono text-xs">
                           {payment.id || payment.session_id}

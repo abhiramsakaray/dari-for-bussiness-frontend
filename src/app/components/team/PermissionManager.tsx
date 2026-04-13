@@ -20,8 +20,8 @@ export const PermissionManager: React.FC<PermissionManagerProps> = ({
   memberName,
 }) => {
   const queryClient = useQueryClient();
-  const { data: allPermissions, isLoading: loadingAll } = useAllPermissions();
-  const { data: memberPermissions, isLoading: loadingMember } = useMemberPermissions(memberId);
+  const { data: allPermissions, isLoading: loadingAll, error: permissionsError } = useAllPermissions();
+  const { data: memberPermissions, isLoading: loadingMember, error: memberError } = useMemberPermissions(memberId);
 
   const [selectedGrant, setSelectedGrant] = useState<string[]>([]);
   const [selectedRevoke, setSelectedRevoke] = useState<string[]>([]);
@@ -64,6 +64,75 @@ export const PermissionManager: React.FC<PermissionManagerProps> = ({
   };
 
   if (loadingAll || loadingMember) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading permissions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle 403 Forbidden - user doesn't have permission to manage team
+  if (permissionsError && (permissionsError as any)?.response?.status === 403) {
+    return (
+      <Card className="p-8">
+        <div className="text-center">
+          <div className="h-16 w-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+            <span className="text-2xl">🚫</span>
+          </div>
+          <h3 className="font-semibold text-lg mb-2">Access Denied</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            You don't have permission to manage team permissions.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Contact your account owner for access.
+          </p>
+        </div>
+      </Card>
+    );
+  }
+
+  // Handle 401 Unauthorized - not logged in
+  if (permissionsError && (permissionsError as any)?.response?.status === 401) {
+    return (
+      <Card className="p-8">
+        <div className="text-center">
+          <div className="h-16 w-16 rounded-full bg-yellow-100 flex items-center justify-center mx-auto mb-4">
+            <span className="text-2xl">⚠️</span>
+          </div>
+          <h3 className="font-semibold text-lg mb-2">Authentication Required</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Please log in to manage permissions.
+          </p>
+        </div>
+      </Card>
+    );
+  }
+
+  // Handle other errors
+  if (permissionsError || memberError) {
+    return (
+      <Card className="p-8">
+        <div className="text-center">
+          <div className="h-16 w-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+            <span className="text-2xl">❌</span>
+          </div>
+          <h3 className="font-semibold text-lg mb-2">Error Loading Permissions</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Failed to load permission data. Please try again.
+          </p>
+          <Button onClick={() => window.location.reload()}>
+            Retry
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
+  // If data is missing but no error, show loading
+  if (!allPermissions || !memberPermissions) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">

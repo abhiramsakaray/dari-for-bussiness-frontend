@@ -292,7 +292,7 @@ export function Settings() {
                       Your auto-generated addresses for receiving crypto payments
                     </CardDescription>
                   </div>
-                  <a href="#/wallets">
+                  <a href="/wallets">
                     <Button variant="outline" size="sm">
                       Full Management →
                     </Button>
@@ -386,7 +386,7 @@ export function Settings() {
                     can help identify which endpoints are failing or returning empty data.
                   </p>
                   <Button asChild>
-                    <a href="#/debug">
+                    <a href="/debug">
                       Open API Debugger →
                     </a>
                   </Button>
@@ -402,7 +402,7 @@ export function Settings() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <a
-                    href="#/dashboard/integrations"
+                    href="/dashboard/integrations"
                     className="block p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <p className="font-medium text-sm">Integration Guide</p>

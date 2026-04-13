@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -17,6 +17,7 @@ import { apiClient } from "../../lib/api-client";
 import { toast } from "sonner";
 
 export function Register() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -57,7 +58,7 @@ export function Register() {
       toast.success("Account created successfully!");
       
       // Always redirect to onboarding for new registrations
-      window.location.href = '#/onboarding';
+      navigate('/onboarding');
     } catch (err: any) {
       const errorMessage = err.response?.data?.detail || 'Registration failed. Please try again.';
       setError(errorMessage);
