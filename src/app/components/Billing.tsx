@@ -128,6 +128,26 @@ export function Billing() {
     return names[tier];
   };
 
+  // Get plan price from backend data
+  const getPlanPrice = (planId: string): number | null => {
+    if (billingInfo?.available_plans?.[planId]) {
+      return billingInfo.available_plans[planId].price;
+    }
+    return null;
+  };
+
+  // Format price with currency
+  const formatPrice = (price: number | null): string => {
+    if (price === null) return 'Custom';
+    if (price === 0) return 'Free';
+    
+    const formatted = price.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    });
+    return `${currencySymbol}${formatted}`;
+  };
+
   return (
     <BentoLayout activePage="billing">
       <div className="p-6 space-y-6">
@@ -143,7 +163,7 @@ export function Billing() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Current Plan</CardTitle>
-              <Badge variant={billingInfo.status === 'active' ? 'default' : 'secondary'}>
+              <Badge variant={billingInfo.status === 'active' ? 'default' : 'info'}>
                 {billingInfo.status}
               </Badge>
             </div>
@@ -163,7 +183,7 @@ export function Billing() {
               </div>
               <div className="text-right">
                 <div className="text-3xl font-bold">
-                  {currencySymbol}{billingInfo.monthly_price}
+                  {currencySymbol}{billingInfo.monthly_price.toLocaleString()}
                 </div>
                 <div className="text-sm text-muted-foreground">
                   per month
@@ -261,12 +281,7 @@ export function Billing() {
               {(['free', 'growth', 'business', 'enterprise'] as PlanTier[]).map((planId) => {
                 const isCurrent = billingInfo.tier === planId;
                 const PlanIcon = getPlanIcon(planId);
-                // Use prices from billingInfo if available, otherwise fallback to defaults
-                const getPlanPrice = (tier: PlanTier) => {
-                  // These should come from backend, but fallback to defaults
-                  const defaultPrices = { free: 0, growth: 29, business: 99, enterprise: 'Custom' };
-                  return defaultPrices[tier];
-                };
+                const planPrice = getPlanPrice(planId);
                 
                 return (
                   <Card key={planId} className={isCurrent ? 'border-primary' : ''}>
@@ -274,9 +289,10 @@ export function Billing() {
                       <PlanIcon className="w-6 h-6 mb-2" />
                       <CardTitle className="text-lg">{getPlanName(planId)}</CardTitle>
                       <div className="text-2xl font-bold">
-                        {typeof getPlanPrice(planId) === 'number' 
-                          ? `${currencySymbol}${getPlanPrice(planId)}` 
-                          : getPlanPrice(planId)}
+                        {formatPrice(planPrice)}
+                        {planPrice !== null && planPrice > 0 && (
+                          <span className="text-sm font-normal text-muted-foreground">/month</span>
+                        )}
                       </div>
                     </CardHeader>
                     <CardContent>

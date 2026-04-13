@@ -2,11 +2,31 @@ import api from './api';
 
 export type PlanTier = 'free' | 'growth' | 'business' | 'enterprise';
 
+// Plan features structure from backend
+export interface PlanFeaturesInfo {
+  transaction_fee: string;
+  monthly_volume_limit: number | null;
+  payment_links: number | null;
+  invoices: number | null;
+  team_members: number | null;
+}
+
+// Individual plan info from backend
+export interface PlanInfo {
+  id: string;
+  name: string;
+  price: number;
+  currency: string;
+  billing_period: string;
+  features: PlanFeaturesInfo;
+}
+
 // Actual API response structure
 export interface BillingInfo {
   tier: PlanTier;
   status: 'active' | 'canceled' | 'past_due' | 'trial';
   monthly_price: number;
+  currency: string; // NEW: Currency code (e.g., "USD", "INR", "EUR")
   transaction_fee_percent: number;
   monthly_volume_limit: number | null;
   payment_link_limit: number | null;
@@ -18,6 +38,7 @@ export interface BillingInfo {
   current_period_start: string;
   current_period_end: string;
   trial_ends_at: string | null;
+  available_plans?: Record<string, PlanInfo>; // NEW: All plans in merchant's currency
 }
 
 // Plan features for display
@@ -44,7 +65,7 @@ export interface PlanDetails {
   id: PlanTier;
   name: string;
   price: number; // in cents, 0 for free
-  currency: string;
+  currency: string; // NEW: Currency code for the price
   period: 'month' | 'year';
   features: PlanFeatures;
   description: string;

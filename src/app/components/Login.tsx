@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -85,21 +86,13 @@ export function Login() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Back to Home */}
-        <a
-          href="#/"
+        <Link
+          to="/"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to home
-        </a>
-
-        {/* Logo */}
-        <div className="flex items-center gap-2 mb-8">
-          <div className="w-10 h-10 bg-primary flex items-center justify-center">
-            <span className="text-white font-bold text-xl">D</span>
-          </div>
-          <span className="font-bold text-2xl">Dari</span>
-        </div>
+        </Link>
 
         {/* Login Card */}
         <Card className="p-8 bg-card border-primary/30">

@@ -3,8 +3,9 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { useMerchantCurrency } from '@/hooks/useMerchantCurrency';
+import { useBilling } from '@/hooks/useBilling';
 import { toast } from 'sonner';
-import { Check, ArrowRight, Zap, TrendingUp, Building, Crown } from 'lucide-react';
+import { Check, ArrowRight, Zap, TrendingUp, Building, Crown, Loader2 } from 'lucide-react';
 
 interface PlanSelectionProps {
   onComplete: (plan: string) => void;
@@ -101,6 +102,36 @@ const PLANS = [
 export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
   const [selectedPlan, setSelectedPlan] = useState<string>('free');
   const { currencySymbol } = useMerchantCurrency();
+  const { billingInfo, isLoading } = useBilling();
+
+  // Get plan price from backend data
+  const getPlanPrice = (planId: string): string => {
+    if (billingInfo?.available_plans?.[planId]) {
+      const price = billingInfo.available_plans[planId].price;
+      if (price === 0) return '0';
+      return price.toLocaleString(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      });
+    }
+    // Fallback to hardcoded USD prices if backend data not available
+    const fallbackPrices: Record<string, string> = {
+      free: '0',
+      growth: '29',
+      business: '99',
+      enterprise: 'Custom',
+    };
+    return fallbackPrices[planId] || '0';
+  };
+
+  // Format volume limits with currency
+  const formatVolumeLimit = (limit: string): string => {
+    const match = limit.match(/(\d[\d,]*)/);
+    if (match) {
+      return limit.replace(match[0], `${currencySymbol}${match[0]}`);
+    }
+    return limit;
+  };
 
   const CHAINPE_PLAN_URLS: Record<string, string> = {
     growth: 'https://api.daripay.xyz/subscribe/plan_QzdDtYYNk8VvEw8g',
@@ -123,6 +154,18 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
     toast.success(`${PLANS.find(p => p.id === selectedPlan)?.name} plan selected!`);
     onComplete(selectedPlan);
   };
+
+  // Show loading state while fetching billing info
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Loading plans...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -165,7 +208,7 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                   <div className="mt-4">
                     <span className="text-4xl font-bold">
-                      {plan.price === 'Custom' ? plan.price : `${currencySymbol}${plan.price}`}
+                      {plan.id === 'enterprise' ? 'Custom' : `${currencySymbol}${getPlanPrice(plan.id)}`}
                     </span>
                     <span className="text-muted-foreground">{plan.period}</span>
                   </div>
@@ -177,7 +220,7 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
                     {plan.features.map((feature, idx) => (
                       <div key={idx} className="flex items-start gap-2 text-sm">
                         <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                        <span>{feature.replace(/(\d[\d,]*)(\s+transaction volume)/i, `${currencySymbol}$1$2`)}</span>
+                        <span>{formatVolumeLimit(feature)}</span>
                       </div>
                     ))}
                   </div>

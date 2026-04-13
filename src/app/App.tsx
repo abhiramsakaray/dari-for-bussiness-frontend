@@ -5,6 +5,12 @@ import { Toaster } from "./components/ui/sonner";
 
 // Import all page components
 import { Landing } from "./components/Landing";
+import { NewLanding } from "./components/landing/NewLanding";
+import { FeaturesPage } from "./components/landing/FeaturesPage";
+import { PricingPage } from "./components/landing/PricingPage";
+import { DevelopersPage } from "./components/landing/DevelopersPage";
+import { PrivacyPolicyPage } from "./components/landing/PrivacyPolicyPage";
+import { TermsOfServicePage } from "./components/landing/TermsOfServicePage";
 import { Login } from "./components/Login";
 import { Register } from "./components/Register";
 import { Dashboard } from "./components/Dashboard";
@@ -74,7 +80,46 @@ export default function App() {
   const renderPage = () => {
     switch (true) {
       case route === "/":
+        return <NewLanding />;
+      case route === "/old-landing":
         return <Landing />;
+      case route === "/features":
+        return <FeaturesPage />;
+      case route === "/pricing":
+        return <PricingPage />;
+      case route === "/developers":
+      case route === "/docs":
+      case route === "/api-reference":
+      case route === "/sdks":
+      case route === "/webhooks":
+      case route === "/changelog":
+        return <DevelopersPage />;
+      case route === "/privacy-policy":
+      case route === "/privacypolicy":
+        return <PrivacyPolicyPage />;
+      case route === "/terms-of-service":
+      case route === "/termsofservice":
+        return <TermsOfServicePage />;
+      case route === "/about":
+      case route === "/blog":
+      case route === "/careers":
+      case route === "/partners":
+      case route === "/press":
+      case route === "/contact":
+      case route === "/cookie-policy":
+      case route === "/cookiepolicy":
+      case route === "/aml-policy":
+      case route === "/amlpolicy":
+      case route === "/compliance":
+      case route === "/security":
+      case route === "/status":
+      case route === "/analytics":
+      case route === "/payment-links":
+      case route === "/subscriptions":
+      case route === "/invoicing":
+      case route === "/fraud-monitoring":
+      case route === "/multi-chain":
+        return <DevelopersPage />;
       case route === "/login":
         return <Login />;
       case route === "/register":
@@ -194,7 +239,7 @@ export default function App() {
         return <ProtectedRoute><BentoDashboard /></ProtectedRoute>;
 
       default:
-        return <Landing />;
+        return <NewLanding />;
     }
   };
 

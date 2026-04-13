@@ -16,7 +16,19 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  optimizeDeps: {
+    include: ['react-router-dom'],
+    exclude: ['react-hook-form', 'class-variance-authority'],
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
+  },
   server: {
+    historyApiFallback: true,
     proxy: {
       '/auth': {
         target: 'http://localhost:8000',
