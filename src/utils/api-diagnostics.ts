@@ -2,7 +2,7 @@
 // Run this in browser console to check API connectivity
 
 export async function runApiDiagnostics() {
-  const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  const baseUrl = import.meta.env.VITE_API_URL || 'https://api.daripay.xyz';
   const token = localStorage.getItem('merchant_token');
   const apiKey = localStorage.getItem('api_key');
 

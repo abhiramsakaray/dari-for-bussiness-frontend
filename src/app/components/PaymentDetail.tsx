@@ -86,7 +86,7 @@ export function PaymentDetail({ paymentId }: PaymentDetailProps) {
     setIsGeneratingReceipt(true);
     try {
       const token = localStorage.getItem('merchant_token');
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.daripay.xyz';
       
       const response = await fetch(
         `${API_BASE_URL}/receipts/payment/${payment.id || payment.session_id}/generate?send_email=false`,
@@ -123,7 +123,7 @@ export function PaymentDetail({ paymentId }: PaymentDetailProps) {
     setIsDownloadingReceipt(true);
     try {
       const token = localStorage.getItem('merchant_token');
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.daripay.xyz';
       
       // If receiptId is provided, use it; otherwise try to fetch receipt for this payment
       let downloadUrl = '';
