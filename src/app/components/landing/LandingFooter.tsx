@@ -110,9 +110,9 @@ export function LandingFooter() {
             <Link to="/about" className="text-sm text-gray-500 hover:text-black transition-colors">
               About
             </Link>
-            <Link to="/blog" className="text-sm text-gray-500 hover:text-black transition-colors">
+            <a href="https://blog.daripay.xyz" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-black transition-colors">
               Blog
-            </Link>
+            </a>
             <Link to="/careers" className="text-sm text-gray-500 hover:text-black transition-colors flex items-center gap-2">
               Careers
               <span className="font-mono text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded text-[9px] tracking-wider">

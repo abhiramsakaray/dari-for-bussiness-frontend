@@ -11,7 +11,13 @@ import { SdksPage } from './components/landing/SdksPage';
 import { WebhooksPage } from './components/landing/WebhooksPage';
 import { ChangelogPage } from './components/landing/ChangelogPage';
 import { AboutPage } from './components/landing/AboutPage';
-import { BlogPage } from './components/landing/BlogPage';
+import { useEffect } from 'react';
+
+// Simple component that redirects to an external URL
+function ExternalRedirect({ url }: { url: string }) {
+  useEffect(() => { window.location.href = url; }, [url]);
+  return null;
+}
 import { CareersPage } from './components/landing/CareersPage';
 import { ContactPage } from './components/landing/ContactPage';
 import { StatusPage } from './components/landing/StatusPage';
@@ -78,7 +84,7 @@ export default function AppRouter() {
         
         {/* Company Pages */}
         <Route path="/about" element={<AboutPage />} />
-        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog" element={<ExternalRedirect url="https://blog.daripay.xyz" />} />
         <Route path="/careers" element={<CareersPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/partners" element={

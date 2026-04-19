@@ -100,8 +100,10 @@ export default function App() {
       case route === "/terms-of-service":
       case route === "/termsofservice":
         return <TermsOfServicePage />;
-      case route === "/about":
       case route === "/blog":
+        window.location.href = "https://blog.daripay.xyz";
+        return null;
+      case route === "/about":
       case route === "/careers":
       case route === "/partners":
       case route === "/press":

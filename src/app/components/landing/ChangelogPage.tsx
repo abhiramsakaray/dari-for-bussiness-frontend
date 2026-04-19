@@ -61,7 +61,7 @@ export function ChangelogPage() {
         <div className="pt-8 border-t border-gray-200">
           <p className="text-sm text-gray-500">
             Subscribe to our{' '}
-            <a href="/blog" className="text-black underline hover:no-underline">
+            <a href="https://blog.daripay.xyz" target="_blank" rel="noopener noreferrer" className="text-black underline hover:no-underline">
               blog
             </a>{' '}
             for detailed release notes and product updates.
