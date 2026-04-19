@@ -188,7 +188,10 @@ export const chainpeService = {
 
   // Merchant auth - register
   register: async (data: RegisterData): Promise<AuthResponse> => {
+    console.log('🔵 Attempting registration with:', { ...data, password: '***' });
+    console.log('🔵 API baseURL:', api.defaults.baseURL);
     const response = await api.post('/auth/register', data);
+    console.log('✅ Registration successful:', response.data);
     return response.data;
   },
 

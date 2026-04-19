@@ -84,8 +84,8 @@ class ApiClient {
     localStorage.removeItem('merchant_token');
     localStorage.removeItem('api_key');
     localStorage.removeItem('merchant_email');
-    if (!window.location.hash.includes('/login')) {
-      window.location.href = '#/login';
+    if (!window.location.pathname.includes('/login')) {
+      window.location.href = '/login';
     }
   }
 

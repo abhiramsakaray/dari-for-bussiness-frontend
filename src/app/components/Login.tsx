@@ -8,6 +8,7 @@ import { ArrowLeft, Building2, Users } from "lucide-react";
 import { chainpeService } from "../../services/chainpe";
 import { teamAuthService } from "../../services/teamAuth.service";
 import { apiClient } from "../../lib/api-client";
+import { extractErrorMessage } from "../../lib/utils";
 import { toast } from "sonner";
 
 type LoginType = 'merchant' | 'team';
@@ -75,7 +76,7 @@ export function Login() {
         navigate('/dashboard');
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.detail || 'Login failed. Please check your credentials.';
+      const errorMessage = extractErrorMessage(err, 'Login failed. Please check your credentials.');
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -182,9 +183,9 @@ export function Login() {
             {loginType === 'merchant' ? (
               <>
                 <span className="text-muted-foreground">Don't have an account? </span>
-                <a href="#/register" className="text-primary hover:underline">
+                <Link to="/register" className="text-primary hover:underline">
                   Register
-                </a>
+                </Link>
               </>
             ) : (
               <span className="text-muted-foreground">

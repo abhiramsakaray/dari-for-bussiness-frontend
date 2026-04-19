@@ -80,7 +80,7 @@ const STATUS_VARIANTS: Record<SubscriptionStatus, 'default' | 'secondary' | 'des
   [SubscriptionStatus.TRIALING]: 'default',
 };
 
-const SUPPORTED_CHAINS = ['polygon', 'ethereum', 'bsc', 'avalanche', 'arbitrum'];
+const SUPPORTED_CHAINS = ['polygon', 'ethereum', 'base', 'stellar', 'bsc', 'arbitrum', 'avalanche', 'tron'];
 const SUPPORTED_TOKENS = ['USDC', 'USDT', 'DAI', 'WETH', 'WBTC'];
 
 export function SubscriptionsDashboard() {
@@ -126,7 +126,7 @@ export function SubscriptionsDashboard() {
     setup_fee: '0',
     max_billing_cycles: '',
     accepted_tokens: ['USDC'],
-    accepted_chains: ['polygon'],
+    accepted_chains: ['polygon', 'ethereum'],
     features: '',
     is_active: true,
   });
@@ -274,7 +274,7 @@ export function SubscriptionsDashboard() {
           name: '', description: '', amount: '', fiat_currency: 'USD',
           interval: SubscriptionInterval.MONTHLY, interval_count: '1',
           trial_days: '0', trial_type: 'free', trial_price: '', setup_fee: '0',
-          max_billing_cycles: '', accepted_tokens: ['USDC'], accepted_chains: ['polygon'], features: '',
+          max_billing_cycles: '', accepted_tokens: ['USDC'], accepted_chains: ['polygon', 'ethereum'], features: '',
         });
       },
     });
@@ -502,8 +502,8 @@ export function SubscriptionsDashboard() {
                         trial_price: p.trial_price?.toString() || '',
                         setup_fee: p.setup_fee?.toString() || '',
                         max_billing_cycles: p.max_billing_cycles?.toString() || '',
-                        accepted_tokens: ['USDC'],
-                        accepted_chains: ['polygon'],
+                        accepted_tokens: p.accepted_tokens?.length ? p.accepted_tokens : ['USDC'],
+                        accepted_chains: p.accepted_chains?.length ? p.accepted_chains : ['polygon'],
                         features: (p.features || []).join('\n'),
                         is_active: p.is_active,
                       });

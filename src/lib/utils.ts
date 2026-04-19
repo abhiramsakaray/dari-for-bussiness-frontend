@@ -221,6 +221,19 @@ export function extractErrorMessage(error: any, fallback = 'An unexpected error 
   }
 
   if (Array.isArray(detail) && detail.length > 0) {
+    // Detect backend route wrapper misconfiguration where FastAPI expects
+    // query params "args" and "kwargs" instead of the intended request body.
+    const isWrappedRouteSchemaBug = detail.every((e: any) => {
+      const loc = e?.loc;
+      return Array.isArray(loc)
+        && loc[0] === 'query'
+        && (loc[1] === 'args' || loc[1] === 'kwargs');
+    });
+
+    if (isWrappedRouteSchemaBug) {
+      return 'Login endpoint is misconfigured on the backend (unexpected args/kwargs validation). Please fix backend auth route decorators or use a healthy API environment.';
+    }
+
     // Handle Pydantic validation errors: [{type, loc, msg, input}, ...]
     return detail
       .map((e: any) => {

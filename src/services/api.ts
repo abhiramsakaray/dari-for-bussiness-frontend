@@ -19,6 +19,13 @@ export const api = axios.create({
 
 // Add API key and token to requests
 api.interceptors.request.use((config) => {
+  console.log('📤 Sending request:', {
+    method: config.method?.toUpperCase(),
+    url: config.url,
+    baseURL: config.baseURL,
+    fullURL: config.baseURL ? `${config.baseURL}${config.url}` : config.url
+  });
+
   // Add JWT token if available
   const token = localStorage.getItem('merchant_token');
   if (token) {
@@ -60,7 +67,7 @@ api.interceptors.response.use(
       localStorage.removeItem('api_key');
       localStorage.removeItem('merchant_email');
       localStorage.removeItem('merchant_name');
-      window.location.href = '#/login';
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

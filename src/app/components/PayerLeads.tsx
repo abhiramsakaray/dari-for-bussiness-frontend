@@ -18,6 +18,7 @@ import type { PaymentSession } from "../../services/chainpe";
 import { useEffect, useState } from "react";
 import { Mail, UserCircle2, Copy } from "lucide-react";
 import { toast } from "sonner";
+import { extractErrorMessage } from "../../lib/utils";
 
 export function PayerLeads() {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export function PayerLeads() {
       const response = await chainpeService.getPayerLeads({ limit: 100, include_paid: includePaid });
       setLeads(response.payments);
     } catch (err: any) {
-      setError(err.response?.data?.detail || "Failed to fetch payer leads");
+      setError(extractErrorMessage(err, "Failed to fetch payer leads"));
     } finally {
       setIsLoading(false);
     }

@@ -14,6 +14,7 @@ import {
 import { ArrowLeft } from "lucide-react";
 import { chainpeService } from "../../services/chainpe";
 import { apiClient } from "../../lib/api-client";
+import { extractErrorMessage } from "../../lib/utils";
 import { toast } from "sonner";
 
 export function Register() {
@@ -31,6 +32,10 @@ export function Register() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    console.log('🔵 Starting registration process...');
+    console.log('🔵 Form data:', { ...formData, password: '***' });
+    console.log('🔵 VITE_API_URL:', import.meta.env.VITE_API_URL);
 
     try {
       const response = await chainpeService.register({
@@ -60,7 +65,10 @@ export function Register() {
       // Always redirect to onboarding for new registrations
       navigate('/onboarding');
     } catch (err: any) {
-      const errorMessage = err.response?.data?.detail || 'Registration failed. Please try again.';
+      console.error('🔴 Registration error:', err);
+      console.error('🔴 Error response:', err.response);
+      console.error('🔴 Error message:', err.message);
+      const errorMessage = extractErrorMessage(err, 'Registration failed. Please try again.');
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -172,9 +180,9 @@ export function Register() {
 
           <div className="mt-6 text-center text-sm">
             <span className="text-muted-foreground">Already have an account? </span>
-            <a href="#/login" className="text-primary hover:underline">
+            <Link to="/login" className="text-primary hover:underline">
               Login
-            </a>
+            </Link>
           </div>
         </Card>
       </div>

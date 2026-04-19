@@ -80,7 +80,7 @@ class TeamAuthService {
             return this.api(originalRequest);
           } catch (refreshError) {
             this.logout();
-            window.location.href = '#/team/login';
+            window.location.href = '/team/login';
             return Promise.reject(refreshError);
           }
         }
