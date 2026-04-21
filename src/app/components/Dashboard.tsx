@@ -28,8 +28,6 @@ import { CHAIN_INFO } from "../../services/wallets.service";
 import { toast } from "sonner";
 import { displayAmount, displayDualAmount } from "../../lib/utils";
 import { getPermissions } from "../../utils/rolePermissions";
-import { useUpgradeMessages } from "../../hooks/useUpgradeMessages";
-import { UpgradeBanner } from "./ui/upgrade-banner";
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -39,9 +37,6 @@ export function Dashboard() {
   const { data: walletsData, isLoading: walletsLoading } = useWallets();
   const { data: dashboardData, isLoading: dashboardLoading } = useWalletDashboard();
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  
-  // Upgrade messaging
-  const { dashboardBanner, dismissMessage } = useUpgradeMessages();
 
   // Use stats endpoint for accurate metrics across all payments
   const totalVolume = stats?.revenue.total_usdc ?? 0;
@@ -70,16 +65,6 @@ export function Dashboard() {
             </p>
           </div>
         </div>
-
-        {/* Upgrade Banner */}
-        {dashboardBanner && (
-          <UpgradeBanner
-            message={dashboardBanner}
-            onDismiss={() => dismissMessage(dashboardBanner.id)}
-            onUpgrade={() => navigate('/billing')}
-            onSecondaryAction={() => navigate('/pricing')}
-          />
-        )}
 
         {/* Row 1 - KPI Metrics */}
         <BentoGrid>

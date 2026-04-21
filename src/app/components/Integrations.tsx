@@ -1,545 +1,595 @@
 import { BentoLayout } from "./BentoLayout";
 import { Card } from "./ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Code, Copy, ExternalLink } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
+import { IntegrationsAPI } from "../../services/integrations-api";
+import { 
+  ShoppingBag, 
+  FileText, 
+  Calculator, 
+  RefreshCw, 
+  CheckCircle2, 
+  XCircle, 
+  Clock,
+  Plug,
+  Trash2,
+  AlertCircle
+} from "lucide-react";
 
-export function Integrations() {
-  const copyCode = (code: string) => {
-    navigator.clipboard.writeText(code);
-    toast.success("Code copied to clipboard!");
+interface Integration {
+  id?: number;
+  type: string;
+  name: string;
+  description?: string;
+  status?: 'active' | 'inactive' | 'error';
+  last_sync?: string;
+  config?: any;
+}
+
+interface ConnectModalProps {
+  integration: Integration;
+  onClose: () => void;
+  onSuccess: () => void;
+  apiUrl: string;
+  token: string;
+}
+
+interface CredentialField {
+  key: string;
+  label: string;
+  placeholder: string;
+  type?: string;
+  helpText?: string;
+  required?: boolean;
+  defaultValue?: string;
+}
+
+function ConnectIntegrationModal({ integration, onClose, onSuccess, apiUrl, token }: ConnectModalProps) {
+  const [credentials, setCredentials] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+
+  const getCredentialFields = (type: string): CredentialField[] => {
+    switch (type.toLowerCase()) {
+      case 'shopify':
+        return [
+          { 
+            key: 'shop_domain', 
+            label: 'Shop Domain', 
+            placeholder: 'your-store.myshopify.com',
+            helpText: 'Your Shopify store domain (e.g., my-store.myshopify.com)',
+            required: true
+          },
+          { 
+            key: 'access_token', 
+            label: 'Admin API Access Token', 
+            placeholder: 'shpat_xxxxxxxxxxxxx', 
+            type: 'password',
+            helpText: 'Get this from Shopify Admin → Settings → Apps → Develop apps',
+            required: true
+          }
+        ];
+      case 'tally':
+        return [
+          { 
+            key: 'tally_url', 
+            label: 'Tally Server URL', 
+            placeholder: 'http://localhost:9000',
+            defaultValue: 'http://localhost:9000',
+            helpText: 'URL where Tally is running. Use localhost:9000 if on this computer.',
+            required: true
+          }
+        ];
+      case 'zoho':
+        return [
+          { 
+            key: 'access_token', 
+            label: 'Access Token', 
+            placeholder: '1000.xxxxxxxxxxxxx',
+            type: 'password',
+            helpText: 'OAuth access token from Zoho API Console',
+            required: true
+          },
+          { 
+            key: 'organization_id', 
+            label: 'Organization ID', 
+            placeholder: '123456789',
+            helpText: 'Found in Zoho Books → Settings → Organization',
+            required: true
+          },
+          { 
+            key: 'refresh_token', 
+            label: 'Refresh Token (Optional)', 
+            placeholder: '1000.xxxxxxxxxxxxx', 
+            type: 'password',
+            helpText: 'For automatic token refresh when access token expires',
+            required: false
+          },
+          { 
+            key: 'client_id', 
+            label: 'Client ID (Optional)', 
+            placeholder: 'xxxxxxxxxxxxx',
+            helpText: 'From Zoho API Console, needed for token refresh',
+            required: false
+          },
+          { 
+            key: 'client_secret', 
+            label: 'Client Secret (Optional)', 
+            placeholder: 'xxxxxxxxxxxxx', 
+            type: 'password',
+            helpText: 'From Zoho API Console, needed for token refresh',
+            required: false
+          }
+        ];
+      case 'woocommerce':
+        return [
+          { 
+            key: 'store_url', 
+            label: 'Store URL', 
+            placeholder: 'https://mystore.com',
+            helpText: 'Your WooCommerce store URL',
+            required: true
+          },
+          { 
+            key: 'consumer_key', 
+            label: 'Consumer Key', 
+            placeholder: 'ck_xxxxx',
+            helpText: 'WooCommerce API consumer key',
+            required: true
+          },
+          { 
+            key: 'consumer_secret', 
+            label: 'Consumer Secret', 
+            placeholder: 'cs_xxxxx', 
+            type: 'password',
+            helpText: 'WooCommerce API consumer secret',
+            required: true
+          }
+        ];
+      case 'quickbooks':
+        return [
+          { 
+            key: 'access_token', 
+            label: 'Access Token', 
+            placeholder: 'OAuth access token',
+            type: 'password',
+            helpText: 'OAuth access token from QuickBooks',
+            required: true
+          },
+          { 
+            key: 'refresh_token', 
+            label: 'Refresh Token', 
+            placeholder: 'OAuth refresh token', 
+            type: 'password',
+            helpText: 'OAuth refresh token from QuickBooks',
+            required: true
+          },
+          { 
+            key: 'realm_id', 
+            label: 'Company ID (Realm ID)', 
+            placeholder: 'Your Company ID',
+            helpText: 'QuickBooks company/realm ID',
+            required: true
+          },
+          { 
+            key: 'client_id', 
+            label: 'Client ID', 
+            placeholder: 'Your QuickBooks Client ID',
+            helpText: 'App client ID from QuickBooks Developer',
+            required: true
+          },
+          { 
+            key: 'client_secret', 
+            label: 'Client Secret', 
+            placeholder: 'Your Client Secret', 
+            type: 'password',
+            helpText: 'App client secret from QuickBooks Developer',
+            required: true
+          }
+        ];
+      case 'stripe':
+        return [
+          { 
+            key: 'api_key', 
+            label: 'Secret Key', 
+            placeholder: 'sk_live_xxxxx or sk_test_xxxxx', 
+            type: 'password',
+            helpText: 'Stripe API secret key',
+            required: true
+          },
+          { 
+            key: 'webhook_secret', 
+            label: 'Webhook Secret (Optional)', 
+            placeholder: 'whsec_xxxxx', 
+            type: 'password',
+            helpText: 'Stripe webhook signing secret',
+            required: false
+          }
+        ];
+      default:
+        return [
+          { 
+            key: 'api_key', 
+            label: 'API Key', 
+            placeholder: 'Enter API Key', 
+            type: 'password',
+            required: true
+          }
+        ];
+    }
   };
 
-  const apiKey = localStorage.getItem('api_key') || 'YOUR_API_KEY';
-  const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
+  const handleConnect = async () => {
+    setLoading(true);
+    const api = new IntegrationsAPI(apiUrl, token);
+
+    try {
+      await api.connect(integration.type, credentials, {
+        auto_sync: true,
+        sync_interval: 'hourly'
+      });
+      
+      toast.success(`${integration.name} connected successfully!`);
+      onSuccess();
+    } catch (error: any) {
+      // Display detailed error message from backend
+      const errorMessage = error.message || 'Failed to connect';
+      toast.error(errorMessage, {
+        duration: 5000,
+        description: 'Please check your credentials and try again'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fields = getCredentialFields(integration.type);
+
+  return (
+    <div 
+      className="fixed inset-0 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <Card 
+        className="w-full max-w-md p-6 shadow-2xl border-2"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-semibold">Connect {integration.name}</h2>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <XCircle className="h-5 w-5" />
+          </Button>
+        </div>
+
+        <div className="space-y-4 mb-6">
+          {fields.map((field) => (
+            <div key={field.key}>
+              <label className="block text-sm font-medium mb-2">
+                {field.label}
+                {!field.required && <span className="text-muted-foreground ml-1">(Optional)</span>}
+              </label>
+              <input
+                type={field.type || 'text'}
+                placeholder={field.placeholder}
+                value={credentials[field.key] || field.defaultValue || ''}
+                onChange={(e) => setCredentials({ ...credentials, [field.key]: e.target.value })}
+                className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              {field.helpText && (
+                <p className="text-xs text-muted-foreground mt-1">{field.helpText}</p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={onClose} className="flex-1">
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleConnect} 
+            disabled={loading}
+            className="flex-1"
+          >
+            {loading ? (
+              <>
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                Connecting...
+              </>
+            ) : (
+              <>
+                <Plug className="h-4 w-4 mr-2" />
+                Connect
+              </>
+            )}
+          </Button>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+// Default integrations to show if backend doesn't return any
+const DEFAULT_INTEGRATIONS: Integration[] = [
+  {
+    type: 'shopify',
+    name: 'Shopify',
+    description: 'Sync orders and create payment links for your Shopify store automatically'
+  },
+  {
+    type: 'tally',
+    name: 'Tally ERP',
+    description: 'Export transactions and reconcile payments with your Tally accounting system'
+  },
+  {
+    type: 'zoho',
+    name: 'Zoho Books',
+    description: 'Create invoices and sync financial data with Zoho Books seamlessly'
+  },
+  {
+    type: 'woocommerce',
+    name: 'WooCommerce',
+    description: 'Accept crypto payments on your WooCommerce store with automatic order sync'
+  },
+  {
+    type: 'quickbooks',
+    name: 'QuickBooks',
+    description: 'Sync payments and invoices with QuickBooks for streamlined accounting'
+  },
+  {
+    type: 'stripe',
+    name: 'Stripe',
+    description: 'Connect your Stripe account for unified payment processing and reporting'
+  }
+];
+
+export function Integrations() {
+  const [availableIntegrations, setAvailableIntegrations] = useState<Integration[]>(DEFAULT_INTEGRATIONS);
+  const [connectedIntegrations, setConnectedIntegrations] = useState<Integration[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showConnectModal, setShowConnectModal] = useState<Integration | null>(null);
+
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+  const token = localStorage.getItem('merchant_token') || '';
+
+  useEffect(() => {
+    loadIntegrations();
+  }, []);
+
+  const loadIntegrations = async () => {
+    setLoading(true);
+    const api = new IntegrationsAPI(apiUrl, token);
+    
+    try {
+      const [available, status] = await Promise.all([
+        api.listAvailable(),
+        api.getStatus()
+      ]);
+      
+      // Use backend data if available, otherwise use defaults
+      setAvailableIntegrations(
+        available.integrations && available.integrations.length > 0 
+          ? available.integrations 
+          : DEFAULT_INTEGRATIONS
+      );
+      setConnectedIntegrations(status.integrations || []);
+    } catch (error: any) {
+      console.error('Failed to load integrations:', error);
+      // Keep default integrations on error
+      setAvailableIntegrations(DEFAULT_INTEGRATIONS);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getIntegrationIcon = (type: string) => {
+    switch (type.toLowerCase()) {
+      case 'shopify':
+        return <ShoppingBag className="h-8 w-8 text-green-600" />;
+      case 'tally':
+        return <Calculator className="h-8 w-8 text-blue-600" />;
+      case 'zoho':
+        return <FileText className="h-8 w-8 text-orange-600" />;
+      case 'woocommerce':
+        return <ShoppingBag className="h-8 w-8 text-purple-600" />;
+      case 'quickbooks':
+        return <FileText className="h-8 w-8 text-green-700" />;
+      case 'stripe':
+        return <Plug className="h-8 w-8 text-indigo-600" />;
+      default:
+        return <Plug className="h-8 w-8 text-gray-600" />;
+    }
+  };
+
+  const getStatusBadge = (status?: string) => {
+    switch (status) {
+      case 'active':
+        return <Badge className="bg-green-500"><CheckCircle2 className="h-3 w-3 mr-1" />Active</Badge>;
+      case 'error':
+        return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Error</Badge>;
+      default:
+        return <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" />Inactive</Badge>;
+    }
+  };
+
+  const handleConnect = (integration: Integration) => {
+    setShowConnectModal(integration);
+  };
+
+  const handleSync = async (integrationId: number, type: string) => {
+    const api = new IntegrationsAPI(apiUrl, token);
+    
+    try {
+      toast.info('Starting sync...');
+      await api.sync(integrationId, 'orders', {});
+      toast.success('Sync completed successfully!');
+      loadIntegrations();
+    } catch (error: any) {
+      toast.error('Sync failed: ' + error.message);
+    }
+  };
+
+  const handleDisconnect = async (integrationId: number) => {
+    if (!confirm('Are you sure you want to disconnect this integration?')) return;
+    
+    const api = new IntegrationsAPI(apiUrl, token);
+    
+    try {
+      await api.disconnect(integrationId);
+      toast.success('Integration disconnected');
+      loadIntegrations();
+    } catch (error: any) {
+      toast.error('Failed to disconnect: ' + error.message);
+    }
+  };
 
   return (
     <BentoLayout activePage="integrations">
-      <div className="max-w-5xl space-y-8">
+      <div className="max-w-6xl space-y-8">
         {/* Header */}
         <div>
-          <h1 className="text-3xl mb-2">E-commerce Integration</h1>
+          <h1 className="text-3xl mb-2">Integrations</h1>
           <p className="text-muted-foreground">
-            Add crypto payments to your store in minutes
+            Connect your business tools and automate workflows
           </p>
         </div>
 
-        {/* Quick Start */}
-        <Card className="p-6 bg-primary/5 border-primary/20">
-          <h2 className="text-xl mb-4 flex items-center gap-2">
-            <Code className="h-5 w-5" />
-            Quick Start - One API Call
-          </h2>
-          <div className="space-y-4">
-            <div className="bg-secondary/50 p-4 rounded-lg font-mono text-sm overflow-x-auto">
-              <pre>{`POST ${baseUrl}/integrations/create-checkout
-Content-Type: application/json
-
-{
-  "api_key": "${apiKey}",
-  "amount": "50.00",
-  "currency": "USD",
-  "order_id": "ORDER-123",
-  "customer_email": "customer@example.com",
-  "success_url": "https://yourstore.com/success",
-  "cancel_url": "https://yourstore.com/cancel"
-}`}</pre>
+        {/* Connected Integrations */}
+        {connectedIntegrations.length > 0 && (
+          <div>
+            <h2 className="text-xl mb-4">Connected Integrations</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {connectedIntegrations.map((integration) => (
+                <Card key={integration.id} className="p-6 hover:shadow-lg transition-shadow">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      {getIntegrationIcon(integration.type)}
+                    </div>
+                    {getStatusBadge(integration.status)}
+                  </div>
+                  
+                  <h3 className="text-lg font-semibold mb-2 capitalize">{integration.type}</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Last sync: {integration.last_sync ? new Date(integration.last_sync).toLocaleString() : 'Never'}
+                  </p>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleSync(integration.id!, integration.type)}
+                      className="flex-1"
+                    >
+                      <RefreshCw className="h-4 w-4 mr-1" />
+                      Sync
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDisconnect(integration.id!)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </Card>
+              ))}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => copyCode(`curl -X POST ${baseUrl}/integrations/create-checkout \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "api_key": "${apiKey}",
-    "amount": "50.00",
-    "currency": "USD",
-    "order_id": "ORDER-123",
-    "success_url": "https://yourstore.com/success",
-    "cancel_url": "https://yourstore.com/cancel"
-  }'`)}
-            >
-              <Copy className="h-4 w-4 mr-2" />
-              Copy cURL Command
-            </Button>
           </div>
-        </Card>
+        )}
 
-        {/* Platform Tabs */}
-        <Tabs defaultValue="shopify" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="shopify">Shopify</TabsTrigger>
-            <TabsTrigger value="woocommerce">WooCommerce</TabsTrigger>
-            <TabsTrigger value="custom">Custom Site</TabsTrigger>
-            <TabsTrigger value="api">API Docs</TabsTrigger>
-          </TabsList>
-
-          {/* Shopify */}
-          <TabsContent value="shopify" className="space-y-4">
-            <Card className="p-6 bg-card border-border">
-              <h3 className="text-lg mb-4">Shopify Integration - 3 Simple Steps</h3>
-              
-              {/* Step 1 */}
-              <div className="space-y-4 mb-6">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-primary/10 border border-primary/20 flex items-center justify-center rounded">
-                    <span className="text-sm font-bold text-primary">1</span>
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold mb-2">Add ChainPe Script to Theme</h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      File: <code className="bg-secondary px-2 py-1 rounded text-xs">layout/theme.liquid</code>
-                      <br />Add before closing <code className="bg-secondary px-2 py-1 rounded text-xs">&lt;/body&gt;</code> tag
-                    </p>
-                    <div className="bg-secondary p-4 rounded-lg font-mono text-xs overflow-x-auto">
-                      <pre>{`<!-- ChainPe Crypto Payment Integration -->
-<script>
-  window.ChainPe = {
-    apiKey: '${apiKey}',
-    apiUrl: '${baseUrl}',
-    
-    createCheckout: function(amount, currency, orderId, customerEmail) {
-      return fetch(this.apiUrl + '/integrations/create-checkout', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          api_key: this.apiKey,
-          amount: amount,
-          currency: currency,
-          order_id: orderId,
-          customer_email: customerEmail,
-          success_url: window.location.origin + '/pages/payment-success',
-          cancel_url: window.location.origin + '/cart'
-        })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.checkout_url) {
-          window.location.href = data.checkout_url;
-        }
-      });
-    }
-  };
-  
-  function payWithChainPe() {
-    {% if template contains 'cart' %}
-      const cartTotal = {{ cart.total_price | money_without_currency | json }};
-      const currency = {{ cart.currency.iso_code | json }};
-      const cartId = 'SHOPIFY-' + Date.now();
-      const email = {{ customer.email | default: '' | json }};
-      
-      window.ChainPe.createCheckout(cartTotal, currency, cartId, email);
-    {% endif %}
-  }
-</script>`}</pre>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-2"
-                      onClick={() => copyCode(`<!-- ChainPe Script -->
-<script>
-  window.ChainPe = {
-    apiKey: '${apiKey}',
-    apiUrl: '${baseUrl}',
-    createCheckout: function(amount, currency, orderId, customerEmail) {
-      return fetch(this.apiUrl + '/integrations/create-checkout', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          api_key: this.apiKey,
-          amount: amount,
-          currency: currency,
-          order_id: orderId,
-          customer_email: customerEmail,
-          success_url: window.location.origin + '/pages/payment-success',
-          cancel_url: window.location.origin + '/cart'
-        })
-      }).then(res => res.json()).then(data => {
-        if (data.checkout_url) window.location.href = data.checkout_url;
-      });
-    }
-  };
-  function payWithChainPe() {
-    const cartTotal = {{ cart.total_price | money_without_currency | json }};
-    const currency = {{ cart.currency.iso_code | json }};
-    window.ChainPe.createCheckout(cartTotal, currency, 'SHOPIFY-' + Date.now(), '');
-  }
-</script>`)}
-                    >
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy Script
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 2 */}
-              <div className="space-y-4 mb-6">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-primary/10 border border-primary/20 flex items-center justify-center rounded">
-                    <span className="text-sm font-bold text-primary">2</span>
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold mb-2">Add Payment Button to Cart</h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      File: <code className="bg-secondary px-2 py-1 rounded text-xs">sections/main-cart.liquid</code>
-                      <br />Add after cart summary section
-                    </p>
-                    <div className="bg-secondary p-4 rounded-lg font-mono text-xs overflow-x-auto">
-                      <pre>{`{%- unless cart.empty? -%}
-  <div class="cart-page__chainpe" style="padding-top: 20px;">
-    <button 
-      onclick="payWithChainPe()" 
-      class="button button--primary"
-      style="background: #000; color: #fff; padding: 16px; width: 100%; 
-             border: none; cursor: pointer; font-weight: 600; font-size: 16px;">
-      💰 Pay with Crypto (USDC/XLM)
-    </button>
-    <p style="text-align: center; margin-top: 8px; font-size: 12px; color: #666;">
-      Fast, secure payments on Stellar blockchain
-    </p>
-  </div>
-{%- endunless -%}`}</pre>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-2"
-                      onClick={() => copyCode(`{%- unless cart.empty? -%}
-  <div class="cart-page__chainpe" style="padding-top: 20px;">
-    <button onclick="payWithChainPe()" class="button button--primary"
-      style="background: #000; color: #fff; padding: 16px; width: 100%; border: none; cursor: pointer; font-weight: 600; font-size: 16px;">
-      💰 Pay with Crypto (USDC/XLM)
-    </button>
-    <p style="text-align: center; margin-top: 8px; font-size: 12px; color: #666;">
-      Fast, secure payments on Stellar blockchain
-    </p>
-  </div>
-{%- endunless -%}`)}
-                    >
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy Button Code
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 3 */}
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-primary/10 border border-primary/20 flex items-center justify-center rounded">
-                    <span className="text-sm font-bold text-primary">3</span>
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold mb-2">Create Success Page (Optional)</h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Create page: <code className="bg-secondary px-2 py-1 rounded text-xs">pages/payment-success</code>
-                    </p>
-                    <div className="bg-secondary p-4 rounded-lg font-mono text-xs overflow-x-auto">
-                      <pre>{`<div style="max-width: 600px; margin: 80px auto; text-align: center;">
-  <h1 style="font-size: 48px; margin-bottom: 20px;">✅</h1>
-  <h2 style="font-size: 32px; margin-bottom: 16px;">Payment Successful!</h2>
-  <p style="font-size: 18px; color: #666; margin-bottom: 32px;">
-    Your crypto payment has been confirmed on the blockchain.
-  </p>
-  <a href="/" class="button button--primary">Continue Shopping</a>
-</div>`}</pre>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-2"
-                      onClick={() => copyCode(`<div style="max-width: 600px; margin: 80px auto; text-align: center; padding: 40px;">
-  <h1 style="font-size: 48px; margin-bottom: 20px;">✅</h1>
-  <h2 style="font-size: 32px; margin-bottom: 16px;">Payment Successful!</h2>
-  <p style="font-size: 18px; color: #666; margin-bottom: 32px;">
-    Your crypto payment has been confirmed on the blockchain.
-  </p>
-  <a href="/" class="button button--primary" style="background: #000; color: #fff; padding: 16px 32px; text-decoration: none; display: inline-block;">
-    Continue Shopping
-  </a>
-</div>`)}
-                    >
-                      <Copy className="h-4 w-4 mr-2" />
-                      Copy Success Page
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Setup Instructions */}
-              <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                <h4 className="font-semibold mb-2 text-sm">📝 How to Edit Shopify Theme</h4>
-                <ol className="text-xs text-muted-foreground space-y-1 ml-4 list-decimal">
-                  <li>Go to <strong>Shopify Admin → Online Store → Themes</strong></li>
-                  <li>Click <strong>Actions → Edit code</strong></li>
-                  <li>Find the file in left sidebar and paste the code</li>
-                  <li>Replace <code className="bg-secondary px-1 rounded">{apiKey}</code> with your actual API key</li>
-                  <li>Click <strong>Save</strong></li>
-                </ol>
-              </div>
-
-              {/* Testing */}
-              <div className="mt-4 p-4 bg-secondary/50 border border-border rounded-lg">
-                <h4 className="font-semibold mb-2 text-sm">🧪 Testing Your Integration</h4>
-                <ol className="text-xs text-muted-foreground space-y-1 ml-4 list-decimal">
-                  <li>Add items to cart and go to cart page</li>
-                  <li>Click "Pay with Crypto" button</li>
-                  <li>You'll be redirected to ChainPe checkout</li>
-                  <li>Complete payment with USDC or XLM</li>
-                  <li>Redirected back to success page ✅</li>
-                </ol>
-              </div>
-            </Card>
-          </TabsContent>
-
-          {/* WooCommerce */}
-          <TabsContent value="woocommerce" className="space-y-4">
-            <Card className="p-6 bg-card border-border">
-              <h3 className="text-lg mb-4">WooCommerce Integration</h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">Add to your payment gateway class:</p>
-                  <div className="bg-secondary p-4 rounded-lg font-mono text-xs overflow-x-auto">
-                    <pre>{`public function process_payment($order_id) {
-  $order = wc_get_order($order_id);
-  
-  $response = wp_remote_post('${baseUrl}/integrations/create-checkout', array(
-    'body' => json_encode(array(
-      'api_key' => '${apiKey}',
-      'amount' => $order->get_total(),
-      'currency' => get_woocommerce_currency(),
-      'order_id' => $order->get_id(),
-      'customer_email' => $order->get_billing_email(),
-      'success_url' => $this->get_return_url($order),
-      'cancel_url' => wc_get_checkout_url()
-    )),
-    'headers' => array('Content-Type' => 'application/json')
-  ));
-  
-  $data = json_decode(wp_remote_retrieve_body($response));
-  
-  return array(
-    'result' => 'success',
-    'redirect' => $data->checkout_url
-  );
-}`}</pre>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-2"
-                    onClick={() => copyCode(`public function process_payment($order_id) {
-  $order = wc_get_order($order_id);
-  $response = wp_remote_post('${baseUrl}/integrations/create-checkout', array(
-    'body' => json_encode(array(
-      'api_key' => '${apiKey}',
-      'amount' => $order->get_total(),
-      'currency' => get_woocommerce_currency(),
-      'order_id' => $order->get_id(),
-      'success_url' => $this->get_return_url($order),
-      'cancel_url' => wc_get_checkout_url()
-    )),
-    'headers' => array('Content-Type' => 'application/json')
-  ));
-  $data = json_decode(wp_remote_retrieve_body($response));
-  return array('result' => 'success', 'redirect' => $data->checkout_url);
-}`)}
+        {/* Available Integrations */}
+        <div>
+          <h2 className="text-xl mb-4">Available Integrations</h2>
+          
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {availableIntegrations.map((integration) => {
+                const isConnected = connectedIntegrations.some(
+                  (conn) => conn.type === integration.type
+                );
+                
+                return (
+                  <Card 
+                    key={integration.type} 
+                    className={`p-6 hover:shadow-lg transition-all ${
+                      isConnected ? 'border-primary/50 bg-primary/5' : 'hover:border-primary/30'
+                    }`}
                   >
-                    <Copy className="h-4 w-4 mr-2" />
-                    Copy Code
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </TabsContent>
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="p-3 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl">
+                        {getIntegrationIcon(integration.type)}
+                      </div>
+                      {isConnected && (
+                        <Badge className="bg-green-500">
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          Connected
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <h3 className="text-lg font-semibold mb-2">{integration.name}</h3>
+                    <p className="text-sm text-muted-foreground mb-4 min-h-[40px]">
+                      {integration.description || `Connect your ${integration.name} account`}
+                    </p>
+                    
+                    {!isConnected ? (
+                      <Button 
+                        className="w-full"
+                        onClick={() => handleConnect(integration)}
+                      >
+                        <Plug className="h-4 w-4 mr-2" />
+                        Connect {integration.name}
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => {
+                            const connected = connectedIntegrations.find(c => c.type === integration.type);
+                            if (connected?.id) handleSync(connected.id, integration.type);
+                          }}
+                        >
+                          <RefreshCw className="h-4 w-4 mr-1" />
+                          Sync
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const connected = connectedIntegrations.find(c => c.type === integration.type);
+                            if (connected?.id) handleDisconnect(connected.id);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
-          {/* Custom Site */}
-          <TabsContent value="custom" className="space-y-4">
-            <Card className="p-6 bg-card border-border">
-              <h3 className="text-lg mb-4">Custom Website Integration</h3>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">JavaScript/Frontend:</p>
-                  <div className="bg-secondary p-4 rounded-lg font-mono text-xs overflow-x-auto">
-                    <pre>{`async function createCheckout(amount, orderId) {
-  const response = await fetch('${baseUrl}/integrations/create-checkout', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      api_key: '${apiKey}',
-      amount: amount,
-      currency: 'USD',
-      order_id: orderId,
-      success_url: window.location.origin + '/success',
-      cancel_url: window.location.origin + '/cancel'
-    })
-  });
-  
-  const data = await response.json();
-  window.location.href = data.checkout_url;
-}
-
-// Usage
-document.getElementById('payButton').onclick = () => {
-  createCheckout('50.00', 'ORDER-123');
-};`}</pre>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-2"
-                    onClick={() => copyCode(`async function createCheckout(amount, orderId) {
-  const response = await fetch('${baseUrl}/integrations/create-checkout', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({
-      api_key: '${apiKey}',
-      amount: amount,
-      currency: 'USD',
-      order_id: orderId,
-      success_url: window.location.origin + '/success',
-      cancel_url: window.location.origin + '/cancel'
-    })
-  });
-  const data = await response.json();
-  window.location.href = data.checkout_url;
-}`)}
-                  >
-                    <Copy className="h-4 w-4 mr-2" />
-                    Copy Code
-                  </Button>
-                </div>
-
-                <div>
-                  <p className="text-sm text-muted-foreground mb-2">Python/Backend:</p>
-                  <div className="bg-secondary p-4 rounded-lg font-mono text-xs overflow-x-auto">
-                    <pre>{`import requests
-
-def create_checkout(amount, order_id):
-    response = requests.post('${baseUrl}/integrations/create-checkout', json={
-        'api_key': '${apiKey}',
-        'amount': amount,
-        'currency': 'USD',
-        'order_id': order_id,
-        'success_url': 'https://yoursite.com/success',
-        'cancel_url': 'https://yoursite.com/cancel'
-    })
-    
-    data = response.json()
-    return data['checkout_url']`}</pre>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-2"
-                    onClick={() => copyCode(`import requests
-
-def create_checkout(amount, order_id):
-    response = requests.post('${baseUrl}/integrations/create-checkout', json={
-        'api_key': '${apiKey}',
-        'amount': amount,
-        'currency': 'USD',
-        'order_id': order_id,
-        'success_url': 'https://yoursite.com/success',
-        'cancel_url': 'https://yoursite.com/cancel'
-    })
-    return response.json()['checkout_url']`)}
-                  >
-                    <Copy className="h-4 w-4 mr-2" />
-                    Copy Code
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </TabsContent>
-
-          {/* API Docs */}
-          <TabsContent value="api" className="space-y-4">
-            <Card className="p-6 bg-card border-border">
-              <h3 className="text-lg mb-4">API Endpoints</h3>
-              <div className="space-y-4">
-                <div className="border border-border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <code className="text-sm font-mono">POST /integrations/create-checkout</code>
-                    <Badge>Create</Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">Create a new checkout session</p>
-                </div>
-
-                <div className="border border-border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <code className="text-sm font-mono">GET /integrations/verify/{"{session_id}"}</code>
-                    <Badge variant="outline">Verify</Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">Verify payment status</p>
-                </div>
-
-                <div className="border border-border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <code className="text-sm font-mono">GET /integrations/payment-button</code>
-                    <Badge variant="secondary">Widget</Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">Get embeddable payment button</p>
-                </div>
-
-                <Button
-                  className="w-full"
-                  onClick={() => window.open(`${baseUrl}/docs`, '_blank')}
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Open Full API Documentation
-                </Button>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-card border-border">
-              <h3 className="text-lg mb-4">Webhooks</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Receive real-time notifications when payments are completed
-              </p>
-              <div className="bg-secondary p-4 rounded-lg font-mono text-xs overflow-x-auto">
-                <pre>{`{
-  "event": "payment.completed",
-  "session_id": "pay_xxx",
-  "amount": "50.00",
-  "currency": "USD",
-  "paid_amount": "50.00",
-  "paid_asset": "USDC",
-  "transaction_hash": "abc123...",
-  "status": "completed",
-  "metadata": {
-    "order_id": "ORDER-123",
-    "customer_email": "customer@example.com"
-  },
-  "timestamp": "2025-12-19T10:35:00Z"
-}`}</pre>
-              </div>
-            </Card>
-          </TabsContent>
-        </Tabs>
-
-        {/* Your API Key */}
-        <Card className="p-6 bg-card border-primary/20">
-          <h3 className="text-lg mb-4">Your API Key</h3>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 px-4 py-3 bg-secondary rounded-md font-mono text-sm">
-              {apiKey}
-            </code>
-            <Button
-              variant="outline"
-              onClick={() => copyCode(apiKey)}
-            >
-              <Copy className="h-4 w-4" />
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            ⚠️ Keep your API key secure. Never expose it in client-side code for production.
-          </p>
-        </Card>
+        {/* Connect Modal */}
+        {showConnectModal && (
+          <ConnectIntegrationModal
+            integration={showConnectModal}
+            onClose={() => setShowConnectModal(null)}
+            onSuccess={() => {
+              setShowConnectModal(null);
+              loadIntegrations();
+            }}
+            apiUrl={apiUrl}
+            token={token}
+          />
+        )}
       </div>
     </BentoLayout>
   );

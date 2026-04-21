@@ -335,34 +335,7 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
 
                   <div className="h-px bg-border my-1.5"></div>
 
-                  {/* Menu Items */}
-                  <button className="w-full flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-dari text-left">
-                    <Users className="h-4 w-4 text-foreground mt-0.5 shrink-0" />
-                    <div className="flex-1">
-                      <div className="text-[13px] font-medium text-foreground">Team</div>
-                      <div className="text-[12px] text-muted-foreground">Manage members & roles</div>
-                    </div>
-                  </button>
-
-                  <button className="w-full flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-dari text-left">
-                    <User className="h-4 w-4 text-foreground mt-0.5 shrink-0" />
-                    <div className="flex-1">
-                      <div className="text-[13px] font-medium text-foreground">My Account</div>
-                      <div className="text-[12px] text-muted-foreground">Profile, security, billing</div>
-                    </div>
-                  </button>
-
-                  <button className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-dari text-left">
-                    <div className="flex items-center gap-3">
-                      <Command className="h-4 w-4 text-foreground shrink-0" />
-                      <div className="text-[13px] font-medium text-foreground">Keyboard shortcuts</div>
-                    </div>
-                    <span className="text-[10px] font-mono text-muted-foreground">⌘K</span>
-                  </button>
-
-                  <div className="h-px bg-border my-1.5"></div>
-
-                  {/* Danger Item */}
+                  {/* Logout Button */}
                   <button 
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-destructive-bg transition-dari text-left"
