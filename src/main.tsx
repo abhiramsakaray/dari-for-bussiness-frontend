@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AppRouter from "./app/AppRouter.tsx";
 import "./styles/index.css";
+import "./utils/diagnostics";  // Load diagnostic tools
 
 // Create a client
 const queryClient = new QueryClient({

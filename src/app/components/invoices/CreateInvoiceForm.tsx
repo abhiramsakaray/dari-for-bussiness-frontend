@@ -15,10 +15,7 @@ import { BentoLayout } from "../BentoLayout";
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { formatCurrency } from '../../../lib/utils';
 
-// Hash-based navigation helper
-const navigateTo = (path: string) => {
-  window.location.hash = path;
-};
+// Removed navigateTo helper - using direct hash assignment for clarity
 
 const CURRENCIES = [
   { code: 'USD', label: 'US Dollar',         symbol: '$',   flag: '🇺🇸' },
@@ -137,7 +134,7 @@ export function CreateInvoiceForm() {
 
     console.log('Submitting invoice:', input); // Debug log
     await createMutation.mutateAsync(input);
-    navigateTo('/invoices');
+    window.location.hash = '#/invoices';
   };
 
   // Set default due date to 30 days from now
@@ -148,7 +145,7 @@ export function CreateInvoiceForm() {
     <BentoLayout activePage="invoices">
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigateTo('/invoices')}>
+          <Button variant="ghost" size="icon" onClick={() => window.location.hash = '#/invoices'}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
@@ -469,7 +466,7 @@ export function CreateInvoiceForm() {
           <Button type="submit" disabled={createMutation.isPending}>
             {createMutation.isPending ? 'Creating...' : 'Create Invoice'}
           </Button>
-          <Button type="button" variant="outline" onClick={() => navigateTo('/invoices')}>
+          <Button type="button" variant="outline" onClick={() => window.location.hash = '#/invoices'}>
             Cancel
           </Button>
         </div>

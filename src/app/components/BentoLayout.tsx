@@ -15,7 +15,15 @@ import {
   HelpCircle,
   User,
   Command,
-  LogOut
+  LogOut,
+  Tag,
+  Plus,
+  UserCircle2,
+  Repeat,
+  RefreshCw,
+  Wallet2,
+  ArrowUpLeft,
+  Wallet
 } from "lucide-react";
 import { getPermissions, getUserInfo, getRoleLabel } from "../../utils/rolePermissions";
 
@@ -46,8 +54,13 @@ const navGroups: NavGroup[] = [
     items: [
       { id: 'overview', label: 'Overview', icon: LayoutGrid, href: '/dashboard' },
       { id: 'transactions', label: 'Transactions', icon: ArrowLeftRight, href: '/dashboard/payments' },
+      { id: 'payer-leads', label: 'Payer Leads', icon: UserCircle2, href: '/dashboard/payer-leads' },
+      { id: 'create', label: 'Create Payment', icon: Plus, href: '/dashboard/create' },
       { id: 'payment-links', label: 'Payment Links', icon: FileText, href: '/payment-links-dashboard' },
       { id: 'invoices', label: 'Invoices', icon: FileText, href: '/invoices-dashboard' },
+      { id: 'subscriptions', label: 'Subscriptions', icon: Repeat, href: '/subscriptions-dashboard' },
+      { id: 'coupons', label: 'Promo Codes', icon: Tag, href: '/dashboard/coupons' },
+      { id: 'refunds', label: 'Refunds', icon: RefreshCw, href: '/refunds' },
     ],
   },
   {
@@ -57,9 +70,10 @@ const navGroups: NavGroup[] = [
     items: [
       { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/analytics-dashboard' },
       { id: 'reports', label: 'Reports', icon: FileText, href: '/reports' },
-      { id: 'subscriptions', label: 'Subscriptions', icon: Users, href: '/subscriptions-dashboard' },
       { id: 'team', label: 'Team', icon: Users, href: '/team' },
-      { id: 'billing', label: 'Billing & Plans', icon: Settings, href: '/billing' },
+      { id: 'wallets', label: 'Wallets', icon: Wallet2, href: '/wallets' },
+      { id: 'withdrawals', label: 'Withdrawals', icon: ArrowUpLeft, href: '/withdrawals' },
+      { id: 'billing', label: 'Billing & Plans', icon: Wallet, href: '/billing' },
     ],
   },
   {
@@ -67,9 +81,8 @@ const navGroups: NavGroup[] = [
     label: 'Settings',
     icon: Settings,
     items: [
-      { id: 'settings', label: 'Settings', icon: Settings, href: '/dashboard/settings' },
       { id: 'integrations', label: 'Integrations', icon: Settings, href: '/dashboard/integrations' },
-      { id: 'help', label: 'Help & Support', icon: HelpCircle, href: '/dashboard/settings' },
+      { id: 'settings', label: 'Settings', icon: Settings, href: '/dashboard/settings' },
     ],
   },
 ];
@@ -141,18 +154,30 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
           return permissions.canViewOverview;
         case 'transactions':
           return permissions.canViewTransactions;
+        case 'payer-leads':
+          return permissions.canViewTransactions; // Same permission as transactions
+        case 'create':
+          return permissions.canViewTransactions; // Can create if can view transactions
         case 'payment-links':
           return permissions.canViewPaymentLinks;
         case 'invoices':
           return permissions.canViewInvoices;
+        case 'subscriptions':
+          return permissions.canViewSubscriptions;
+        case 'coupons':
+          return true; // Available to all
+        case 'refunds':
+          return permissions.canViewTransactions; // Same as transactions
         case 'analytics':
           return permissions.canViewAnalytics;
         case 'reports':
           return permissions.canViewReports;
-        case 'subscriptions':
-          return permissions.canViewSubscriptions;
         case 'team':
           return permissions.canViewTeam;
+        case 'wallets':
+          return true; // Available to all
+        case 'withdrawals':
+          return true; // Available to all
         case 'billing':
           return permissions.canManageBilling;
         case 'settings':

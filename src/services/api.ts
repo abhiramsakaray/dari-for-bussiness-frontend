@@ -13,8 +13,11 @@ const API_URL = import.meta.env.VITE_API_URL || '';
 export const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json; charset=utf-8',
+    'Accept': 'application/json; charset=utf-8',
   },
+  responseType: 'json',
+  responseEncoding: 'utf8',
 });
 
 // Add API key and token to requests
@@ -49,7 +52,22 @@ api.interceptors.request.use((config) => {
 
 // Handle errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Debug: Log response data to check encoding
+    if (process.env.NODE_ENV === 'development' && response.data) {
+      const url = response.config.url;
+      if (url?.includes('payments') || url?.includes('sessions')) {
+        console.log('📥 API Response:', {
+          url,
+          contentType: response.headers['content-type'],
+          sampleData: JSON.stringify(response.data).substring(0, 200),
+          hasLocalCurrency: response.data.amount_fiat_local ? 'yes' : 'no',
+          localSymbol: response.data.amount_fiat_local?.local_symbol,
+        });
+      }
+    }
+    return response;
+  },
   (error) => {
     // Log detailed error info for debugging
     console.error('🔴 API Error (legacy client):', {

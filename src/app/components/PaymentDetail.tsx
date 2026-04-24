@@ -5,15 +5,11 @@ import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { ArrowLeft, ExternalLink, Copy, Clock, CheckCircle2, XCircle, AlertCircle, UserCircle2, Tag, Download, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { chainpeService, PaymentSession } from "../../services/chainpe";
 import { toast } from "sonner";
 import { displayAmount, displayDualAmount, extractErrorMessage, formatCurrency } from "../../lib/utils";
 import { useMerchantCurrency } from "../../hooks/useMerchantCurrency";
-
-interface PaymentDetailProps {
-  paymentId: string;
-}
 
 const statusConfig: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
   paid: {
@@ -68,14 +64,36 @@ function DetailRow({ label, value, mono, copyable }: { label: string; value: Rea
   );
 }
 
-export function PaymentDetail({ paymentId }: PaymentDetailProps) {
+export function PaymentDetail() {
   const navigate = useNavigate();
+  const { paymentId } = useParams<{ paymentId: string }>();
   const [payment, setPayment] = useState<PaymentSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isGeneratingReceipt, setIsGeneratingReceipt] = useState(false);
   const [isDownloadingReceipt, setIsDownloadingReceipt] = useState(false);
   const { currency } = useMerchantCurrency();
+
+  // Validate paymentId exists
+  if (!paymentId) {
+    return (
+      <BentoLayout activePage="payments">
+        <div className="space-y-6">
+          <Button variant="ghost" onClick={() => navigate('/dashboard/payments')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Payments
+          </Button>
+          <Card>
+            <CardContent className="py-12 text-center">
+              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2">Invalid Payment ID</h2>
+              <p className="text-muted-foreground">No payment ID was provided in the URL.</p>
+            </CardContent>
+          </Card>
+        </div>
+      </BentoLayout>
+    );
+  }
 
   const handleGenerateReceipt = async () => {
     if (!payment || payment.status?.toLowerCase() !== 'paid') {

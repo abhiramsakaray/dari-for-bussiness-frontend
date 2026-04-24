@@ -12,10 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { BentoLayout } from "../BentoLayout";
 import { ArrowLeft } from 'lucide-react';
 
-// Hash-based navigation helper
-const navigateTo = (path: string) => {
-  window.location.hash = path;
-};
+// Removed navigateTo helper - using direct hash assignment for clarity
 
 const AVAILABLE_TOKENS = ['USDC', 'USDT', 'XLM', 'ETH', 'MATIC', 'DAI'];
 const AVAILABLE_CHAINS = ['stellar', 'polygon', 'ethereum', 'base', 'tron', 'arbitrum'];
@@ -98,14 +95,14 @@ export function CreatePaymentLinkForm() {
 
     console.log('Submitting payment link:', input); // Debug log
     await createMutation.mutateAsync(input);
-    navigateTo('/payment-links');
+    window.location.hash = '#/payment-links';
   };
 
   return (
     <BentoLayout activePage="payment-links">
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigateTo('/payment-links')}>
+          <Button variant="ghost" size="icon" onClick={() => window.location.hash = '#/payment-links'}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
@@ -313,7 +310,7 @@ export function CreatePaymentLinkForm() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => navigateTo('/payment-links')}
+            onClick={() => window.location.hash = '#/payment-links'}
           >
             Cancel
           </Button>

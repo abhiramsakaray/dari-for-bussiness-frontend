@@ -29,10 +29,7 @@ import {
 import { FileText, Send, Eye, MoreVertical, Plus, Copy, XCircle, ExternalLink } from 'lucide-react';
 import { BentoLayout } from "../BentoLayout";
 
-// Hash-based navigation helper
-const navigateTo = (path: string) => {
-  window.location.hash = path;
-};
+// Removed navigateTo helper - using direct hash assignment for clarity
 
 const STATUS_VARIANTS: Record<InvoiceStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
   [InvoiceStatus.DRAFT]: 'secondary',
@@ -114,7 +111,7 @@ export function InvoicesList() {
               Create and manage invoices for your customers
             </p>
           </div>
-          <Button onClick={() => navigateTo('/invoices/new')}>
+          <Button onClick={() => window.location.hash = '#/invoices/new'}>
             <Plus className="w-4 h-4 mr-2" />
           Create Invoice
         </Button>
@@ -150,7 +147,7 @@ export function InvoicesList() {
             <p className="text-muted-foreground text-center mb-4">
               Create your first invoice to bill your customers
             </p>
-            <Button onClick={() => navigateTo('/invoices/new')}>
+            <Button onClick={() => window.location.hash = '#/invoices/new'}>
               <Plus className="w-4 h-4 mr-2" />
               Create Invoice
             </Button>
@@ -264,7 +261,7 @@ function InvoiceRow({ invoice, onSend, onCancel }: InvoiceRowProps) {
           <Button
             size="icon"
             variant="ghost"
-            onClick={() => navigateTo(`/invoices/${invoice.id}`)}
+            onClick={() => window.location.hash = `#/invoices/${invoice.id}`}
             title="View invoice"
           >
             <Eye className="w-4 h-4" />
@@ -288,7 +285,7 @@ function InvoiceRow({ invoice, onSend, onCancel }: InvoiceRowProps) {
                   Payment Link
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem onClick={() => navigateTo(`/invoices/${invoice.id}/edit`)}>
+              <DropdownMenuItem onClick={() => window.location.hash = `#/invoices/${invoice.id}/edit`}>
                 <Copy className="w-4 h-4 mr-2" />
                 Edit
               </DropdownMenuItem>

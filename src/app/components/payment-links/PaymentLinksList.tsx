@@ -24,10 +24,7 @@ import { Copy, ExternalLink, Edit, Trash2, BarChart3, MoreVertical, Plus, Link }
 import { toast } from 'sonner';
 import { BentoLayout } from "../BentoLayout";
 
-// Hash-based navigation helper
-const navigateTo = (path: string) => {
-  window.location.hash = path;
-};
+// Removed navigateTo helper - using direct hash assignment for clarity
 
 export function PaymentLinksList() {
   const [page, setPage] = useState(1);
@@ -98,7 +95,7 @@ export function PaymentLinksList() {
               Create and manage shareable payment links
             </p>
           </div>
-          <Button onClick={() => navigateTo('/payment-links/new')}>
+          <Button onClick={() => window.location.hash = '#/payment-links/new'}>
             <Plus className="w-4 h-4 mr-2" />
             Create Payment Link
           </Button>
@@ -114,7 +111,7 @@ export function PaymentLinksList() {
             <p className="text-muted-foreground text-center mb-4">
               Create your first payment link to start accepting crypto payments
             </p>
-            <Button onClick={() => navigateTo('/payment-links/new')}>
+            <Button onClick={() => window.location.hash = '#/payment-links/new'}>
               <Plus className="w-4 h-4 mr-2" />
               Create Payment Link
             </Button>
@@ -249,11 +246,11 @@ function PaymentLinkRow({ link, currency, onCopy, onDeactivate }: PaymentLinkRow
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => navigateTo(`/payment-links/${link.id}/analytics`)}>
+              <DropdownMenuItem onClick={() => window.location.hash = `#/payment-links/${link.id}/analytics`}>
                 <BarChart3 className="w-4 h-4 mr-2" />
                 View Analytics
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigateTo(`/payment-links/${link.id}/edit`)}>
+              <DropdownMenuItem onClick={() => window.location.hash = `#/payment-links/${link.id}/edit`}>
                 <Edit className="w-4 h-4 mr-2" />
                 Edit
               </DropdownMenuItem>

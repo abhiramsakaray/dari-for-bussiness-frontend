@@ -145,13 +145,13 @@ export function DashboardLayout({ children, activePage, isAdmin = false }: Dashb
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-border/60 shrink-0">
-        <img src={logoUrl} alt="ChainPe" className="h-9 w-auto" />
+      {/* Logo - Compact */}
+      <div className="h-14 flex items-center px-6 border-b border-border/60 shrink-0">
+        <img src={logoUrl} alt="ChainPe" className="h-8 w-auto" />
       </div>
 
-      {/* Navigation — NO overflow, everything must fit */}
-      <nav className="flex-1 px-4 py-4 flex flex-col gap-1 overflow-hidden">
+      {/* Navigation - Compact spacing to fit all items */}
+      <nav className="flex-1 px-4 py-2 flex flex-col gap-0.5 overflow-y-auto overflow-x-hidden">
         {navGroups.map((group) => {
           const GroupIcon = group.icon;
           const isExpanded = openGroups[group.id] ?? true;
@@ -162,24 +162,24 @@ export function DashboardLayout({ children, activePage, isAdmin = false }: Dashb
               {/* Group Header */}
               <button
                 onClick={() => toggleGroup(group.id)}
-                className={`flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-left transition-all duration-150 group ${
+                className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg text-left transition-all duration-150 group ${
                   hasActive
                     ? 'text-primary'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                <GroupIcon className="h-4.5 w-4.5 shrink-0" />
-                <span className="flex-1 text-xs font-bold uppercase tracking-widest">
+                <GroupIcon className="h-4 w-4 shrink-0" />
+                <span className="flex-1 text-xs font-bold uppercase tracking-wider">
                   {group.label}
                 </span>
                 {isExpanded
-                  ? <ChevronDown className="h-3.5 w-3.5 opacity-60" />
-                  : <ChevronRight className="h-3.5 w-3.5 opacity-60" />}
+                  ? <ChevronDown className="h-3 w-3 opacity-60" />
+                  : <ChevronRight className="h-3 w-3 opacity-60" />}
               </button>
 
               {/* Group Children */}
               {isExpanded && (
-                <div className="ml-4 pl-4 border-l-2 border-border/40 flex flex-col gap-0.5 mb-2">
+                <div className="ml-3 pl-3 border-l-2 border-border/40 flex flex-col gap-0.5 mb-1">
                   {group.items.map((item) => {
                     const Icon = item.icon;
                     const isActive = activePage === item.id;
@@ -187,7 +187,7 @@ export function DashboardLayout({ children, activePage, isAdmin = false }: Dashb
                       <Link
                         key={item.id}
                         to={item.href}
-                        className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all duration-150 ${
+                        className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all duration-150 ${
                           isActive
                             ? 'bg-primary/15 text-primary font-semibold'
                             : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
@@ -196,7 +196,7 @@ export function DashboardLayout({ children, activePage, isAdmin = false }: Dashb
                         <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-primary' : ''}`} />
                         <span className="truncate">{item.label}</span>
                         {isActive && (
-                          <span className="ml-auto w-2 h-2 rounded-full bg-primary shrink-0" />
+                          <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                         )}
                       </Link>
                     );
@@ -208,19 +208,19 @@ export function DashboardLayout({ children, activePage, isAdmin = false }: Dashb
         })}
       </nav>
 
-      {/* User Section */}
-      <div className="px-4 pb-4 pt-3 border-t border-border/60 shrink-0">
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-muted/40 mb-2">
-          <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-            <span className="text-sm font-bold text-primary">{initials}</span>
+      {/* User Section - Compact */}
+      <div className="px-4 pb-3 pt-2 border-t border-border/60 shrink-0">
+        <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-muted/40 mb-2">
+          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+            <span className="text-xs font-bold text-primary">{initials}</span>
           </div>
-          <p className="text-sm text-muted-foreground truncate flex-1">{merchantEmail}</p>
+          <p className="text-xs text-muted-foreground truncate flex-1">{merchantEmail}</p>
         </div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+          className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
         >
-          <LogOut className="h-4.5 w-4.5" />
+          <LogOut className="h-4 w-4" />
           <span>Sign out</span>
         </button>
       </div>

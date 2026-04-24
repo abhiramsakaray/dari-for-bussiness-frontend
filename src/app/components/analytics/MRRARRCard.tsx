@@ -1,5 +1,6 @@
 import React from 'react';
 import { useMRRARR, useMRRTrend } from '../../../hooks/useAnalytics';
+import { useMerchantCurrency } from '../../../hooks/useMerchantCurrency';
 import { formatCurrency } from '../../../lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
@@ -29,6 +30,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 export function MRRARRCard() {
   const { data, isLoading, error } = useMRRARR();
   const { data: trend } = useMRRTrend(6);
+  const { currency: merchantCurrency } = useMerchantCurrency();
 
   if (error) {
     const status = (error as any)?.response?.status;
@@ -59,7 +61,8 @@ export function MRRARRCard() {
 
   if (!data) return null;
 
-  const displayCurrency = data.mrr_local?.currency || 'USD';
+  // Use merchant's currency from settings, not from analytics data
+  const displayCurrency = merchantCurrency || data.mrr_local?.currency || data.currency || 'USD';
   const mrr = Number(data.mrr_local?.amount ?? data.mrr ?? data.mrr_usd ?? 0);
   const arr = Number(data.arr_local?.amount ?? data.arr ?? data.arr_usd ?? 0);
   const rawChange = data.net_revenue_change_pct != null ? Number(data.net_revenue_change_pct) : null;
@@ -97,7 +100,7 @@ export function MRRARRCard() {
                 <p className="text-2xl font-bold">{formatCurrency(mrr, displayCurrency)}</p>
                 {data.mrr_local && (
                   <p className="text-xs text-muted-foreground mt-1">
-                    {data.mrr_local.currency} {Number(data.mrr_local.amount).toLocaleString()}
+                    {data.mrr_local.display_local}
                   </p>
                 )}
               </div>
@@ -129,7 +132,7 @@ export function MRRARRCard() {
                 <p className="text-2xl font-bold">{formatCurrency(arr, displayCurrency)}</p>
                 {data.arr_local && (
                   <p className="text-xs text-muted-foreground mt-1">
-                    {data.arr_local.currency} {Number(data.arr_local.amount).toLocaleString()}
+                    {data.arr_local.display_local}
                   </p>
                 )}
               </div>

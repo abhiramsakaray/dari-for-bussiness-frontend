@@ -188,6 +188,8 @@ export type Subscription = {
   id: string;
   plan_id: string;
   plan_name: string;
+  plan_amount?: number; // Amount from the plan
+  plan_currency?: string; // Currency from the plan
   merchant_id: string;
   customer_email: string;
   customer_name?: string;

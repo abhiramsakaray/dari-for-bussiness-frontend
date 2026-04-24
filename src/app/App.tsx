@@ -137,7 +137,7 @@ export default function App() {
       case route === "/dashboard/payments":
         return <ProtectedRoute><PaymentsList /></ProtectedRoute>;
       case !!paymentDetailMatch:
-        return <ProtectedRoute><PaymentDetail paymentId={paymentDetailId!} /></ProtectedRoute>;
+        return <ProtectedRoute><PaymentDetail /></ProtectedRoute>;
       case route === "/dashboard/payer-leads":
         return <ProtectedRoute><PayerLeads /></ProtectedRoute>;
       case route === "/dashboard/create":

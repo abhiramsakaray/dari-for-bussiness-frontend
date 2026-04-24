@@ -16,6 +16,7 @@ import {
 import { usePaymentHistory } from "../../hooks/usePaymentHistory";
 import { useState } from "react";
 import { displayAmount, displayDualAmount } from "../../lib/utils";
+import { diagnoseCurrencyEncoding } from "../../utils/diagnostics";
 
 export function PaymentsList() {
   const navigate = useNavigate();
@@ -101,6 +102,11 @@ export function PaymentsList() {
                     const hasDiscount = payment.coupon_code !== null && payment.coupon_code !== undefined;
                     const amountUsd = payment.amount_fiat || parseFloat(payment.amount_usdc || '0');
                     const dual = displayDualAmount(amountUsd, payment.amount_fiat_local);
+                    
+                    // Debug: Diagnose currency encoding for first payment
+                    if (process.env.NODE_ENV === 'development' && filteredPayments.indexOf(payment) === 0) {
+                      diagnoseCurrencyEncoding(payment);
+                    }
                     
                     return (
                     <TableRow

@@ -197,7 +197,7 @@ export default function AppRouter() {
         {/* Protected Dashboard Routes */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/dashboard/payments" element={<ProtectedRoute><PaymentsList /></ProtectedRoute>} />
-        <Route path="/dashboard/payments/:paymentId" element={<ProtectedRoute><PaymentDetail paymentId="" /></ProtectedRoute>} />
+        <Route path="/dashboard/payments/:paymentId" element={<ProtectedRoute><PaymentDetail /></ProtectedRoute>} />
         <Route path="/dashboard/payer-leads" element={<ProtectedRoute><PayerLeads /></ProtectedRoute>} />
         <Route path="/dashboard/create" element={<ProtectedRoute><CreatePayment /></ProtectedRoute>} />
         <Route path="/dashboard/integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />

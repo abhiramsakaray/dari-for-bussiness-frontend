@@ -131,10 +131,20 @@ export const chainpeService = {
     return response.data;
   },
 
-  // Get session status
+  // Get session status (payment detail)
   getSessionStatus: async (sessionId: string): Promise<PaymentSession> => {
-    const response = await api.get(`/api/sessions/${sessionId}`);
-    return response.data;
+    // Try merchant/payments endpoint first (correct endpoint)
+    try {
+      const response = await api.get(`/merchant/payments/${sessionId}`);
+      return response.data;
+    } catch (error: any) {
+      // Fallback to old endpoint for backward compatibility
+      if (error.response?.status === 404) {
+        const response = await api.get(`/api/sessions/${sessionId}`);
+        return response.data;
+      }
+      throw error;
+    }
   },
 
   // Get merchant profile

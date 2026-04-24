@@ -321,10 +321,16 @@ export function SubscriptionsDashboard() {
   const activePlans = plansData?.items?.filter((p) => p.is_active).length || 0;
   const activeSubscriptions =
     subscriptionsData?.items?.filter((s) => s.status === SubscriptionStatus.ACTIVE).length || 0;
+  
+  // Calculate MRR from active subscriptions
+  // Use next_payment_amount if available, otherwise fall back to plan_amount
   const totalMRR =
     subscriptionsData?.items
       ?.filter((s) => s.status === SubscriptionStatus.ACTIVE)
-      .reduce((sum) => sum + 0, 0) || 0;
+      .reduce((sum, sub) => {
+        const amount = Number(sub.next_payment_amount) || Number(sub.plan_amount) || 0;
+        return sum + amount;
+      }, 0) || 0;
 
   const inputCls = 'w-full border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring';
   const labelCls = 'block text-sm font-medium mb-1';
@@ -1056,6 +1062,7 @@ interface SubscriptionRowProps {
 }
 
 function SubscriptionRow({ subscription, onPause, onResume, onCancel, onExtendTrial, onEndTrial, onCollectPayment, onUpdatePaymentMethod }: SubscriptionRowProps) {
+  const { currency } = useMerchantCurrency();
   const isActive = subscription.status === SubscriptionStatus.ACTIVE;
   const isPaused = subscription.status === SubscriptionStatus.PAUSED;
   const isTrialing = subscription.status === SubscriptionStatus.TRIALING || subscription.is_in_trial;
@@ -1092,7 +1099,7 @@ function SubscriptionRow({ subscription, onPause, onResume, onCancel, onExtendTr
           <div>
             <p>{formatDate(subscription.next_payment_at)}</p>
             {subscription.next_payment_amount != null && (
-              <p className="text-xs">${Number(subscription.next_payment_amount).toFixed(2)}</p>
+              <p className="text-xs">{formatCurrency(Number(subscription.next_payment_amount), subscription.plan_currency || currency)}</p>
             )}
           </div>
         ) : '-'}

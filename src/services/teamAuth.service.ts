@@ -49,8 +49,11 @@ class TeamAuthService {
     this.api = axios.create({
       baseURL: API_BASE_URL,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
+        'Accept': 'application/json; charset=utf-8',
       },
+      responseType: 'json',
+      responseEncoding: 'utf8',
     });
 
     // Request interceptor: Add access token

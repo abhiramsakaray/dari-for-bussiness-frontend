@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAnalyticsOverview, useRevenueTimeSeries, useConversionMetrics } from '../../../hooks/useAnalytics';
+import { useMerchantCurrency } from '../../../hooks/useMerchantCurrency';
 import { AnalyticsPeriod } from '../../../types/api.types';
 import { formatCurrency, calculatePercentageChange } from '../../../lib/utils';
 import { Button } from '../ui/button';
@@ -64,11 +65,14 @@ const CHART_COLORS = [
 
 export function AnalyticsDashboard() {
   const [period, setPeriod] = useState<AnalyticsPeriod>('month');
+  const { currency: merchantCurrency } = useMerchantCurrency();
 
   const { data: overview, isLoading: overviewLoading, error: overviewError } = useAnalyticsOverview(period);
   const { data: revenue, isLoading: revenueLoading } = useRevenueTimeSeries(period);
   const { data: conversion } = useConversionMetrics(30);
-  const analyticsCurrency = overview?.currency || 'USD';
+  
+  // Use merchant's currency from settings, not from analytics data
+  const analyticsCurrency = merchantCurrency || overview?.currency || 'USD';
 
   const totalVolume = overview?.payments?.total_volume ?? overview?.payments?.total_volume_usd ?? 0;
   const avgPayment = overview?.payments?.avg_payment ?? overview?.payments?.avg_payment_usd ?? 0;
