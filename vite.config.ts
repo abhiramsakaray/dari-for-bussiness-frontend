@@ -46,39 +46,15 @@ export default defineConfig({
         target: 'http://localhost:8000',
         changeOrigin: true,
       },
-      '/payment': {
+      '/receipts': {
         target: 'http://localhost:8000',
         changeOrigin: true,
       },
-      '/billing': {
+      '/coupons': {
         target: 'http://localhost:8000',
         changeOrigin: true,
       },
-      '/onboarding': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/analytics': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/subscriptions': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/invoices': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/payment-links': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/refunds': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-      '/team': {
+      '/webhooks': {
         target: 'http://localhost:8000',
         changeOrigin: true,
       },

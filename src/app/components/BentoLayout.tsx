@@ -112,10 +112,20 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
   });
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
-    payments: true,
-    business: true,
-    settings: false,
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(() => {
+    const saved = localStorage.getItem('sidebar_expanded_groups');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        // Fallback to defaults if parsing fails
+      }
+    }
+    return {
+      payments: true,
+      business: true,
+      settings: true, // Changed to true so Settings group is expanded by default
+    };
   });
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -127,6 +137,11 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
   useEffect(() => {
     localStorage.setItem('sidebar_collapsed', String(sidebarCollapsed));
   }, [sidebarCollapsed]);
+
+  // Save expanded groups state to localStorage
+  useEffect(() => {
+    localStorage.setItem('sidebar_expanded_groups', JSON.stringify(expandedGroups));
+  }, [expandedGroups]);
 
   // Get real user data from localStorage or userInfo
   const merchantEmail = userInfo?.email || localStorage.getItem('merchant_email') || 'user@dari.io';
