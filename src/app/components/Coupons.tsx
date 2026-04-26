@@ -38,14 +38,12 @@ import {
 import { Plus, Power, PowerOff, Trash2, Edit, TrendingUp, Calendar, Users } from 'lucide-react';
 import { useCoupons, useToggleCouponStatus, useDeleteCoupon } from '@/hooks/useCoupons';
 import { useMerchantCurrency } from '@/hooks/useMerchantCurrency';
-import { CreateCouponModal } from './coupons/CreateCouponModal';
 import { PromoCode } from '@/types/api.types';
 
 export function Coupons() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<'active' | 'inactive' | undefined>(undefined);
-  const [showCreate, setShowCreate] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [couponToDelete, setCouponToDelete] = useState<string | null>(null);
 
@@ -111,7 +109,7 @@ export function Coupons() {
           </div>
           <Button
             className="bg-primary hover:bg-primary/90"
-            onClick={() => setShowCreate(true)}
+            onClick={() => navigate('/dashboard/coupons/new')}
           >
             <Plus className="w-4 h-4 mr-2" />
             Create Coupon
@@ -328,18 +326,6 @@ export function Coupons() {
             </div>
           )}
         </Card>
-
-        {/* Create Coupon Modal */}
-        {showCreate && (
-          <CreateCouponModal
-            open={showCreate}
-            onClose={() => setShowCreate(false)}
-            onSuccess={() => {
-              setShowCreate(false);
-              setPage(1); // Reset to first page to see new coupon
-            }}
-          />
-        )}
 
         {/* Delete Confirmation Dialog */}
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

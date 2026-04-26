@@ -291,7 +291,9 @@ export function PaymentDetail() {
                         <div className="text-3xl font-bold">
                           {displayAmount(payment.amount_paid || 0, payment.amount_paid_local)}
                         </div>
-                        <p className="text-sm text-muted-foreground">Amount Paid</p>
+                        <p className="text-sm text-muted-foreground">
+                          {status === 'paid' ? 'Amount Paid' : 'Amount Payable'}
+                        </p>
                       </div>
                     ) : (
                       // No coupon - show standard amount
@@ -396,7 +398,7 @@ export function PaymentDetail() {
                     />
                     <Separator />
                     <DetailRow 
-                      label="Amount Paid" 
+                      label={status === 'paid' ? 'Amount Paid' : 'Amount Payable'}
                       value={
                         <span className="font-semibold">
                           {displayAmount(payment.amount_paid || 0, payment.amount_paid_local)}
@@ -429,8 +431,7 @@ export function PaymentDetail() {
                   label="Status"
                   value={
                     <Badge
-                      variant={status === "paid" ? "default" : status === "created" ? "secondary" : "destructive"}
-                      className={status === "paid" ? "bg-primary/20 text-primary border-primary/30" : ""}
+                      variant={status === "paid" ? "success" : status === "created" ? "pending" : "destructive"}
                     >
                       {status}
                     </Badge>

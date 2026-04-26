@@ -100,6 +100,10 @@ export function CreatePayment() {
     e.preventDefault();
     const fiatAmount = parseFloat(formData.amount);
     const usdcAmount = fiatToUsdc(fiatAmount, formData.currency);
+    
+    // Store the original fiat info BEFORE creating the session
+    const fiatInfo = { amount: formData.amount, currency: formData.currency };
+    
     try {
       const session = await createPayment({
         amount: parseFloat(usdcAmount.toFixed(6)),
@@ -109,7 +113,7 @@ export function CreatePayment() {
         metadata: { currency: formData.currency, fiat_amount: fiatAmount },
       });
       if (session) {
-        setLastFiatInfo({ amount: formData.amount, currency: formData.currency });
+        setLastFiatInfo(fiatInfo);
         setSessionData(session);
         toast.success("Payment session created!");
       }
@@ -141,13 +145,17 @@ export function CreatePayment() {
                 <span className="capitalize">{sessionData.status}</span>
               </div>
               <div className="flex-1 flex flex-col justify-center">
-                {lastFiatInfo && lastFiatInfo.currency !== "USD" ? (
+                {lastFiatInfo ? (
                   <>
-                    <p className="text-base text-muted-foreground font-medium">
-                      {CURRENCIES.find(c => c.code === lastFiatInfo.currency)?.symbol}{parseFloat(lastFiatInfo.amount).toLocaleString()} {lastFiatInfo.currency}
+                    <p className="text-5xl font-bold tracking-tight">
+                      {CURRENCIES.find(c => c.code === lastFiatInfo.currency)?.symbol}{parseFloat(lastFiatInfo.amount).toLocaleString()}
                     </p>
-                    <p className="text-5xl font-bold tracking-tight mt-1">${parseFloat(sessionData.amount_usdc).toFixed(2)}</p>
-                    <p className="text-sm text-muted-foreground mt-1">USDC (converted)</p>
+                    <p className="text-sm text-muted-foreground mt-1">{lastFiatInfo.currency}</p>
+                    {lastFiatInfo.currency !== "USD" && (
+                      <p className="text-base text-muted-foreground font-medium mt-2">
+                        ≈ ${parseFloat(sessionData.amount_usdc).toFixed(2)} USDC
+                      </p>
+                    )}
                   </>
                 ) : (
                   <>

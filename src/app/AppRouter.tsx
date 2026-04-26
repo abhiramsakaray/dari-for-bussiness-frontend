@@ -47,6 +47,7 @@ import { Withdrawals } from './components/withdrawals/Withdrawals';
 import { ApiDebugger } from './components/ApiDebugger';
 import { Coupons } from './components/Coupons';
 import { CouponAnalytics } from './components/coupons/CouponAnalytics';
+import { CreateCouponPage } from './components/coupons/CreateCouponPage';
 import { DariDesignShowcase } from './components/DariDesignShowcase';
 import { BentoDashboard } from './components/BentoDashboard';
 
@@ -203,6 +204,7 @@ export default function AppRouter() {
         <Route path="/dashboard/integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
         <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
         <Route path="/dashboard/coupons" element={<ProtectedRoute><Coupons /></ProtectedRoute>} />
+        <Route path="/dashboard/coupons/new" element={<ProtectedRoute><CreateCouponPage /></ProtectedRoute>} />
         <Route path="/dashboard/coupons/:id/analytics" element={<ProtectedRoute><CouponAnalytics /></ProtectedRoute>} />
         
         {/* Admin */}

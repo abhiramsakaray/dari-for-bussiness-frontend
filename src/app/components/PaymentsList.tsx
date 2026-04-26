@@ -103,8 +103,8 @@ export function PaymentsList() {
                     const amountUsd = payment.amount_fiat || parseFloat(payment.amount_usdc || '0');
                     const dual = displayDualAmount(amountUsd, payment.amount_fiat_local);
                     
-                    // Debug: Diagnose currency encoding for first payment
-                    if (process.env.NODE_ENV === 'development' && filteredPayments.indexOf(payment) === 0) {
+                    // Debug: Diagnose currency encoding for first payment (development only)
+                    if (import.meta.env.DEV && filteredPayments.indexOf(payment) === 0) {
                       diagnoseCurrencyEncoding(payment);
                     }
                     
@@ -142,7 +142,7 @@ export function PaymentsList() {
                                 <span className="font-mono">({payment.coupon_code})</span>
                               </div>
                               <div className="text-muted-foreground">
-                                Paid: {displayAmount(payment.amount_paid || 0, payment.amount_paid_local)}
+                                {payment.status?.toLowerCase() === 'paid' ? 'Paid' : 'Payable'}: {displayAmount(payment.amount_paid || 0, payment.amount_paid_local)}
                               </div>
                             </div>
                           )}
@@ -152,15 +152,10 @@ export function PaymentsList() {
                         <Badge
                           variant={
                             payment.status === "paid"
-                              ? "default"
+                              ? "success"
                               : payment.status === "created"
-                              ? "secondary"
+                              ? "pending"
                               : "destructive"
-                          }
-                          className={
-                            payment.status === "paid"
-                              ? "bg-primary/20 text-primary border-primary/30"
-                              : ""
                           }
                         >
                           {payment.status}
