@@ -77,10 +77,12 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    id: 'settings',
-    label: 'Settings',
+    id: 'developer',
+    label: 'Developer',
     icon: Settings,
     items: [
+      { id: 'development', label: 'Development', icon: FileText, href: '/developer/guide' },
+      { id: 'code-with-ai', label: 'Code with AI', icon: Command, href: '/developer/ai' },
       { id: 'integrations', label: 'Integrations', icon: Settings, href: '/dashboard/integrations' },
       { id: 'settings', label: 'Settings', icon: Settings, href: '/dashboard/settings' },
     ],
@@ -116,7 +118,14 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
     const saved = localStorage.getItem('sidebar_expanded_groups');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Migrate old 'settings' group to 'developer'
+        if ('settings' in parsed && !('developer' in parsed)) {
+          parsed.developer = parsed.settings;
+          delete parsed.settings;
+          localStorage.setItem('sidebar_expanded_groups', JSON.stringify(parsed));
+        }
+        return parsed;
       } catch {
         // Fallback to defaults if parsing fails
       }
@@ -124,7 +133,7 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
     return {
       payments: true,
       business: true,
-      settings: true, // Changed to true so Settings group is expanded by default
+      developer: true, // Changed to true so Developer group is expanded by default
     };
   });
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -195,6 +204,10 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
           return true; // Available to all
         case 'billing':
           return permissions.canManageBilling;
+        case 'development':
+          return true; // Available to all
+        case 'code-with-ai':
+          return true; // Available to all
         case 'settings':
           return permissions.canViewSettings;
         case 'integrations':

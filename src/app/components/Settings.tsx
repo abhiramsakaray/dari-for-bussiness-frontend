@@ -371,18 +371,23 @@ export function Settings() {
             </BentoCardHeader>
             <BentoCardContent className="space-y-3">
               <button
-                onClick={() => window.location.href = '/dashboard/integrations'}
+                onClick={() => window.location.href = '/developer/guide'}
                 className="w-full text-left p-3 border rounded-lg hover:bg-muted/50 transition-colors"
               >
-                <p className="font-medium text-sm">Integration Guide</p>
+                <p className="font-medium text-sm">Development Guide</p>
                 <p className="text-xs text-muted-foreground">
-                  Learn how to integrate Dari Payments into your app
+                  Complete integration guide with code examples
                 </p>
               </button>
-              <div className="w-full p-3 border rounded-lg opacity-50 cursor-not-allowed">
-                <p className="font-medium text-sm">API Reference</p>
-                <p className="text-xs text-muted-foreground">Coming soon</p>
-              </div>
+              <button
+                onClick={() => window.location.href = '/developer/ai'}
+                className="w-full text-left p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+              >
+                <p className="font-medium text-sm">Code with AI</p>
+                <p className="text-xs text-muted-foreground">
+                  One-prompt integration with AI coding assistants
+                </p>
+              </button>
             </BentoCardContent>
           </BentoCard>
         </BentoGrid>

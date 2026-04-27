@@ -62,6 +62,8 @@ import AnalyticsDashboard from './components/analytics/AnalyticsDashboard';
 import { PaymentTracker } from './components/analytics/PaymentTracker';
 import { SubscriptionTracker } from './components/analytics/SubscriptionTracker';
 import TeamMembersList from './components/team/TeamMembersList';
+import { DevelopmentGuide } from './components/developer/DevelopmentGuide';
+import { CodeWithAI } from './components/developer/CodeWithAI';
 
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ScrollToTop } from './components/ScrollToTop';
@@ -202,6 +204,10 @@ export default function AppRouter() {
         <Route path="/dashboard/coupons" element={<ProtectedRoute><Coupons /></ProtectedRoute>} />
         <Route path="/dashboard/coupons/new" element={<ProtectedRoute><CreateCouponPage /></ProtectedRoute>} />
         <Route path="/dashboard/coupons/:id/analytics" element={<ProtectedRoute><CouponAnalytics /></ProtectedRoute>} />
+        
+        {/* Developer Section */}
+        <Route path="/developer/guide" element={<ProtectedRoute><DevelopmentGuide /></ProtectedRoute>} />
+        <Route path="/developer/ai" element={<ProtectedRoute><CodeWithAI /></ProtectedRoute>} />
         
         {/* Admin */}
         <Route path="/admin" element={<Admin />} />
