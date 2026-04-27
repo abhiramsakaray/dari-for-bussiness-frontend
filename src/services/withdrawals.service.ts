@@ -10,7 +10,8 @@ import {
 
 export const withdrawalsService = {
   getBalances: async (): Promise<WithdrawalBalance[]> => {
-    const response = await api.get('/withdrawals/balance');
+    // Use wallets/balance endpoint which includes chain-specific data
+    const response = await api.get('/wallets/balance');
     return response.data;
   },
 

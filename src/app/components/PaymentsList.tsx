@@ -16,6 +16,7 @@ import {
 import { usePaymentHistory } from "../../hooks/usePaymentHistory";
 import { useState } from "react";
 import { displayAmount, displayDualAmount } from "../../lib/utils";
+import { getExplorerTxUrl } from "../../services/wallets.service";
 import { diagnoseCurrencyEncoding } from "../../utils/diagnostics";
 
 export function PaymentsList() {
@@ -100,8 +101,8 @@ export function PaymentsList() {
                 <TableBody>
                   {filteredPayments.map((payment) => {
                     const hasDiscount = payment.coupon_code !== null && payment.coupon_code !== undefined;
-                    const amountUsd = payment.amount_fiat || parseFloat(payment.amount_usdc || '0');
-                    const dual = displayDualAmount(amountUsd, payment.amount_fiat_local);
+                    const amountUsdc = parseFloat(payment.amount_usdc || payment.amount_fiat || '0');
+                    const dual = displayDualAmount(amountUsdc, payment.amount_fiat_local);
                     
                     // Debug: Diagnose currency encoding for first payment (development only)
                     if (import.meta.env.DEV && filteredPayments.indexOf(payment) === 0) {
@@ -164,7 +165,7 @@ export function PaymentsList() {
                       <TableCell className="font-mono text-sm">
                         {payment.tx_hash ? (
                           <a
-                            href={`https://stellar.expert/explorer/testnet/tx/${payment.tx_hash}`}
+                            href={getExplorerTxUrl(payment.chain, payment.tx_hash)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-primary hover:underline"

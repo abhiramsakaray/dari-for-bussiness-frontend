@@ -38,7 +38,6 @@ import { PaymentDetail } from './components/PaymentDetail';
 import { PayerLeads } from './components/PayerLeads';
 import { CreatePayment } from './components/CreatePayment';
 import { Settings } from './components/Settings';
-import { Checkout } from './components/Checkout';
 import { Admin } from './components/Admin';
 import { Integrations } from './components/Integrations';
 import { Billing } from './components/Billing';
@@ -191,9 +190,6 @@ export default function AppRouter() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/onboarding" element={<OnboardingFlow />} />
-        
-        {/* Checkout */}
-        <Route path="/checkout/:sessionId" element={<Checkout sessionId="" />} />
         
         {/* Protected Dashboard Routes */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

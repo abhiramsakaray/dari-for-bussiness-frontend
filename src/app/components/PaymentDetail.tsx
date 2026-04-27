@@ -9,6 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { chainpeService, PaymentSession } from "../../services/chainpe";
 import { toast } from "sonner";
 import { displayAmount, displayDualAmount, extractErrorMessage, formatCurrency } from "../../lib/utils";
+import { getExplorerTxUrl } from "../../services/wallets.service";
 import { useMerchantCurrency } from "../../hooks/useMerchantCurrency";
 
 const statusConfig: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
@@ -215,12 +216,10 @@ export function PaymentDetail() {
   const status = payment?.status?.toLowerCase() || "created";
   const config = statusConfig[status] || statusConfig.created;
   const canonicalSessionId = payment?.id || payment?.session_id || paymentId;
-  const amountUsd = payment
-    ? (typeof payment.amount_fiat === 'number'
-      ? payment.amount_fiat
-      : Number((payment as any).amount ?? payment.amount_usdc ?? 0))
+  const amountUsdc = payment
+    ? Number(payment.amount_usdc ?? payment.amount_fiat ?? 0)
     : 0;
-  const amountDual = payment ? displayDualAmount(amountUsd, payment.amount_fiat_local) : { primary: formatCurrency(0, currency), secondary: null };
+  const amountDual = payment ? displayDualAmount(amountUsdc, payment.amount_fiat_local) : { primary: formatCurrency(0, currency), secondary: null };
 
   return (
     <BentoLayout activePage="payments">
@@ -473,16 +472,6 @@ export function PaymentDetail() {
                     <Separator />
                   </>
                 )}
-                <DetailRow label="Checkout URL" value={
-                  payment.checkout_url ? (
-                    <a href={payment.checkout_url} target="_blank" rel="noopener noreferrer"
-                      className="text-primary hover:underline inline-flex items-center gap-1 max-w-[200px] truncate">
-                      {payment.checkout_url.replace(/^https?:\/\//, "").slice(0, 30)}...
-                      <ExternalLink className="h-3 w-3 shrink-0" />
-                    </a>
-                  ) : undefined
-                } />
-                <Separator />
                 <DetailRow label="Success URL" value={
                   payment.success_url ? (
                     <span className="max-w-[200px] truncate block text-right" title={payment.success_url}>
@@ -512,7 +501,7 @@ export function PaymentDetail() {
                   value={
                     payment.tx_hash ? (
                       <a
-                        href={`https://stellar.expert/explorer/testnet/tx/${payment.tx_hash}`}
+                        href={getExplorerTxUrl(payment.chain, payment.tx_hash)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline inline-flex items-center gap-1"

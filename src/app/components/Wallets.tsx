@@ -144,7 +144,6 @@ export default function Wallets() {
                                             return (
                                                 <div key={`${cb.chain}-${cb.token}`} className="flex items-center justify-between text-xs">
                                                     <div className="flex items-center gap-1.5">
-                                                        <span>{chainInfo?.icon || '🔗'}</span>
                                                         <span className="text-muted-foreground">{chainInfo?.name || cb.chain}</span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
@@ -186,9 +185,6 @@ export default function Wallets() {
                         <Card key={wallet.chain} className="overflow-hidden">
                             <CardHeader className="bg-muted/30 py-3">
                                 <div className="flex items-center gap-3">
-                                    <div className="text-2xl flex items-center justify-center w-8 h-8 bg-background rounded-full shadow-sm">
-                                      {chainInfo.icon}
-                                    </div>
                                     <div>
                                         <CardTitle className="text-sm font-medium">{chainInfo.name}</CardTitle>
                                     </div>

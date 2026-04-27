@@ -421,7 +421,7 @@ function RefundRow({ refund, onRetry, onCancel }: RefundRowProps) {
             <Button
               size="icon"
               variant="ghost"
-              onClick={() => window.open(`https://explorer.example.com/tx/${refund.tx_hash}`, '_blank')}
+              onClick={() => window.open(getExplorerTxUrl(refund.chain, refund.tx_hash!), '_blank')}
               title="View transaction"
             >
               <ExternalLink className="w-4 h-4" />

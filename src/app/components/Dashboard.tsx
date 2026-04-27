@@ -24,7 +24,7 @@ import {
 } from "./ui/data-table";
 import { usePaymentHistory, usePaymentStats } from "../../hooks/usePaymentHistory";
 import { useWallets, useWalletDashboard } from "../../hooks/useWallets";
-import { CHAIN_INFO } from "../../services/wallets.service";
+import { CHAIN_INFO, getExplorerTxUrl } from "../../services/wallets.service";
 import { toast } from "sonner";
 import { displayAmount, displayDualAmount } from "../../lib/utils";
 import { getPermissions } from "../../utils/rolePermissions";
@@ -285,7 +285,7 @@ export function Dashboard() {
                         <DataTableCell className="font-semibold">
                           {permissions.canSeeRevenue ? (
                             displayDualAmount(
-                              payment.amount_fiat || parseFloat(payment.amount_usdc || '0'),
+                              parseFloat(payment.amount_usdc || payment.amount_fiat || '0'),
                               payment.amount_fiat_local
                             ).primary
                           ) : (
@@ -308,7 +308,7 @@ export function Dashboard() {
                         <DataTableCell className="font-mono text-xs">
                           {payment.tx_hash ? (
                             <a
-                              href={`https://stellar.expert/explorer/testnet/tx/${payment.tx_hash}`}
+                              href={getExplorerTxUrl(payment.chain, payment.tx_hash)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-primary hover:underline"

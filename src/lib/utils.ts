@@ -167,23 +167,26 @@ export function displayAmount(
 }
 
 /**
- * Display amount with both local and USD (dual display)
- * @param amountUsd - Amount in USD
+ * Display amount with both local and USDC (dual display)
+ * @param amountUsdc - Amount in USDC
  * @param localAmount - LocalCurrencyAmount object (null for USD merchants)
  * @returns Object with primary and secondary display strings
  */
 export function displayDualAmount(
-  amountUsd: number,
+  amountUsdc: number | string,
   localAmount: LocalCurrencyAmount | null | undefined
 ): { primary: string; secondary: string | null } {
+  // Convert to number if string
+  const usdc = typeof amountUsdc === 'string' ? parseFloat(amountUsdc) : amountUsdc;
+  
   if (localAmount) {
     return {
       primary: localAmount.display_local,
-      secondary: formatCurrency(amountUsd, 'USD'),
+      secondary: `$${usdc.toFixed(2)}`,
     };
   }
   return {
-    primary: formatCurrency(amountUsd, 'USD'),
+    primary: `$${usdc.toFixed(2)}`,
     secondary: null,
   };
 }

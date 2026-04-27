@@ -17,6 +17,8 @@ const AVAILABLE_CHAINS = [
   { id: 'ethereum', name: 'Ethereum', description: 'Most widely used blockchain' },
   { id: 'polygon', name: 'Polygon', description: 'Ethereum L2, lower fees' },
   { id: 'base', name: 'Base', description: 'Coinbase L2 solution' },
+  { id: 'bsc', name: 'BNB Smart Chain', description: 'Binance blockchain' },
+  { id: 'avalanche', name: 'Avalanche', description: 'High-speed blockchain' },
   { id: 'tron', name: 'Tron', description: 'High throughput network' },
 ];
 
@@ -33,6 +35,8 @@ export function WalletSetup({ onComplete }: WalletSetupProps) {
     'ethereum',
     'polygon',
     'base',
+    'bsc',
+    'avalanche',
     'tron',
   ]);
   const [selectedTokens, setSelectedTokens] = useState<string[]>(['USDC', 'USDT', 'PYUSD']);
