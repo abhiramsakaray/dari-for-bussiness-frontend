@@ -15,7 +15,7 @@ import { ArrowLeft } from 'lucide-react';
 // Removed navigateTo helper - using direct hash assignment for clarity
 
 const AVAILABLE_TOKENS = ['USDC', 'USDT', 'XLM', 'ETH', 'MATIC', 'DAI'];
-const AVAILABLE_CHAINS = ['stellar', 'polygon', 'ethereum', 'base', 'bsc', 'avalanche', 'tron'];
+const AVAILABLE_CHAINS = ['stellar', 'polygon', 'ethereum', 'base', 'bsc', 'avalanche', 'tron', 'arbitrum', 'solana'];
 
 const createPaymentLinkSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100, 'Name too long'),

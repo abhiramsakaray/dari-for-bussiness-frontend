@@ -91,7 +91,7 @@ The API client is configured in `src/lib/api-client.ts`:
 
 ```typescript
 // API base URL from environment variable
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.dariforbusiness.com';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.daripay.xyz';
 
 // API key stored in localStorage with key 'chainpe_api_key'
 // Authentication via X-API-Key header

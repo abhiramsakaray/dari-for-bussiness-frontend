@@ -35,7 +35,7 @@ const CURRENCIES = [
 ];
 
 const AVAILABLE_TOKENS = ['USDC', 'USDT', 'XLM', 'ETH', 'MATIC'];
-const AVAILABLE_CHAINS = ['stellar', 'polygon', 'ethereum', 'base', 'bsc', 'avalanche', 'tron'];
+const AVAILABLE_CHAINS = ['stellar', 'polygon', 'ethereum', 'base', 'bsc', 'avalanche', 'tron', 'arbitrum', 'solana'];
 
 const lineItemSchema = z.object({
   description: z.string().min(1, 'Description required'),

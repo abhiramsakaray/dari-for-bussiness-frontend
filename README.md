@@ -1,6 +1,6 @@
-# ChainPe Frontend - Merchant Dashboard
+# Dari Payments Frontend - Merchant Dashboard
 
-A modern, React-based merchant dashboard for the ChainPe payment gateway. Provides a complete interface for managing USDC payments on the Stellar blockchain with a Stripe-inspired UX.
+A modern, React-based merchant dashboard for Dari Payments. Provides a complete interface for managing crypto payments across multiple blockchains with a Stripe-inspired UX.
 
 ## 🌟 Overview
 
@@ -25,7 +25,7 @@ npm run dev
 Visit `http://localhost:5173`
 
 **Default Admin Credentials**:
-- Email: `admin@chainpe.com`
+- Email: `admin@daripay.xyz`
 - Password: (set in backend .env)
 
 ## ⚙️ Configuration
@@ -33,6 +33,7 @@ Visit `http://localhost:5173`
 Create a `.env` file:
 ```env
 VITE_API_URL=http://localhost:8000
+# For production: VITE_API_URL=https://api.daripay.xyz
 ```
 
 **Note:** API key is no longer needed in `.env` - it's automatically provided after login!
@@ -68,7 +69,7 @@ No manual configuration needed! 🎉
 - **Recharts** - Data visualization
 - **Lucide React** - Icon library
 - **QRCode.react** - QR code generation
-chainpe-frontend/
+daripayments-frontend/
 ├── src/
 │   ├── app/
 │   │   ├── App.tsx                    # Main app component & routing
@@ -88,15 +89,15 @@ chainpe-frontend/
 │   │           └── ...
 │   ├── services/ at `VITE_API_URL`.
 
-### API Service (`services/chainpe.ts`)
+### API Service (`services/api.ts`)
 
 ```typescript
 // Authentication
-await chainPeAPI.register(email, password, businessName);
-await chainPeAPI.login(email, password);
+await api.post('/auth/register', { email, password, businessName });
+await api.post('/auth/login', { email, password });
 
 // Payment Sessions
-const session = await chainPeAPI.createPaymentSession({
+const session = await api.post('/api/sessions/create', {
   amount: "100.00",
   description: "Product purchase",
   success_url: "https://merchant.com/success",
@@ -104,12 +105,12 @@ const session = await chainPeAPI.createPaymentSession({
 });
 
 // Merchant Operations
-const profile = await chainPeAPI.getMerchantProfile();
-await chainPeAPI.updateMerchantProfile({ business_name: "New Name" });
-const payments = await chainPeAPI.getMerchantPayments();
+const profile = await api.get('/merchant/profile');
+await api.patch('/merchant/profile', { business_name: "New Name" });
+const payments = await api.get('/merchant/payments');
 
 // Payment Status
-const status = await chainPeAPI.getPaymentStatus(sessionId);
+const status = await api.get(`/api/sessions/${sessionId}`);
 ```
 
 ### Auto-Authentication
@@ -178,7 +179,7 @@ vercel --prod
 
 Production `.env`:
 ```env
-VITE_API_URL=https://your-backend-api.com
+VITE_API_URL=https://api.daripay.xyz
 ```
 
 ## 🧪 Testing
@@ -247,13 +248,14 @@ MIT License - See [LICENSE](../LICENSE) file for details
 
 ## 🔗 Related Projects
 
-- **Backend API**: [../chainpe-backend](../chainpe-backend)
-- **Smart Contracts**: [../chainpe-backend/contracts](../chainpe-backend/contracts)
-- **Main Docs**: [../README.md](../README.md)
+- **Backend API**: https://api.daripay.xyz
+- **Documentation**: https://docs.daripay.xyz
+- **Dashboard**: https://dashboard.daripay.xyz
+- **Checkout**: https://pay.daripay.xyz
 
 ---
 
-**Part of the ChainPe Payment Infrastructure** | [Main Documentation](../README.md)
+**Built by Dari Payments** | [Documentation](https://docs.daripay.xyz)
 │   ├── components/        # React components
 │   │   ├── ui/           # Reusable UI components
 │   │   ├── Login.tsx
@@ -270,7 +272,7 @@ MIT License - See [LICENSE](../LICENSE) file for details
 
 ## 🔗 Backend Integration
 
-This frontend connects to the ChainPe FastAPI backend:
+This frontend connects to the Dari Payments API at `https://api.daripay.xyz`:
 - **Auth**: `/auth/register`, `/auth/login`
 - **Payments**: `/api/sessions/create`, `/api/sessions/{id}`
 - **Merchant**: `/merchant/profile`, `/merchant/payments`
@@ -330,9 +332,9 @@ Fully responsive design works on:
 ## 🔗 Integration Flow
 
 1. Merchant creates payment session via API
-2. Customer redirected to hosted checkout page
-3. Customer scans QR code with Stellar wallet
-4. ChainPe detects payment on blockchain
+2. Customer redirected to hosted checkout page at `https://pay.daripay.xyz`
+3. Customer connects wallet and completes payment
+4. Dari Payments detects payment on blockchain
 5. Webhook notification sent to merchant
 6. Customer redirected to success URL
 
@@ -345,4 +347,4 @@ Fully responsive design works on:
 
 ---
 
-**Built with ❤️ for the Stellar ecosystem**
+**Built with ❤️ for multi-chain crypto payments**

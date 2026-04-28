@@ -169,6 +169,7 @@ export function Dashboard() {
                   <div className="space-y-2">
                     {wallets.slice(0, 5).map((wallet) => {
                       const chainInfo = CHAIN_INFO[wallet.chain as keyof typeof CHAIN_INFO];
+                      if (!chainInfo) return null;
                       const walletId = (wallet as any).id || `wallet-${wallet.chain}`;
                       const isCopied = copiedId === walletId;
 
@@ -191,7 +192,7 @@ export function Dashboard() {
                           <div className="flex items-center gap-3 flex-1 min-w-0">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
-                                <span className="font-medium text-sm">{chainInfo?.name || wallet.chain}</span>
+                                <span className="font-medium text-sm">{chainInfo.name}</span>
                                 <Badge
                                   variant={wallet.is_active ? 'success' : 'default'}
                                   className="text-xs"

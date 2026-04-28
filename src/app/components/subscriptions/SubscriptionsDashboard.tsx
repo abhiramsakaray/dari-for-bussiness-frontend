@@ -80,7 +80,7 @@ const STATUS_VARIANTS: Record<SubscriptionStatus, 'default' | 'secondary' | 'des
   [SubscriptionStatus.TRIALING]: 'default',
 };
 
-const SUPPORTED_CHAINS = ['polygon', 'ethereum', 'base', 'stellar', 'bsc', 'arbitrum', 'avalanche', 'tron'];
+const SUPPORTED_CHAINS = ['polygon', 'ethereum', 'base', 'stellar', 'bsc', 'arbitrum', 'avalanche', 'tron', 'solana'];
 const SUPPORTED_TOKENS = ['USDC', 'USDT', 'DAI', 'WETH', 'WBTC'];
 
 export function SubscriptionsDashboard() {

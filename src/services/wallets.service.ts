@@ -1,7 +1,7 @@
 import api from './api';
 import { BalanceDashboardResponse } from '../types/api.types';
 
-export type ChainType = 'stellar' | 'ethereum' | 'polygon' | 'base' | 'bsc' | 'avalanche' | 'tron';
+export type ChainType = 'stellar' | 'ethereum' | 'polygon' | 'base' | 'bsc' | 'avalanche' | 'tron' | 'arbitrum' | 'solana';
 
 export interface Wallet {
   id: string;
@@ -52,6 +52,8 @@ export const CHAIN_INFO: Record<string, { name: string; color: string; icon: str
   bsc: { name: 'BNB Smart Chain', color: 'yellow', icon: '🔶', tokens: ['USDC', 'USDT', 'BNB'] },
   avalanche: { name: 'Avalanche', color: 'red', icon: '🔺', tokens: ['USDC', 'USDT', 'AVAX'] },
   tron: { name: 'Tron', color: 'red', icon: '◆', tokens: ['USDT', 'TRX'] },
+  arbitrum: { name: 'Arbitrum', color: 'blue', icon: '🔷', tokens: ['USDC', 'USDT', 'ETH'] },
+  solana: { name: 'Solana', color: 'purple', icon: '◎', tokens: ['USDC', 'USDT', 'SOL'] },
 };
 
 // Block explorer base URLs per chain (mainnet)
@@ -63,6 +65,8 @@ export const BLOCK_EXPLORERS: Record<string, string> = {
   bsc: 'https://bscscan.com',
   avalanche: 'https://snowtrace.io',
   tron: 'https://tronscan.org',
+  arbitrum: 'https://arbiscan.io',
+  solana: 'https://solscan.io',
 };
 
 // Testnet block explorer base URLs
@@ -74,6 +78,8 @@ export const BLOCK_EXPLORERS_TESTNET: Record<string, string> = {
   bsc: 'https://testnet.bscscan.com',
   avalanche: 'https://testnet.snowtrace.io',
   tron: 'https://nile.tronscan.org',
+  arbitrum: 'https://sepolia.arbiscan.io',
+  solana: 'https://solscan.io?cluster=devnet',
 };
 
 /**
@@ -93,7 +99,11 @@ export function getExplorerTxUrl(chain: string | null | undefined, txHash: strin
   if (chain === 'tron') {
     return `${baseUrl}/#/transaction/${txHash}`;
   }
-  // All EVM chains (ethereum, polygon, base, bsc, avalanche)
+  // Solana uses a different path format
+  if (chain === 'solana') {
+    return `${baseUrl}/tx/${txHash}`;
+  }
+  // All EVM chains (ethereum, polygon, base, bsc, avalanche, arbitrum)
   return `${baseUrl}/tx/${txHash}`;
 }
 
@@ -110,6 +120,9 @@ export function getExplorerAddressUrl(chain: string | null | undefined, address:
   }
   if (chain === 'tron') {
     return `${baseUrl}/#/address/${address}`;
+  }
+  if (chain === 'solana') {
+    return `${baseUrl}/account/${address}`;
   }
   return `${baseUrl}/address/${address}`;
 }

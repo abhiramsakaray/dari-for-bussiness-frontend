@@ -292,6 +292,7 @@ export function Settings() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {walletsData.wallets.map((wallet) => {
                     const chainInfo = CHAIN_INFO[wallet.chain];
+                    if (!chainInfo) return null;
                     const copyId = `wallet_${wallet.id}`;
                     return (
                       <div

@@ -20,6 +20,8 @@ const AVAILABLE_CHAINS = [
   { id: 'bsc', name: 'BNB Smart Chain', description: 'Binance blockchain' },
   { id: 'avalanche', name: 'Avalanche', description: 'High-speed blockchain' },
   { id: 'tron', name: 'Tron', description: 'High throughput network' },
+  { id: 'arbitrum', name: 'Arbitrum', description: 'Ethereum L2 scaling' },
+  { id: 'solana', name: 'Solana', description: 'Ultra-fast transactions' },
 ];
 
 const AVAILABLE_TOKENS = [

@@ -141,10 +141,14 @@ export default function Wallets() {
                                         .filter(cb => cb.balance > 0)
                                         .map(cb => {
                                             const chainInfo = CHAIN_INFO[cb.chain as ChainType];
+                                            if (!chainInfo) {
+                                                console.warn(`Unknown chain: ${cb.chain}`);
+                                                return null;
+                                            }
                                             return (
                                                 <div key={`${cb.chain}-${cb.token}`} className="flex items-center justify-between text-xs">
                                                     <div className="flex items-center gap-1.5">
-                                                        <span className="text-muted-foreground">{chainInfo?.name || cb.chain}</span>
+                                                        <span className="text-muted-foreground">{chainInfo.name}</span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <span className="font-medium">{cb.balance.toFixed(2)} {cb.token}</span>
@@ -179,7 +183,7 @@ export default function Wallets() {
                     const chainInfo = CHAIN_INFO[wallet.chain];
                     const isCopied = copiedId === wallet.chain;
                     
-                    if (!wallet.is_active) return null;
+                    if (!wallet.is_active || !chainInfo) return null;
 
                     return (
                         <Card key={wallet.chain} className="overflow-hidden">
