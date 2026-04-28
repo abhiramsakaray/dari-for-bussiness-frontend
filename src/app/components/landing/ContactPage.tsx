@@ -15,10 +15,10 @@ export function ContactPage() {
               Interested in using Dari for your business?
             </p>
             <a
-              href="mailto:sales@dari.business"
+              href="mailto:sales@daripay.xyz"
               className="text-sm text-black underline hover:no-underline"
             >
-              sales@dari.business
+              sales@daripay.xyz
             </a>
           </div>
 
@@ -28,10 +28,10 @@ export function ContactPage() {
               Need help with your account or integration?
             </p>
             <a
-              href="mailto:support@dari.business"
+              href="mailto:support@daripay.xyz"
               className="text-sm text-black underline hover:no-underline"
             >
-              support@dari.business
+              support@daripay.xyz
             </a>
           </div>
 
@@ -41,10 +41,10 @@ export function ContactPage() {
               Interested in partnering with Dari?
             </p>
             <a
-              href="mailto:partnerships@dari.business"
+              href="mailto:partnerships@daripay.xyz"
               className="text-sm text-black underline hover:no-underline"
             >
-              partnerships@dari.business
+              partnerships@daripay.xyz
             </a>
           </div>
 
@@ -54,10 +54,10 @@ export function ContactPage() {
               Media inquiries and press kit.
             </p>
             <a
-              href="mailto:press@dari.business"
+              href="mailto:press@daripay.xyz"
               className="text-sm text-black underline hover:no-underline"
             >
-              press@dari.business
+              press@daripay.xyz
             </a>
           </div>
         </div>

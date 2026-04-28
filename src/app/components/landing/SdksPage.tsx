@@ -4,22 +4,12 @@ export function SdksPage() {
   const sdks = [
     {
       name: 'Node.js',
-      install: 'npm install @dari/node',
+      install: 'npm install daripayments',
       language: 'JavaScript/TypeScript',
     },
     {
-      name: 'Python',
-      install: 'pip install dari',
-      language: 'Python',
-    },
-    {
-      name: 'Go',
-      install: 'go get github.com/dari/dari-go',
-      language: 'Go',
-    },
-    {
       name: 'React',
-      install: 'npm install @dari/react',
+      install: 'npm install daripayments',
       language: 'React Components',
     },
   ];
@@ -55,31 +45,31 @@ export function SdksPage() {
         <div>
           <h2 className="text-2xl font-bold mb-4 text-black">Quick Start</h2>
           <div className="bg-zinc-900 rounded-lg p-4 font-mono text-sm text-white overflow-x-auto">
-            <pre>{`import { Dari } from '@dari/node'
+            <pre>{`import { DariApi } from 'daripayments'
 
-const dari = new Dari({
-  apiKey: process.env.DARI_API_KEY
-})
+const dari = new DariApi(process.env.DARI_API_KEY)
 
-const payment = await dari.payments.create({
+const payment = await dari.payments.createPayment({
   amount: 100,
-  currency: 'USDC',
-  chain: 'ethereum'
+  currency: 'USD',
+  customerEmail: 'customer@example.com',
+  accepted_chains: ['polygon', 'base'],
+  accepted_tokens: ['USDC', 'USDT']
 })
 
-console.log(payment.url)`}</pre>
+console.log(payment.checkout_url)`}</pre>
           </div>
         </div>
 
         <div className="mt-8 flex gap-3">
           <a
-            href="/developers"
+            href="/developer/guide"
             className="px-6 py-3 bg-black text-white rounded-xl text-sm font-semibold hover:opacity-80 transition-opacity"
           >
             View Documentation
           </a>
           <a
-            href="https://github.com/dari"
+            href="https://github.com/Dari-Organization/daripayments-sdk"
             target="_blank"
             rel="noopener noreferrer"
             className="px-6 py-3 bg-transparent border border-gray-300 text-gray-600 rounded-xl text-sm font-medium hover:border-gray-400 transition-all"

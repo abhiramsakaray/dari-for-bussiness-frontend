@@ -44,8 +44,8 @@ export function SecurityPage() {
           <h2 className="text-2xl font-bold mb-4 text-black">Report a Vulnerability</h2>
           <p className="text-sm text-gray-600 leading-relaxed">
             If you discover a security vulnerability, please report it to{' '}
-            <a href="mailto:security@dari.business" className="text-black underline">
-              security@dari.business
+            <a href="mailto:security@daripay.xyz" className="text-black underline">
+              security@daripay.xyz
             </a>
           </p>
         </div>

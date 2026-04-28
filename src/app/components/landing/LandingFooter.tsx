@@ -8,7 +8,7 @@ export function LandingFooter() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 py-14 border-b border-gray-200">
           <div>
             <Link to="/" className="font-mono text-sm text-gray-500 inline-block mb-4">
-              dari.business
+              daripay.xyz
             </Link>
             <p className="text-sm text-gray-500 leading-relaxed max-w-sm mb-5">
               Accept stablecoin payments globally. Built for businesses that move at the speed of money.
@@ -16,13 +16,22 @@ export function LandingFooter() {
             <div className="flex gap-2 flex-wrap">
               <span className="font-mono text-xs text-gray-500 border border-gray-200 px-3 py-1 rounded-full flex items-center gap-2 bg-white">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                Live on Ethereum
+                Live on Polygon
               </span>
               <span className="font-mono text-xs text-gray-500 border border-gray-200 px-3 py-1 rounded-full bg-white">
-                Solana
+                Base
               </span>
               <span className="font-mono text-xs text-gray-500 border border-gray-200 px-3 py-1 rounded-full bg-white">
-                Polygon
+                BSC
+              </span>
+              <span className="font-mono text-xs text-gray-500 border border-gray-200 px-3 py-1 rounded-full bg-white">
+                Stellar
+              </span>
+              <span className="font-mono text-xs text-gray-500 border border-gray-200 px-3 py-1 rounded-full bg-white">
+                Tron
+              </span>
+              <span className="font-mono text-xs text-gray-500 border border-gray-200 px-3 py-1 rounded-full bg-white">
+                Avalanche
               </span>
             </div>
           </div>
@@ -113,11 +122,8 @@ export function LandingFooter() {
             <a href="https://blog.daripay.xyz" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-500 hover:text-black transition-colors">
               Blog
             </a>
-            <Link to="/careers" className="text-sm text-gray-500 hover:text-black transition-colors flex items-center gap-2">
+            <Link to="/careers" className="text-sm text-gray-500 hover:text-black transition-colors">
               Careers
-              <span className="font-mono text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded text-[9px] tracking-wider">
-                HIRING
-              </span>
             </Link>
             <Link to="/partners" className="text-sm text-gray-500 hover:text-black transition-colors">
               Partners
@@ -162,13 +168,22 @@ export function LandingFooter() {
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-mono text-xs text-gray-500 mr-1">Supported:</span>
             <span className="font-mono text-xs text-gray-500 border border-gray-200 px-2 py-1 rounded bg-white text-[9px] tracking-wider">
-              ETH
-            </span>
-            <span className="font-mono text-xs text-gray-500 border border-gray-200 px-2 py-1 rounded bg-white text-[9px] tracking-wider">
-              SOL
-            </span>
-            <span className="font-mono text-xs text-gray-500 border border-gray-200 px-2 py-1 rounded bg-white text-[9px] tracking-wider">
               POLYGON
+            </span>
+            <span className="font-mono text-xs text-gray-500 border border-gray-200 px-2 py-1 rounded bg-white text-[9px] tracking-wider">
+              BASE
+            </span>
+            <span className="font-mono text-xs text-gray-500 border border-gray-200 px-2 py-1 rounded bg-white text-[9px] tracking-wider">
+              BSC
+            </span>
+            <span className="font-mono text-xs text-gray-500 border border-gray-200 px-2 py-1 rounded bg-white text-[9px] tracking-wider">
+              STELLAR
+            </span>
+            <span className="font-mono text-xs text-gray-500 border border-gray-200 px-2 py-1 rounded bg-white text-[9px] tracking-wider">
+              TRON
+            </span>
+            <span className="font-mono text-xs text-gray-500 border border-gray-200 px-2 py-1 rounded bg-white text-[9px] tracking-wider">
+              AVALANCHE
             </span>
             <span className="font-mono text-xs text-gray-500 border border-gray-200 px-2 py-1 rounded bg-white text-[9px] tracking-wider">
               USDC

@@ -60,8 +60,8 @@ export function TermsOfServicePage() {
           <h2 className="text-2xl font-bold mb-4 text-black">7. Contact</h2>
           <p className="text-sm text-gray-600 leading-relaxed">
             For questions about these Terms, contact us at{' '}
-            <a href="mailto:legal@dari.business" className="text-black underline">
-              legal@dari.business
+            <a href="mailto:legal@daripay.xyz" className="text-black underline">
+              legal@daripay.xyz
             </a>
           </p>
         </div>

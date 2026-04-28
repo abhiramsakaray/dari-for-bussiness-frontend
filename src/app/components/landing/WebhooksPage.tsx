@@ -70,7 +70,7 @@ export function WebhooksPage() {
 
         <div className="mt-8 flex gap-3">
           <a
-            href="/developers"
+            href="/developer/guide"
             className="px-6 py-3 bg-black text-white rounded-xl text-sm font-semibold hover:opacity-80 transition-opacity"
           >
             Full Documentation

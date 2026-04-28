@@ -55,8 +55,8 @@ export function PrivacyPolicyPage() {
           <h2 className="text-2xl font-bold mb-4 text-black">6. Contact Us</h2>
           <p className="text-sm text-gray-600 leading-relaxed">
             If you have any questions about this Privacy Policy, please contact us at{' '}
-            <a href="mailto:privacy@dari.business" className="text-black underline">
-              privacy@dari.business
+            <a href="mailto:privacy@daripay.xyz" className="text-black underline">
+              privacy@daripay.xyz
             </a>
           </p>
         </div>

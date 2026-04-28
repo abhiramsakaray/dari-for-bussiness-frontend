@@ -94,7 +94,7 @@ export default function AppRouter() {
             label="Partners" 
             title="Partner Program" 
             subtitle="Join our partner ecosystem and grow together." 
-            content="We're building a network of partners including payment processors, wallet providers, exchanges, and integration partners. Interested in partnering with Dari? Contact us at partnerships@dari.business to discuss collaboration opportunities." 
+            content="We're building a network of partners including payment processors, wallet providers, exchanges, and integration partners. Interested in partnering with Dari? Contact us at partnerships@daripay.xyz to discuss collaboration opportunities." 
           />
         } />
         <Route path="/press" element={
@@ -102,7 +102,7 @@ export default function AppRouter() {
             label="Press" 
             title="Press Kit & Media Resources" 
             subtitle="Media resources, brand assets, and press inquiries." 
-            content="Download our press kit including logos, brand guidelines, and company information. For press inquiries and media requests, contact press@dari.business. We're happy to provide interviews, quotes, and additional information about our platform." 
+            content="Download our press kit including logos, brand guidelines, and company information. For press inquiries and media requests, contact press@daripay.xyz. We're happy to provide interviews, quotes, and additional information about our platform." 
           />
         } />
         

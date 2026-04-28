@@ -25,9 +25,11 @@ export function ApiReferencePage() {
           </p>
           <div className="bg-zinc-900 rounded-lg p-4 font-mono text-sm text-white overflow-x-auto mb-4">
             <pre>{`{
-  "amount": 100,
-  "currency": "USDC",
-  "chain": "ethereum",
+  "amount": 99.99,
+  "currency": "USD",
+  "customerEmail": "customer@example.com",
+  "accepted_chains": ["polygon", "base", "bsc"],
+  "accepted_tokens": ["USDC", "USDT"],
   "metadata": {
     "order_id": "order_123"
   }
@@ -67,7 +69,7 @@ export function ApiReferencePage() {
 
         <div className="mt-8 flex gap-3">
           <a
-            href="/developers"
+            href="/developer/guide"
             className="px-6 py-3 bg-black text-white rounded-xl text-sm font-semibold hover:opacity-80 transition-opacity"
           >
             Full Documentation
