@@ -93,7 +93,6 @@ export function CreatePaymentLinkForm() {
       input.expires_at = data.expires_at.trim();
     }
 
-    console.log('Submitting payment link:', input); // Debug log
     await createMutation.mutateAsync(input);
     window.location.hash = '#/payment-links';
   };

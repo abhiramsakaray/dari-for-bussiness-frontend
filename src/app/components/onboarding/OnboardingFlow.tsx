@@ -24,7 +24,6 @@ export function OnboardingFlow() {
       const apiKey = localStorage.getItem('api_key');
       
       if (!token || !apiKey) {
-        console.warn('Not authenticated, redirecting to login');
         navigate('/login');
         return;
       }
@@ -37,7 +36,6 @@ export function OnboardingFlow() {
 
       if (status.onboarding_completed) {
         // Already completed, redirect to dashboard
-        console.log('Onboarding already completed, redirecting to dashboard');
         navigate('/dashboard');
         return;
       }
@@ -53,12 +51,10 @@ export function OnboardingFlow() {
         setStep('business_details');
       }
     } catch (error) {
-      console.error('Failed to check onboarding status:', error);
       
       // If error is auth-related, redirect to login
       const err = error as any;
       if (err?.response?.status === 401) {
-        console.warn('Authentication error, redirecting to login');
         navigate('/login');
         return;
       }

@@ -375,7 +375,6 @@ export function Integrations() {
       );
       setConnectedIntegrations(status.integrations || []);
     } catch (error: any) {
-      console.error('Failed to load integrations:', error);
       // Keep default integrations on error
       setAvailableIntegrations(DEFAULT_INTEGRATIONS);
     } finally {

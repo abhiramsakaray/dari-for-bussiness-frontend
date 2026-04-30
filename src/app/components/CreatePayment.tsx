@@ -118,7 +118,6 @@ export function CreatePayment() {
         toast.success("Payment session created!");
       }
     } catch (err) {
-      console.error("Payment creation failed:", err);
     }
   };
 

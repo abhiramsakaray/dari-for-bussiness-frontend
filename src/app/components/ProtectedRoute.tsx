@@ -22,7 +22,6 @@ export function ProtectedRoute({ children, requiresOnboarding = true }: Protecte
 
     if (!token || !apiKey) {
       // Not logged in, redirect to login
-      console.warn('No auth tokens found, redirecting to login');
       window.location.href = '/login';
       return;
     }
@@ -38,7 +37,6 @@ export function ProtectedRoute({ children, requiresOnboarding = true }: Protecte
         
         if (!status.onboarding_completed) {
           // Onboarding not completed, redirect to onboarding
-          console.warn('Onboarding not completed, redirecting to onboarding flow');
           window.location.href = '/onboarding';
           return;
         }
@@ -47,7 +45,6 @@ export function ProtectedRoute({ children, requiresOnboarding = true }: Protecte
         setIsAuthorized(true);
         setIsChecking(false);
       } catch (error) {
-        console.error('Failed to check onboarding status:', error);
         
         // Fallback to localStorage check
         const localOnboardingCompleted = localStorage.getItem('onboarding_completed');

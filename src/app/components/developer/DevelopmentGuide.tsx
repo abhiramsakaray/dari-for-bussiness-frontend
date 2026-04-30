@@ -122,11 +122,10 @@ function CheckoutPage() {
       customerEmail="customer@example.com"
       chains={['polygon', 'base', 'stellar']}
       onSuccess={(payment) => {
-        console.log('Payment successful!', payment);
         window.location.href = '/thank-you';
       }}
       onError={(error) => {
-        console.error('Payment failed:', error);
+        // Handle error
       }}
     />
   );

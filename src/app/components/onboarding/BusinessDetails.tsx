@@ -46,7 +46,6 @@ export function BusinessDetails({ onComplete }: BusinessDetailsProps) {
   const onSubmit = async (data: BusinessDetailsFormData) => {
     setLoading(true);
     try {
-      console.log('Form data received:', data);
 
       // Ensure we have valid data
       const business_name = data.business_name?.trim();
@@ -82,12 +81,10 @@ export function BusinessDetails({ onComplete }: BusinessDetailsProps) {
         input.business_email = data.business_email.trim();
       }
 
-      console.log('Submitting business details:', input);
       await onboardingService.submitBusinessDetails(input);
       toast.success('Business details saved!');
       onComplete();
     } catch (error: any) {
-      console.error('Business details error:', error);
       toast.error(extractErrorMessage(error, 'Failed to save business details'));
     } finally {
       setLoading(false);

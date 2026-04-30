@@ -52,12 +52,6 @@ export function ApiDebugger() {
     const apiKey = localStorage.getItem('api_key');
     const email = localStorage.getItem('merchant_email');
 
-    console.log('🔑 Auth Status:', {
-      hasToken: !!merchantToken,
-      hasApiKey: !!apiKey,
-      email,
-    });
-
     if (!merchantToken || !apiKey) {
       testResults.push({
         name: 'Authentication',
@@ -80,7 +74,6 @@ export function ApiDebugger() {
     // Test each endpoint
     for (const endpoint of ENDPOINTS_TO_TEST) {
       try {
-        console.log(`🧪 Testing: ${endpoint.name} (${endpoint.endpoint})`);
 
         const startTime = Date.now();
         let response;
@@ -94,8 +87,6 @@ export function ApiDebugger() {
 
         const duration = Date.now() - startTime;
         const data = response as any;
-
-        console.log(`✅ ${endpoint.name}:`, data);
 
         // Check if response has data
         let status: 'success' | 'empty' = 'success';
@@ -129,7 +120,6 @@ export function ApiDebugger() {
         });
 
       } catch (error: any) {
-        console.error(`❌ ${endpoint.name}:`, error);
 
         const errorMessage = extractErrorMessage(error, 'Unknown error');
 

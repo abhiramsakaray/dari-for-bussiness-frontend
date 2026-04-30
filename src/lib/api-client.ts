@@ -45,18 +45,7 @@ class ApiClient {
     this.client.interceptors.response.use(
       (response) => response,
       (error: AxiosError) => {
-        // Log detailed error info for debugging
-        console.error('🔴 API Error:', {
-          url: error.config?.url,
-          method: error.config?.method?.toUpperCase(),
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
-          message: error.message,
-        });
-
         if (error.response?.status === 401) {
-          console.warn('🔒 Unauthorized - clearing auth and redirecting to login');
           this.handleUnauthorized();
         }
         return Promise.reject(error);

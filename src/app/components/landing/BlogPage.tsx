@@ -59,7 +59,6 @@ export function BlogPage() {
       setPosts(fetchedPosts);
       setTotalPages(total);
     } catch (err) {
-      console.warn('WordPress not configured, using fallback posts');
       setPosts(fallbackPosts);
       setError(null); // Don't show error for missing config
     } finally {

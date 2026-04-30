@@ -74,6 +74,7 @@ const navGroups: NavGroup[] = [
       { id: 'wallets', label: 'Wallets', icon: Wallet2, href: '/wallets' },
       { id: 'withdrawals', label: 'Withdrawals', icon: ArrowUpLeft, href: '/withdrawals' },
       { id: 'billing', label: 'Billing & Plans', icon: Wallet, href: '/billing' },
+      { id: 'usage', label: 'Usage & Limits', icon: BarChart3, href: '/usage' },
     ],
   },
   {
@@ -204,6 +205,8 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
           return true; // Available to all
         case 'billing':
           return permissions.canManageBilling;
+        case 'usage':
+          return permissions.canManageBilling; // Same permission as billing
         case 'development':
           return true; // Available to all
         case 'code-with-ai':

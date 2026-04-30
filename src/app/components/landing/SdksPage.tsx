@@ -57,7 +57,7 @@ const payment = await dari.payments.createPayment({
   accepted_tokens: ['USDC', 'USDT']
 })
 
-console.log(payment.checkout_url)`}</pre>
+// Example: Log payment URL`}</pre>
           </div>
         </div>
 

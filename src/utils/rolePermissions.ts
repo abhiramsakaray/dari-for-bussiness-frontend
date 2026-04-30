@@ -197,7 +197,7 @@ export function getUserRole(): MerchantRole | null {
       const teamMember = JSON.parse(teamMemberStr);
       return teamMember.role as MerchantRole;
     } catch (e) {
-      console.error('Failed to parse team member data:', e);
+      // Failed to parse team member data
     }
   }
   
@@ -239,7 +239,7 @@ export function getUserInfo() {
         organizationName: 'Organization', // Could be fetched from API
       };
     } catch (e) {
-      console.error('Failed to parse team member data:', e);
+      // Failed to parse team member data
     }
   }
   

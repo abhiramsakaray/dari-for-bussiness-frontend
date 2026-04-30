@@ -101,7 +101,6 @@ export function CouponInput({
         onPaymentCompleted?.();
       }
     } catch (error: any) {
-      console.error('Failed to complete free payment:', error);
       // Show error to user
       setResult(prev => prev ? {
         ...prev,

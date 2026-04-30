@@ -33,10 +33,6 @@ export function Register() {
     setLoading(true);
     setError(null);
 
-    console.log('🔵 Starting registration process...');
-    console.log('🔵 Form data:', { ...formData, password: '***' });
-    console.log('🔵 VITE_API_URL:', import.meta.env.VITE_API_URL);
-
     try {
       const response = await chainpeService.register({
         name: formData.name,
@@ -65,9 +61,6 @@ export function Register() {
       // Always redirect to onboarding for new registrations
       navigate('/onboarding');
     } catch (err: any) {
-      console.error('🔴 Registration error:', err);
-      console.error('🔴 Error response:', err.response);
-      console.error('🔴 Error message:', err.message);
       const errorMessage = extractErrorMessage(err, 'Registration failed. Please try again.');
       setError(errorMessage);
       toast.error(errorMessage);

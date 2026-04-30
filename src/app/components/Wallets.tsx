@@ -142,7 +142,6 @@ export default function Wallets() {
                                         .map(cb => {
                                             const chainInfo = CHAIN_INFO[cb.chain as ChainType];
                                             if (!chainInfo) {
-                                                console.warn(`Unknown chain: ${cb.chain}`);
                                                 return null;
                                             }
                                             return (

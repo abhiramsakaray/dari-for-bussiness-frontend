@@ -112,7 +112,7 @@ class TeamAuthService {
     try {
       await this.api.post('/api/v1/auth/team/logout');
     } catch (error) {
-      console.error('Logout error:', error);
+      // Logout error
     } finally {
       this.clearTokens();
     }

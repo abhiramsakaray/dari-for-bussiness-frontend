@@ -64,6 +64,8 @@ import { SubscriptionTracker } from './components/analytics/SubscriptionTracker'
 import TeamMembersList from './components/team/TeamMembersList';
 import { DevelopmentGuide } from './components/developer/DevelopmentGuide';
 import { CodeWithAI } from './components/developer/CodeWithAI';
+import { UsageDashboard } from './components/usage/UsageDashboard';
+import { AdminFees } from './components/AdminFees';
 
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ScrollToTop } from './components/ScrollToTop';
@@ -211,6 +213,7 @@ export default function AppRouter() {
         
         {/* Admin */}
         <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/fees" element={<ProtectedRoute><AdminFees /></ProtectedRoute>} />
         
         {/* Enterprise Features (Protected) */}
         <Route path="/payment-links-dashboard" element={<ProtectedRoute><PaymentLinksList /></ProtectedRoute>} />
@@ -227,6 +230,7 @@ export default function AppRouter() {
         <Route path="/analytics/subscription-tracking" element={<ProtectedRoute><SubscriptionTracker /></ProtectedRoute>} />
         <Route path="/team" element={<ProtectedRoute><TeamMembersList /></ProtectedRoute>} />
         <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
+        <Route path="/usage" element={<ProtectedRoute><UsageDashboard /></ProtectedRoute>} />
         <Route path="/wallets" element={<ProtectedRoute><Wallets /></ProtectedRoute>} />
         <Route path="/withdrawals" element={<ProtectedRoute><Withdrawals /></ProtectedRoute>} />
         <Route path="/debug" element={<ProtectedRoute><ApiDebugger /></ProtectedRoute>} />

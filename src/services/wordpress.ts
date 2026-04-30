@@ -137,7 +137,6 @@ class WordPressService {
         totalPages,
       };
     } catch (error) {
-      console.error('Error fetching WordPress posts:', error);
       throw error;
     }
   }
@@ -165,7 +164,6 @@ class WordPressService {
 
       return this.formatPost(posts[0]);
     } catch (error) {
-      console.error('Error fetching WordPress post:', error);
       throw error;
     }
   }
@@ -187,7 +185,6 @@ class WordPressService {
 
       return await response.json();
     } catch (error) {
-      console.error('Error fetching WordPress categories:', error);
       throw error;
     }
   }

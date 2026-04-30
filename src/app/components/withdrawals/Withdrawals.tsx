@@ -42,13 +42,16 @@ export function Withdrawals() {
       for (const coin of raw.coins) {
         if (coin.chain_balances && Array.isArray(coin.chain_balances)) {
           for (const cb of coin.chain_balances) {
-            result.push({
-              token: cb.token.toUpperCase(),
-              chain: cb.chain,
-              balance: cb.balance,
-              available: cb.balance,
-              wallet_address: cb.wallet_address,
-            });
+            // Only include if balance > 0
+            if (cb.balance > 0) {
+              result.push({
+                token: cb.token.toUpperCase(),
+                chain: cb.chain,
+                balance: cb.balance,
+                available: cb.balance,
+                wallet_address: cb.wallet_address,
+              });
+            }
           }
         }
       }
@@ -169,11 +172,19 @@ export function Withdrawals() {
                   <div className="pt-3 border-t space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Percentage Fee</span>
-                      <span className="font-medium">{limits?.fee_percentage}%</span>
+                      <span className="font-medium">
+                        {limits?.fee_percentage !== undefined && limits?.fee_percentage !== null 
+                          ? `${limits.fee_percentage}%` 
+                          : '0%'}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Fixed Fee</span>
-                      <span className="font-medium">{limits?.fee_fixed} {limits?.currency}</span>
+                      <span className="font-medium">
+                        {limits?.fee_fixed !== undefined && limits?.fee_fixed !== null
+                          ? `${limits.fee_fixed} ${limits?.currency || 'USD'}`
+                          : `0 ${limits?.currency || 'USD'}`}
+                      </span>
                     </div>
                   </div>
                 </div>

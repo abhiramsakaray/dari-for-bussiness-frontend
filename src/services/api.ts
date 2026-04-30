@@ -22,13 +22,6 @@ export const api = axios.create({
 
 // Add API key and token to requests
 api.interceptors.request.use((config) => {
-  console.log('📤 Sending request:', {
-    method: config.method?.toUpperCase(),
-    url: config.url,
-    baseURL: config.baseURL,
-    fullURL: config.baseURL ? `${config.baseURL}${config.url}` : config.url
-  });
-
   // Add JWT token if available
   const token = localStorage.getItem('merchant_token');
   if (token) {
@@ -53,34 +46,10 @@ api.interceptors.request.use((config) => {
 // Handle errors
 api.interceptors.response.use(
   (response) => {
-    // Debug: Log response data to check encoding
-    if (process.env.NODE_ENV === 'development' && response.data) {
-      const url = response.config.url;
-      if (url?.includes('payments') || url?.includes('sessions')) {
-        console.log('📥 API Response:', {
-          url,
-          contentType: response.headers['content-type'],
-          sampleData: JSON.stringify(response.data).substring(0, 200),
-          hasLocalCurrency: response.data.amount_fiat_local ? 'yes' : 'no',
-          localSymbol: response.data.amount_fiat_local?.local_symbol,
-        });
-      }
-    }
     return response;
   },
   (error) => {
-    // Log detailed error info for debugging
-    console.error('🔴 API Error (legacy client):', {
-      url: error.config?.url,
-      method: error.config?.method?.toUpperCase(),
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      message: error.message,
-    });
-
     if (error.response?.status === 401) {
-      console.warn('🔒 Unauthorized - clearing auth and redirecting to login');
       localStorage.removeItem('merchant_token');
       localStorage.removeItem('api_key');
       localStorage.removeItem('merchant_email');

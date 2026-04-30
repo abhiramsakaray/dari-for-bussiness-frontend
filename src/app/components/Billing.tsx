@@ -26,6 +26,7 @@ import {
   AlertCircle,
   Crown,
   Building,
+  ArrowRight,
 } from 'lucide-react';
 import { PlanTier } from '../../services/billing.service';
 
@@ -64,7 +65,7 @@ export function Billing() {
     );
   }
 
-  // Calculate usage percentages
+  // Calculate usage percentages from billingInfo
   const usagePercentages = {
     volume: billingInfo.monthly_volume_limit
       ? (billingInfo.current_volume / billingInfo.monthly_volume_limit) * 100
@@ -200,10 +201,23 @@ export function Billing() {
         {/* Usage Stats */}
         <Card>
           <CardHeader>
-            <CardTitle>Usage This Month</CardTitle>
-            <CardDescription>
-              Track your current usage against plan limits
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Usage This Month</CardTitle>
+                <CardDescription>
+                  Track your current usage against plan limits
+                </CardDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.href = '/usage'}
+                className="gap-2"
+              >
+                View Full Usage
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Transaction Volume */}

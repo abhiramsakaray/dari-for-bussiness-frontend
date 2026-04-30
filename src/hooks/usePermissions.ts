@@ -32,11 +32,9 @@ export function useAllPermissions() {
         );
         return response.permissions;
       } catch (error: any) {
-        console.error('Error fetching all permissions:', error);
         
         // If we get a 401/403, return a default set of permissions for display
         if (error?.response?.status === 401 || error?.response?.status === 403) {
-          console.warn('Using default permissions list due to auth error');
           
           // Return a basic set of permissions for UI display
           return [
@@ -85,33 +83,24 @@ export function useMemberPermissions(memberId?: string) {
     queryKey: [PERMISSIONS_QUERY_KEY, 'member', targetMemberId],
     queryFn: async () => {
       if (!targetMemberId) {
-        console.error('useMemberPermissions: No member ID available');
         throw new Error('No member ID available');
       }
       
-      console.log('Fetching permissions for member:', targetMemberId);
-      
       try {
         // Get member details which includes role and permissions
-        console.log('Fetching member details from /api/v1/team/' + targetMemberId);
         const member = await apiClient.get<any>(
           `/api/v1/team/${targetMemberId}`
         );
         
-        console.log('Member details received:', member);
-        
         // Try to get role permissions - this might fail with 401 for merchants
         let rolePermissions: string[] = [];
         try {
-          console.log('Fetching role permissions for role:', member.role);
           const rolePerms = await apiClient.get<{ role: string; permissions: Permission[] }>(
             `/api/v1/team/roles/${member.role}/permissions`
           );
           rolePermissions = rolePerms.permissions.map((p: Permission) => p.code);
-          console.log('Role permissions received:', rolePermissions);
         } catch (roleError: any) {
           // If role permissions fetch fails, use default permissions based on role
-          console.warn('Could not fetch role permissions, using defaults. Error:', roleError?.response?.status);
           
           // Default permissions by role (fallback)
           const defaultPermissions: Record<string, string[]> = {
@@ -123,7 +112,6 @@ export function useMemberPermissions(memberId?: string) {
           };
           
           rolePermissions = defaultPermissions[member.role] || [];
-          console.log('Using default permissions:', rolePermissions);
         }
         
         // Construct member permissions response
@@ -136,15 +124,8 @@ export function useMemberPermissions(memberId?: string) {
           effective_permissions: member.effective_permissions || rolePermissions,
         } as MemberPermissions;
         
-        console.log('Final member permissions:', result);
         return result;
       } catch (error: any) {
-        console.error('Error fetching member permissions:', error);
-        console.error('Error details:', {
-          status: error?.response?.status,
-          data: error?.response?.data,
-          message: error?.message,
-        });
         throw error;
       }
     },

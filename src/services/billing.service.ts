@@ -26,7 +26,7 @@ export interface BillingInfo {
   tier: PlanTier;
   status: 'active' | 'canceled' | 'past_due' | 'trial';
   monthly_price: number;
-  currency: string; // NEW: Currency code (e.g., "USD", "INR", "EUR")
+  currency: string; // Merchant's currency (e.g., "USD", "INR", "EUR")
   transaction_fee_percent: number;
   monthly_volume_limit: number | null;
   payment_link_limit: number | null;
@@ -35,10 +35,10 @@ export interface BillingInfo {
   current_volume: number;
   current_payment_links: number;
   current_invoices: number;
-  current_period_start: string;
-  current_period_end: string;
+  current_period_start: string; // ISO date string
+  current_period_end: string; // ISO date string
   trial_ends_at: string | null;
-  available_plans?: Record<string, PlanInfo>; // NEW: All plans in merchant's currency
+  available_plans?: Record<string, PlanInfo>; // All plans in merchant's currency
 }
 
 // Plan features for display

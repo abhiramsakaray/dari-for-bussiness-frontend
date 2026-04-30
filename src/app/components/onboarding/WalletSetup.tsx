@@ -72,7 +72,6 @@ export function WalletSetup({ onComplete }: WalletSetupProps) {
         tokens: selectedTokens,
         auto_generate: true,
       };
-      console.log('Completing onboarding with payload:', payload);
 
       const result = await onboardingService.completeOnboarding(payload);
 
@@ -85,18 +84,12 @@ export function WalletSetup({ onComplete }: WalletSetupProps) {
 
       // Show wallet addresses
       if (result.wallets && result.wallets.length > 0) {
-        console.log('Generated wallets:', result.wallets);
       }
 
       setTimeout(() => {
         onComplete();
       }, 1500);
     } catch (error: any) {
-      console.error('Wallet setup error:', error);
-      console.error('Error response:', error.response?.data);
-      console.error('Error status:', error.response?.status);
-      console.error('Full error object:', JSON.stringify(error.response, null, 2));
-
       toast.error(extractErrorMessage(error, 'Failed to complete onboarding'));
     } finally {
       setLoading(false);

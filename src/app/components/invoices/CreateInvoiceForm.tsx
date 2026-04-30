@@ -132,7 +132,6 @@ export function CreateInvoiceForm() {
     if (data.notes?.trim()) input.notes = data.notes.trim();
     if (data.terms?.trim()) input.terms = data.terms.trim();
 
-    console.log('Submitting invoice:', input); // Debug log
     await createMutation.mutateAsync(input);
     window.location.hash = '#/invoices';
   };

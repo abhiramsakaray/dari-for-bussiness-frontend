@@ -78,7 +78,6 @@ const RefundForm: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
 
   const handleSearchCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('🔍 handleSearchCustomer called with:', { searchType, searchQuery });
     
     if (!searchQuery.trim()) {
       setError('Please enter an email or phone number');
@@ -89,12 +88,10 @@ const RefundForm: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
     setError('');
 
     try {
-      console.log('📞 Calling refundsService.getCustomerTransactions...');
       const data = await refundsService.getCustomerTransactions(
         searchType === 'email' ? searchQuery : undefined,
         searchType === 'phone' ? searchQuery : undefined
       );
-      console.log('✅ Got customer transactions:', data);
 
       if (!data.transactions || data.transactions.length === 0) {
         setError('No transactions found for this customer');
@@ -163,7 +160,6 @@ const RefundForm: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
     setError('');
 
     try {
-      console.log('💰 Creating refund with transaction:', selectedTransaction);
       await refundsService.createRefund(selectedTransaction.id, {
         amount: parseFloat(refundAmount),
         refund_address: selectedTransaction.wallet_address || '',

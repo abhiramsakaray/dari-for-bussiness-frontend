@@ -40,21 +40,17 @@ class RefundsService {
     phone?: string
   ): Promise<CustomerTransactionList> {
     try {
-      console.log('🔍 refundsService.getCustomerTransactions called', { email, phone });
       
       const params = new URLSearchParams();
       if (email) params.append('email', email);
       if (phone) params.append('phone', phone);
 
       const url = `/refunds/customer/transactions?${params.toString()}`;
-      console.log('📤 Making GET request to:', url);
 
       const response = await api.get<CustomerTransactionList>(url);
 
-      console.log('✅ Response received:', response.data);
       return response.data;
     } catch (error: any) {
-      console.error('❌ Error in getCustomerTransactions:', error);
       const message =
         error.response?.data?.detail ||
         error.response?.data?.message ||
@@ -91,7 +87,6 @@ class RefundsService {
     data: RefundCreateRequest
   ): Promise<any> {
     try {
-      console.log('💰 Creating refund with data:', data);
       const response = await api.post(
         `/refunds`,
         {
@@ -104,7 +99,6 @@ class RefundsService {
         }
       );
 
-      console.log('✅ Refund created successfully:', response.data);
       return response.data;
     } catch (error: any) {
       const message =

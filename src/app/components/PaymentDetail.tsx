@@ -129,7 +129,6 @@ export function PaymentDetail() {
       // Automatically download the receipt
       handleDownloadReceipt(receiptData.id);
     } catch (err: any) {
-      console.error('Receipt generation error:', err);
       toast.error(err.message || 'Failed to generate receipt');
     } finally {
       setIsGeneratingReceipt(false);
@@ -190,7 +189,6 @@ export function PaymentDetail() {
       
       toast.success('Receipt downloaded successfully!');
     } catch (err: any) {
-      console.error('Receipt download error:', err);
       toast.error(err.message || 'Failed to download receipt');
     } finally {
       setIsDownloadingReceipt(false);

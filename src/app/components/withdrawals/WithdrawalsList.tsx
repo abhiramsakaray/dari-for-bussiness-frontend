@@ -13,9 +13,25 @@ import {
 import { AlertCircle, ArrowUpRight, Ban, CheckCircle, Clock } from "lucide-react";
 import { format } from "date-fns";
 
+// Helper function to get blockchain explorer URL
+const getExplorerUrl = (chain: string, txHash: string): string => {
+  const explorers: Record<string, string> = {
+    ethereum: `https://etherscan.io/tx/${txHash}`,
+    polygon: `https://polygonscan.com/tx/${txHash}`,
+    bsc: `https://bscscan.com/tx/${txHash}`,
+    arbitrum: `https://arbiscan.io/tx/${txHash}`,
+    base: `https://basescan.org/tx/${txHash}`,
+    avalanche: `https://snowtrace.io/tx/${txHash}`,
+    stellar: `https://stellar.expert/explorer/public/tx/${txHash}`,
+    solana: `https://solscan.io/tx/${txHash}`,
+    tron: `https://tronscan.org/#/transaction/${txHash}`,
+  };
+  return explorers[chain.toLowerCase()] || `https://etherscan.io/tx/${txHash}`;
+};
+
 export function WithdrawalsList() {
   const [page, setPage] = useState(1);
-  const { data, isLoading } = useWithdrawals({ page, limit: 10 });
+  const { data, isLoading, error } = useWithdrawals({ page, limit: 10 });
   const cancelWithdrawal = useCancelWithdrawal();
 
   const handleCancel = (id: string) => {
@@ -42,6 +58,18 @@ export function WithdrawalsList() {
 
   if (isLoading) {
     return <div className="text-center py-8">Loading withdrawals...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8 text-destructive">
+        Error loading withdrawals: {(error as Error).message}
+      </div>
+    );
+  }
+
+  if (!data) {
+    return <div className="text-center py-8 text-muted-foreground">No data available</div>;
   }
 
   return (
@@ -111,6 +139,25 @@ export function WithdrawalsList() {
                       disabled={cancelWithdrawal.isPending}
                     >
                       Cancel
+                    </Button>
+                  )}
+                  {withdrawal.status === "completed" && withdrawal.tx_hash && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => window.open(getExplorerUrl(withdrawal.chain, withdrawal.tx_hash!), '_blank')}
+                    >
+                      View Tx
+                    </Button>
+                  )}
+                  {withdrawal.status === "failed" && withdrawal.failure_reason && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => alert(withdrawal.failure_reason)}
+                      className="text-muted-foreground"
+                    >
+                      Details
                     </Button>
                   )}
                 </TableCell>

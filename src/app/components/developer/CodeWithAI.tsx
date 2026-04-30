@@ -226,7 +226,6 @@ Always wrap API calls in try-catch:
 try {
   const payment = await dari.payments.createPayment(...);
 } catch (error) {
-  console.error('Payment creation failed:', error);
   // Handle error appropriately
 }
 
