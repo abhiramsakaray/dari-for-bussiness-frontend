@@ -7,8 +7,8 @@ export function LandingFooter() {
         {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 py-14 border-b border-gray-200">
           <div>
-            <Link to="/" className="font-mono text-sm text-gray-500 inline-block mb-4">
-              daripayments
+            <Link to="/" className="inline-block mb-4">
+              <img src="/daripayments_green_logo.png" alt="Dari Payments" className="h-7" />
             </Link>
             <p className="text-sm text-gray-500 leading-relaxed max-w-sm mb-5">
               Accept stablecoin payments globally. Built for businesses that move at the speed of money.

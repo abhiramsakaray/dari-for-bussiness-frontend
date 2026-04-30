@@ -8,8 +8,8 @@ export function LandingNav() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-200 bg-white/90 backdrop-blur-lg">
       <div className="max-w-[1160px] mx-auto px-6 h-[60px] flex items-center justify-between">
-        <Link to="/" className="font-mono text-base font-medium tracking-tight text-black">
-          daripayments
+        <Link to="/" className="flex items-center">
+          <img src="/daripayments_green_logo.png" alt="Dari Payments" className="h-8" />
         </Link>
         
         {/* Desktop Navigation */}

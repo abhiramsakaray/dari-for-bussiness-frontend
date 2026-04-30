@@ -65,7 +65,7 @@ export function NewLanding() {
           <div 
             className="bg-black rounded-3xl p-20 relative overflow-hidden min-h-[360px] flex flex-col items-center justify-center text-center"
             style={{
-              backgroundImage: 'url(/assets/grad1.png)',
+              backgroundImage: 'url(/grad1.png)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}

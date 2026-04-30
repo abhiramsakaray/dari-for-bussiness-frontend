@@ -318,9 +318,9 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
                 <Menu className="h-6 w-6 text-foreground transition-transform duration-250" />
               )}
             </button>
-            <div className="font-mono text-[17px] font-semibold text-foreground">
-              dari.
-            </div>
+            <Link to="/dashboard" className="flex items-center">
+              <img src="/daripayments_green_logo.png" alt="Dari Payments" className="h-7" />
+            </Link>
           </div>
 
           {/* Center Zone - Desktop Nav */}
