@@ -346,13 +346,9 @@ export function SubscriptionsDashboard() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setShowNewPlanDialog(true)}>
+            <Button onClick={() => window.location.href = '/subscriptions-dashboard/new'}>
               <Plus className="w-4 h-4 mr-2" />
               New Plan
-            </Button>
-            <Button onClick={() => setShowNewSubDialog(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              New Subscription
             </Button>
           </div>
         </div>
@@ -420,13 +416,9 @@ export function SubscriptionsDashboard() {
                     <Users className="w-6 h-6 text-muted-foreground" />
                   </div>
                   <h3 className="text-lg font-semibold mb-2">No subscriptions yet</h3>
-                  <p className="text-muted-foreground text-center mb-4">
+                  <p className="text-muted-foreground text-center">
                     Create plans and start subscribing customers
                   </p>
-                  <Button onClick={() => setShowNewSubDialog(true)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Subscription
-                  </Button>
                 </CardContent>
               </Card>
             ) : (
@@ -479,13 +471,9 @@ export function SubscriptionsDashboard() {
                     <CreditCard className="w-6 h-6 text-muted-foreground" />
                   </div>
                   <h3 className="text-lg font-semibold mb-2">No plans yet</h3>
-                  <p className="text-muted-foreground text-center mb-4">
+                  <p className="text-muted-foreground text-center">
                     Create a subscription plan to get started
                   </p>
-                  <Button onClick={() => setShowNewPlanDialog(true)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Plan
-                  </Button>
                 </CardContent>
               </Card>
             ) : (
@@ -908,140 +896,6 @@ export function SubscriptionsDashboard() {
               disabled={deactivatePlanMutation.isPending}
             >
               {deactivatePlanMutation.isPending ? 'Deleting…' : 'Delete Plan'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* ── New Subscription Dialog ── */}
-      <Dialog open={showNewSubDialog} onOpenChange={setShowNewSubDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Create Subscription</DialogTitle>
-            <DialogDescription>
-              Subscribe a customer to one of your plans.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-2">
-            <div>
-              <label className={labelCls}>Plan *</label>
-              <select
-                className={inputCls}
-                value={subForm.plan_id}
-                onChange={(e) => setSubForm((f) => ({ ...f, plan_id: e.target.value }))}
-              >
-                <option value="">Select a plan…</option>
-                {plansData?.items?.filter((p) => p.is_active).map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} — {formatCurrency(p.amount, p.fiat_currency)}/{p.interval}
-                  </option>
-                ))}
-              </select>
-              {!plansData?.items?.filter((p) => p.is_active).length && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  No active plans found. Create a plan first.
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className={labelCls}>Customer Email *</label>
-              <input
-                className={inputCls}
-                type="email"
-                placeholder="customer@example.com"
-                value={subForm.customer_email}
-                onChange={(e) => setSubForm((f) => ({ ...f, customer_email: e.target.value }))}
-              />
-            </div>
-
-            <div>
-              <label className={labelCls}>Customer Name</label>
-              <input
-                className={inputCls}
-                placeholder="John Doe"
-                value={subForm.customer_name}
-                onChange={(e) => setSubForm((f) => ({ ...f, customer_name: e.target.value }))}
-              />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                id="skip_trial"
-                type="checkbox"
-                checked={subForm.skip_trial}
-                onChange={(e) => setSubForm((f) => ({ ...f, skip_trial: e.target.checked }))}
-                className="h-4 w-4 rounded border"
-              />
-              <label htmlFor="skip_trial" className="text-sm">Skip trial period</label>
-            </div>
-
-            {!subForm.skip_trial && (
-              <div>
-                <label className={labelCls}>Custom Trial Days (override plan default)</label>
-                <input
-                  className={inputCls}
-                  type="number"
-                  min="0"
-                  placeholder="Use plan default"
-                  value={subForm.custom_trial_days}
-                  onChange={(e) => setSubForm((f) => ({ ...f, custom_trial_days: e.target.value }))}
-                />
-              </div>
-            )}
-
-            <div className="border-t pt-4 mt-2">
-              <p className="text-sm font-medium mb-3">Customer Payment Method (optional)</p>
-              <div>
-                <label className={labelCls}>Wallet Address</label>
-                <input
-                  className={inputCls}
-                  placeholder="Customer wallet address"
-                  value={subForm.customer_wallet_address}
-                  onChange={(e) => setSubForm((f) => ({ ...f, customer_wallet_address: e.target.value }))}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3 mt-3">
-                <div>
-                  <label className={labelCls}>Chain</label>
-                  <select
-                    className={inputCls}
-                    value={subForm.customer_chain}
-                    onChange={(e) => setSubForm((f) => ({ ...f, customer_chain: e.target.value }))}
-                  >
-                    <option value="">Select chain</option>
-                    {SUPPORTED_CHAINS.map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className={labelCls}>Token</label>
-                  <select
-                    className={inputCls}
-                    value={subForm.customer_token}
-                    onChange={(e) => setSubForm((f) => ({ ...f, customer_token: e.target.value }))}
-                  >
-                    <option value="">Select token</option>
-                    {SUPPORTED_TOKENS.map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNewSubDialog(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleCreateSubscription}
-              disabled={!subForm.plan_id || !subForm.customer_email || createSubMutation.isPending}
-            >
-              {createSubMutation.isPending ? 'Creating…' : 'Create Subscription'}
             </Button>
           </DialogFooter>
         </DialogContent>

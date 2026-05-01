@@ -95,7 +95,7 @@ export function PaymentLinksList() {
               Create and manage shareable payment links
             </p>
           </div>
-          <Button onClick={() => window.location.hash = '#/payment-links/new'}>
+          <Button onClick={() => window.location.href = '/payment-links-dashboard/new'}>
             <Plus className="w-4 h-4 mr-2" />
             Create Payment Link
           </Button>
@@ -111,7 +111,7 @@ export function PaymentLinksList() {
             <p className="text-muted-foreground text-center mb-4">
               Create your first payment link to start accepting crypto payments
             </p>
-            <Button onClick={() => window.location.hash = '#/payment-links/new'}>
+            <Button onClick={() => window.location.href = '/payment-links-dashboard/new'}>
               <Plus className="w-4 h-4 mr-2" />
               Create Payment Link
             </Button>
@@ -193,7 +193,7 @@ function PaymentLinkRow({ link, currency, onCopy, onDeactivate }: PaymentLinkRow
       <TableCell>
         <div>
           <a
-            href={`#/payment-links/${link.id}`}
+            href={`/payment-links-dashboard/${link.id}`}
             className="font-medium hover:underline"
           >
             {link.name}
@@ -246,11 +246,11 @@ function PaymentLinkRow({ link, currency, onCopy, onDeactivate }: PaymentLinkRow
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => window.location.hash = `#/payment-links/${link.id}/analytics`}>
+              <DropdownMenuItem onClick={() => window.location.href = `/payment-links-dashboard/${link.id}/analytics`}>
                 <BarChart3 className="w-4 h-4 mr-2" />
                 View Analytics
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => window.location.hash = `#/payment-links/${link.id}/edit`}>
+              <DropdownMenuItem onClick={() => window.location.href = `/payment-links-dashboard/${link.id}/edit`}>
                 <Edit className="w-4 h-4 mr-2" />
                 Edit
               </DropdownMenuItem>

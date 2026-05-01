@@ -56,6 +56,7 @@ import CreatePaymentLinkForm from './components/payment-links/CreatePaymentLinkF
 import InvoicesList from './components/invoices/InvoicesList';
 import CreateInvoiceForm from './components/invoices/CreateInvoiceForm';
 import SubscriptionsDashboard from './components/subscriptions/SubscriptionsDashboard';
+import CreateSubscriptionPlanForm from './components/subscriptions/CreateSubscriptionPlanForm';
 import Web3SubscriptionCheckoutPage from './components/subscriptions/Web3SubscriptionCheckoutPage';
 import RefundsList from './components/refunds/RefundsList';
 import AnalyticsDashboard from './components/analytics/AnalyticsDashboard';
@@ -218,9 +219,15 @@ export default function AppRouter() {
         {/* Enterprise Features (Protected) */}
         <Route path="/payment-links-dashboard" element={<ProtectedRoute><PaymentLinksList /></ProtectedRoute>} />
         <Route path="/payment-links-dashboard/new" element={<ProtectedRoute><CreatePaymentLinkForm /></ProtectedRoute>} />
+        <Route path="/payment-links-dashboard/:linkId/analytics" element={<ProtectedRoute><AnalyticsDashboard /></ProtectedRoute>} />
+        <Route path="/payment-links-dashboard/:linkId/edit" element={<ProtectedRoute><CreatePaymentLinkForm /></ProtectedRoute>} />
+        <Route path="/payment-links-dashboard/:linkId" element={<ProtectedRoute><PaymentDetail /></ProtectedRoute>} />
         <Route path="/invoices-dashboard" element={<ProtectedRoute><InvoicesList /></ProtectedRoute>} />
         <Route path="/invoices-dashboard/new" element={<ProtectedRoute><CreateInvoiceForm /></ProtectedRoute>} />
+        <Route path="/invoices-dashboard/:invoiceId/edit" element={<ProtectedRoute><CreateInvoiceForm /></ProtectedRoute>} />
+        <Route path="/invoices-dashboard/:invoiceId" element={<ProtectedRoute><PaymentDetail /></ProtectedRoute>} />
         <Route path="/subscriptions-dashboard" element={<ProtectedRoute><SubscriptionsDashboard /></ProtectedRoute>} />
+        <Route path="/subscriptions-dashboard/new" element={<ProtectedRoute><CreateSubscriptionPlanForm /></ProtectedRoute>} />
         <Route path="/subscriptions/web3-checkout/:planId?" element={<ProtectedRoute><Web3SubscriptionCheckoutPage planId="" /></ProtectedRoute>} />
         <Route path="/refunds" element={<ProtectedRoute><RefundsList /></ProtectedRoute>} />
         <Route path="/coupons" element={<ProtectedRoute><Coupons /></ProtectedRoute>} />

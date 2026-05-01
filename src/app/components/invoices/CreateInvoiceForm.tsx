@@ -133,7 +133,7 @@ export function CreateInvoiceForm() {
     if (data.terms?.trim()) input.terms = data.terms.trim();
 
     await createMutation.mutateAsync(input);
-    window.location.hash = '#/invoices';
+    window.location.href = '/invoices-dashboard';
   };
 
   // Set default due date to 30 days from now
@@ -144,7 +144,7 @@ export function CreateInvoiceForm() {
     <BentoLayout activePage="invoices">
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => window.location.hash = '#/invoices'}>
+          <Button variant="ghost" size="icon" onClick={() => window.location.href = '/invoices-dashboard'}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
@@ -465,7 +465,7 @@ export function CreateInvoiceForm() {
           <Button type="submit" disabled={createMutation.isPending}>
             {createMutation.isPending ? 'Creating...' : 'Create Invoice'}
           </Button>
-          <Button type="button" variant="outline" onClick={() => window.location.hash = '#/invoices'}>
+          <Button type="button" variant="outline" onClick={() => window.location.href = '/invoices-dashboard'}>
             Cancel
           </Button>
         </div>

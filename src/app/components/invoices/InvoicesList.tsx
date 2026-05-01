@@ -111,7 +111,7 @@ export function InvoicesList() {
               Create and manage invoices for your customers
             </p>
           </div>
-          <Button onClick={() => window.location.hash = '#/invoices/new'}>
+          <Button onClick={() => window.location.href = '/invoices-dashboard/new'}>
             <Plus className="w-4 h-4 mr-2" />
           Create Invoice
         </Button>
@@ -147,7 +147,7 @@ export function InvoicesList() {
             <p className="text-muted-foreground text-center mb-4">
               Create your first invoice to bill your customers
             </p>
-            <Button onClick={() => window.location.hash = '#/invoices/new'}>
+            <Button onClick={() => window.location.href = '/invoices-dashboard/new'}>
               <Plus className="w-4 h-4 mr-2" />
               Create Invoice
             </Button>
@@ -229,7 +229,7 @@ function InvoiceRow({ invoice, onSend, onCancel }: InvoiceRowProps) {
         <div className="flex items-center gap-2">
           <FileText className="w-4 h-4 text-muted-foreground" />
           <a
-            href={`#/invoices/${invoice.id}`}
+            href={`/invoices-dashboard/${invoice.id}`}
             className="font-mono font-medium hover:underline"
           >
             {invoice.invoice_number}
@@ -261,7 +261,7 @@ function InvoiceRow({ invoice, onSend, onCancel }: InvoiceRowProps) {
           <Button
             size="icon"
             variant="ghost"
-            onClick={() => window.location.hash = `#/invoices/${invoice.id}`}
+            onClick={() => window.location.href = `/invoices-dashboard/${invoice.id}`}
             title="View invoice"
           >
             <Eye className="w-4 h-4" />
@@ -285,7 +285,7 @@ function InvoiceRow({ invoice, onSend, onCancel }: InvoiceRowProps) {
                   Payment Link
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem onClick={() => window.location.hash = `#/invoices/${invoice.id}/edit`}>
+              <DropdownMenuItem onClick={() => window.location.href = `/invoices-dashboard/${invoice.id}/edit`}>
                 <Copy className="w-4 h-4 mr-2" />
                 Edit
               </DropdownMenuItem>

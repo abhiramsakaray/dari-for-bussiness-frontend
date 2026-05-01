@@ -9,6 +9,7 @@ import { Textarea } from '../ui/textarea';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { BentoLayout } from "../BentoLayout";
 import { ArrowLeft } from 'lucide-react';
 
@@ -17,10 +18,28 @@ import { ArrowLeft } from 'lucide-react';
 const AVAILABLE_TOKENS = ['USDC', 'USDT', 'XLM', 'ETH', 'MATIC', 'DAI'];
 const AVAILABLE_CHAINS = ['stellar', 'polygon', 'ethereum', 'base', 'bsc', 'avalanche', 'tron', 'arbitrum', 'solana'];
 
+const CURRENCIES = [
+  { code: 'USD', label: 'US Dollar', symbol: '$', flag: '🇺🇸' },
+  { code: 'EUR', label: 'Euro', symbol: '€', flag: '🇪🇺' },
+  { code: 'GBP', label: 'British Pound', symbol: '£', flag: '🇬🇧' },
+  { code: 'AED', label: 'UAE Dirham', symbol: 'د.إ', flag: '🇦🇪' },
+  { code: 'INR', label: 'Indian Rupee', symbol: '₹', flag: '🇮🇳' },
+  { code: 'SGD', label: 'Singapore Dollar', symbol: 'S$', flag: '🇸🇬' },
+  { code: 'MYR', label: 'Malaysian Ringgit', symbol: 'RM', flag: '🇲🇾' },
+  { code: 'PKR', label: 'Pakistani Rupee', symbol: '₨', flag: '🇵🇰' },
+  { code: 'BDT', label: 'Bangladeshi Taka', symbol: '৳', flag: '🇧🇩' },
+  { code: 'CAD', label: 'Canadian Dollar', symbol: 'CA$', flag: '🇨🇦' },
+  { code: 'AUD', label: 'Australian Dollar', symbol: 'A$', flag: '🇦🇺' },
+  { code: 'JPY', label: 'Japanese Yen', symbol: '¥', flag: '🇯🇵' },
+  { code: 'SAR', label: 'Saudi Riyal', symbol: '﷼', flag: '🇸🇦' },
+  { code: 'TRY', label: 'Turkish Lira', symbol: '₺', flag: '🇹🇷' },
+];
+
 const createPaymentLinkSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
   description: z.string().max(500).optional(),
   amount_fiat: z.number().positive('Amount must be positive').optional(),
+  fiat_currency: z.string().min(1, 'Currency is required'),
   is_amount_fixed: z.boolean(),
   accepted_tokens: z.array(z.string()).min(1, 'Select at least one token'),
   accepted_chains: z.array(z.string()).min(1, 'Select at least one chain'),
@@ -49,12 +68,16 @@ export function CreatePaymentLinkForm() {
       is_single_use: false,
       accepted_tokens: ['USDC'],
       accepted_chains: ['polygon'],
+      fiat_currency: 'USD',
     },
   });
 
   const isAmountFixed = watch('is_amount_fixed');
   const acceptedTokens = watch('accepted_tokens');
   const acceptedChains = watch('accepted_chains');
+  const fiatCurrency = watch('fiat_currency') || 'USD';
+  
+  const selectedCurrency = CURRENCIES.find(c => c.code === fiatCurrency) ?? CURRENCIES[0];
 
   const toggleArrayValue = (
     field: 'accepted_tokens' | 'accepted_chains',
@@ -74,6 +97,7 @@ export function CreatePaymentLinkForm() {
       accepted_tokens: data.accepted_tokens,
       accepted_chains: data.accepted_chains,
       is_single_use: data.is_single_use,
+      fiat_currency: data.fiat_currency,
     };
 
     // Only include optional fields if they have non-empty values
@@ -94,14 +118,14 @@ export function CreatePaymentLinkForm() {
     }
 
     await createMutation.mutateAsync(input);
-    window.location.hash = '#/payment-links';
+    window.location.href = '/payment-links-dashboard';
   };
 
   return (
     <BentoLayout activePage="payment-links">
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => window.location.hash = '#/payment-links'}>
+          <Button variant="ghost" size="icon" onClick={() => window.location.href = '/payment-links-dashboard'}>
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div>
@@ -165,19 +189,52 @@ export function CreatePaymentLinkForm() {
             </div>
 
             {isAmountFixed && (
-              <div className="space-y-2">
-                <Label htmlFor="amount_fiat">Amount (USD) *</Label>
-                <Input
-                  id="amount_fiat"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  {...register('amount_fiat', { valueAsNumber: true })}
-                  placeholder="0.00"
-                />
-                {errors.amount_fiat && (
-                  <p className="text-sm text-red-500">{errors.amount_fiat.message}</p>
-                )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="amount_fiat">Amount *</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      {selectedCurrency.symbol}
+                    </span>
+                    <Input
+                      id="amount_fiat"
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      className="pl-10"
+                      {...register('amount_fiat', { valueAsNumber: true })}
+                      placeholder="0.00"
+                    />
+                  </div>
+                  {errors.amount_fiat && (
+                    <p className="text-sm text-red-500">{errors.amount_fiat.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="fiat_currency">Currency *</Label>
+                  <Controller
+                    name="fiat_currency"
+                    control={control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CURRENCIES.map((currency) => (
+                            <SelectItem key={currency.code} value={currency.code}>
+                              {currency.flag} {currency.label} ({currency.symbol})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.fiat_currency && (
+                    <p className="text-sm text-red-500">{errors.fiat_currency.message}</p>
+                  )}
+                </div>
               </div>
             )}
           </CardContent>
@@ -309,7 +366,7 @@ export function CreatePaymentLinkForm() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => window.location.hash = '#/payment-links'}
+            onClick={() => window.location.href = '/payment-links-dashboard'}
           >
             Cancel
           </Button>
