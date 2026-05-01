@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import { useEffect } from 'react';
 
 interface SEOProps {
   title?: string;
@@ -21,45 +21,77 @@ export function SEO({
 }: SEOProps) {
   const fullTitle = title.includes('Dari') ? title : `${title} | Dari for Business`;
 
-  return (
-    <Helmet>
-      {/* Primary Meta Tags */}
-      <title>{fullTitle}</title>
-      <meta name="title" content={fullTitle} />
-      <meta name="description" content={description} />
-      <meta name="keywords" content={keywords} />
-      <link rel="canonical" href={url} />
+  useEffect(() => {
+    // Update title
+    document.title = fullTitle;
 
-      {/* Open Graph / Facebook */}
-      <meta property="og:type" content={type} />
-      <meta property="og:url" content={url} />
-      <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description} />
-      <meta property="og:image" content={image} />
-      <meta property="og:site_name" content="Dari for Business" />
+    // Helper to update or create meta tag
+    const updateMeta = (selector: string, attribute: string, content: string) => {
+      let element = document.querySelector(selector);
+      if (!element) {
+        element = document.createElement('meta');
+        if (attribute === 'name') {
+          element.setAttribute('name', selector.replace('meta[name="', '').replace('"]', ''));
+        } else if (attribute === 'property') {
+          element.setAttribute('property', selector.replace('meta[property="', '').replace('"]', ''));
+        }
+        document.head.appendChild(element);
+      }
+      element.setAttribute('content', content);
+    };
 
-      {/* Twitter */}
-      <meta property="twitter:card" content="summary_large_image" />
-      <meta property="twitter:url" content={url} />
-      <meta property="twitter:title" content={fullTitle} />
-      <meta property="twitter:description" content={description} />
-      <meta property="twitter:image" content={image} />
-      <meta name="twitter:creator" content="@daripayments" />
+    // Update canonical link
+    const updateCanonical = (href: string) => {
+      let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'canonical';
+        document.head.appendChild(link);
+      }
+      link.href = href;
+    };
 
-      {/* Additional Meta Tags */}
-      <meta name="robots" content="index, follow" />
-      <meta name="language" content="English" />
-      <meta name="revisit-after" content="7 days" />
-      <meta name="author" content="Dari Payments" />
+    // Primary Meta Tags
+    updateMeta('meta[name="title"]', 'name', fullTitle);
+    updateMeta('meta[name="description"]', 'name', description);
+    updateMeta('meta[name="keywords"]', 'name', keywords);
+    updateCanonical(url);
 
-      {/* Structured Data */}
-      {structuredData && (
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
-      )}
-    </Helmet>
-  );
+    // Open Graph / Facebook
+    updateMeta('meta[property="og:type"]', 'property', type);
+    updateMeta('meta[property="og:url"]', 'property', url);
+    updateMeta('meta[property="og:title"]', 'property', fullTitle);
+    updateMeta('meta[property="og:description"]', 'property', description);
+    updateMeta('meta[property="og:image"]', 'property', image);
+    updateMeta('meta[property="og:site_name"]', 'property', 'Dari for Business');
+
+    // Twitter
+    updateMeta('meta[property="twitter:card"]', 'property', 'summary_large_image');
+    updateMeta('meta[property="twitter:url"]', 'property', url);
+    updateMeta('meta[property="twitter:title"]', 'property', fullTitle);
+    updateMeta('meta[property="twitter:description"]', 'property', description);
+    updateMeta('meta[property="twitter:image"]', 'property', image);
+    updateMeta('meta[name="twitter:creator"]', 'name', '@daripayments');
+
+    // Additional Meta Tags
+    updateMeta('meta[name="robots"]', 'name', 'index, follow');
+    updateMeta('meta[name="language"]', 'name', 'English');
+    updateMeta('meta[name="revisit-after"]', 'name', '7 days');
+    updateMeta('meta[name="author"]', 'name', 'Dari Payments');
+
+    // Structured Data
+    if (structuredData) {
+      let script = document.querySelector('script[type="application/ld+json"]');
+      if (!script) {
+        script = document.createElement('script');
+        script.setAttribute('type', 'application/ld+json');
+        document.head.appendChild(script);
+      }
+      script.textContent = JSON.stringify(structuredData);
+    }
+  }, [fullTitle, description, keywords, image, url, type, structuredData]);
+
+  return null;
 }
 
 // Predefined structured data for common pages
