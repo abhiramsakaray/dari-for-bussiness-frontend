@@ -1,9 +1,34 @@
 import { LandingLayout } from './LandingLayout';
 import { Link } from 'react-router-dom';
+import { SEO, organizationSchema, websiteSchema } from '../../../components/SEO';
 
 export function NewLanding() {
+  const combinedSchema = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      organizationSchema,
+      websiteSchema,
+      {
+        '@type': 'WebPage',
+        '@id': 'https://daripay.xyz/#webpage',
+        url: 'https://daripay.xyz/',
+        name: 'Dari for Business — Stablecoin Payment Infrastructure',
+        description: 'Accept crypto payments with Dari. Multi-chain payment gateway for stablecoins (USDC, USDT). Payment links, invoicing, subscriptions, and more.',
+        inLanguage: 'en-US',
+      },
+    ],
+  };
+
   return (
-    <LandingLayout>
+    <>
+      <SEO
+        title="Dari for Business — Stablecoin Payment Infrastructure"
+        description="Accept crypto payments with Dari. Multi-chain payment gateway for stablecoins (USDC, USDT). Payment links, invoicing, subscriptions, and more. Start accepting crypto in minutes."
+        keywords="crypto payments, stablecoin payments, USDC payments, USDT payments, crypto payment gateway, blockchain payments, web3 payments, crypto invoicing, crypto subscriptions, payment links, multi-chain payments, polygon payments, ethereum payments, stellar payments, solana payments"
+        url="https://daripay.xyz"
+        structuredData={combinedSchema}
+      />
+      <LandingLayout>
       {/* Hero Section */}
       <section id="hero" className="pt-40 pb-20 relative overflow-hidden bg-white">
         <div className="max-w-[1160px] mx-auto px-6">
@@ -317,5 +342,6 @@ export function NewLanding() {
         }
       `}</style>
     </LandingLayout>
+    </>
   );
 }

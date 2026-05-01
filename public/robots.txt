@@ -1,0 +1,14 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin and dashboard pages
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /settings
+Disallow: /billing
+Disallow: /team
+Disallow: /debug
+
+# Sitemap location
+Sitemap: https://daripay.xyz/sitemap.xml
