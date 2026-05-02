@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
   <!-- Homepage -->
   <url>
@@ -12,7 +10,7 @@
     <priority>1.0</priority>
   </url>
 
-  <!-- Main Product Pages -->
+  <!-- Main Pages -->
   <url>
     <loc>https://daripay.xyz/features</loc>
     <lastmod>2026-05-01</lastmod>
@@ -34,7 +32,7 @@
     <priority>0.8</priority>
   </url>
 
-  <!-- Product Features -->
+  <!-- Features -->
   <url>
     <loc>https://daripay.xyz/payment-links</loc>
     <lastmod>2026-05-01</lastmod>
@@ -70,7 +68,7 @@
     <priority>0.7</priority>
   </url>
 
-  <!-- Documentation -->
+  <!-- Docs -->
   <url>
     <loc>https://daripay.xyz/api-reference</loc>
     <lastmod>2026-05-01</lastmod>
@@ -92,7 +90,7 @@
     <priority>0.7</priority>
   </url>
 
-  <!-- Company Pages -->
+  <!-- Company -->
   <url>
     <loc>https://daripay.xyz/about</loc>
     <lastmod>2026-05-01</lastmod>
@@ -121,7 +119,7 @@
     <priority>0.5</priority>
   </url>
 
-  <!-- Legal Pages -->
+  <!-- Legal -->
   <url>
     <loc>https://daripay.xyz/privacy-policy</loc>
     <lastmod>2026-05-01</lastmod>
@@ -138,21 +136,6 @@
 
   <url>
     <loc>https://daripay.xyz/security</loc>
-    <lastmod>2026-05-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-
-  <!-- Auth Pages -->
-  <url>
-    <loc>https://daripay.xyz/login</loc>
-    <lastmod>2026-05-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-
-  <url>
-    <loc>https://daripay.xyz/register</loc>
     <lastmod>2026-05-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
