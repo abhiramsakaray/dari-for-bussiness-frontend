@@ -120,13 +120,18 @@ export function Billing() {
 
   // Get plan price from backend data
   const getPlanPrice = (planId: string): number | null => {
-    if (billingInfo?.available_plans?.[planId]) {
-      return billingInfo.available_plans[planId].price;
-    }
-    return null;
+    // Subscription plans are always priced in USD
+    const usdPrices: Record<string, number | null> = {
+      free: 0,
+      growth: 29,
+      business: 99,
+      enterprise: null, // Custom
+    };
+    
+    return usdPrices[planId] ?? 0;
   };
 
-  // Format price with currency
+  // Format price with USD currency (subscription prices are always in USD)
   const formatPrice = (price: number | null): string => {
     if (price === null) return 'Custom';
     if (price === 0) return 'Free';
@@ -135,7 +140,7 @@ export function Billing() {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     });
-    return `${currencySymbol}${formatted}`;
+    return `$${formatted}`;
   };
 
   return (

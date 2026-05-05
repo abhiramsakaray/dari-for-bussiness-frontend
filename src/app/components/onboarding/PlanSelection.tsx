@@ -158,24 +158,25 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
     }
   };
 
-  // Get plan price from backend data
-  const getPlanPrice = (planId: string): string => {
-    if (billingInfo?.available_plans?.[planId]) {
-      const price = billingInfo.available_plans[planId].price;
-      if (price === 0) return '0';
-      return price.toLocaleString(undefined, {
+  // Get plan price from backend data or use hardcoded USD prices
+  const getPlanPrice = (planId: string): { amount: string; currency: string } => {
+    // Subscription plans are always priced in USD
+    const usdPrices: Record<string, number> = {
+      free: 0,
+      growth: 29,
+      business: 99,
+      enterprise: 0, // Custom
+    };
+    
+    const price = usdPrices[planId] || 0;
+    
+    return {
+      amount: price === 0 ? '0' : price.toLocaleString(undefined, {
         minimumFractionDigits: 0,
         maximumFractionDigits: 2,
-      });
-    }
-    // Fallback to hardcoded USD prices if backend data not available
-    const fallbackPrices: Record<string, string> = {
-      free: '0',
-      growth: '29',
-      business: '99',
-      enterprise: 'Custom',
+      }),
+      currency: 'USD'
     };
-    return fallbackPrices[planId] || '0';
   };
 
   // Format volume limits with currency (only for transaction volume)
@@ -307,7 +308,7 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                   <div className="mt-4">
                     <span className="text-4xl font-bold">
-                      {plan.id === 'enterprise' ? 'Custom' : `${currencySymbol}${getPlanPrice(plan.id)}`}
+                      {plan.id === 'enterprise' ? 'Custom' : `$${getPlanPrice(plan.id).amount}`}
                     </span>
                     <span className="text-muted-foreground">{plan.period}</span>
                   </div>
