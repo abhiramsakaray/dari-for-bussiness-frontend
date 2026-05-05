@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Badge } from '../ui/badge';
 import { useMerchantCurrency } from '@/hooks/useMerchantCurrency';
 import { useBilling } from '@/hooks/useBilling';
+import { onboardingService } from '@/services/onboarding.service';
 import { toast } from 'sonner';
 import { Check, ArrowRight, Zap, TrendingUp, Building, Crown, Loader2 } from 'lucide-react';
 
@@ -101,8 +102,61 @@ const PLANS = [
 
 export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
   const [selectedPlan, setSelectedPlan] = useState<string>('free');
+  const [isCompleting, setIsCompleting] = useState(false);
   const { currencySymbol } = useMerchantCurrency();
   const { billingInfo, isLoading } = useBilling();
+
+  // Check if returning from payment
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentSuccess = urlParams.get('payment_success');
+    const paymentPending = localStorage.getItem('onboarding_payment_pending');
+    const savedPlan = localStorage.getItem('onboarding_plan');
+    
+    if (paymentSuccess === 'true' && paymentPending === 'true' && savedPlan) {
+      // Auto-complete onboarding after successful payment
+      setSelectedPlan(savedPlan);
+      completeOnboardingAfterPayment(savedPlan);
+    }
+  }, []);
+
+  const completeOnboardingAfterPayment = async (plan: string) => {
+    try {
+      setIsCompleting(true);
+      
+      // Get wallet setup data from localStorage
+      const walletData = localStorage.getItem('onboarding_wallet_data');
+      
+      if (!walletData) {
+        toast.error('Wallet setup data not found. Please contact support.');
+        return;
+      }
+      
+      const { chains, tokens, auto_generate } = JSON.parse(walletData);
+      
+      // Complete onboarding with paid plan
+      await onboardingService.completeOnboarding({
+        plan,
+        chains,
+        tokens,
+        auto_generate
+      });
+      
+      // Clear temporary data
+      localStorage.removeItem('onboarding_payment_pending');
+      localStorage.removeItem('onboarding_plan');
+      localStorage.removeItem('onboarding_wallet_data');
+      
+      toast.success(`Payment successful! ${PLANS.find(p => p.id === plan)?.name} plan activated!`);
+      
+      setTimeout(() => {
+        onComplete(plan);
+      }, 1500);
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail || 'Failed to complete onboarding');
+      setIsCompleting(false);
+    }
+  };
 
   // Get plan price from backend data
   const getPlanPrice = (planId: string): string => {
@@ -136,13 +190,13 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
     return limit;
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (selectedPlan === 'enterprise') {
       toast.info('Our team will contact you to discuss enterprise pricing');
       return;
     }
     
-    // For paid plans (Growth/Business), redirect to payment
+    // For paid plans (Growth/Business), redirect to payment first
     if (selectedPlan === 'growth' || selectedPlan === 'business') {
       // Get payment link from backend available_plans
       const paymentLink = billingInfo?.available_plans?.[selectedPlan]?.payment_link;
@@ -162,18 +216,49 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
       }
     }
     
-    // For free plan, continue directly to wallet setup
-    toast.success(`${PLANS.find(p => p.id === selectedPlan)?.name} plan selected!`);
-    onComplete(selectedPlan);
+    // For free plan, complete onboarding directly
+    try {
+      setIsCompleting(true);
+      
+      // Get wallet setup data from localStorage
+      const walletData = localStorage.getItem('onboarding_wallet_data');
+      
+      if (!walletData) {
+        toast.error('Wallet setup data not found. Please go back and complete wallet setup.');
+        setIsCompleting(false);
+        return;
+      }
+      
+      const { chains, tokens, auto_generate } = JSON.parse(walletData);
+      
+      // Complete onboarding with selected plan
+      await onboardingService.completeOnboarding({
+        plan: selectedPlan,
+        chains,
+        tokens,
+        auto_generate
+      });
+      
+      // Clear temporary data
+      localStorage.removeItem('onboarding_wallet_data');
+      
+      toast.success(`${PLANS.find(p => p.id === selectedPlan)?.name} plan activated!`);
+      onComplete(selectedPlan);
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail || 'Failed to complete onboarding');
+      setIsCompleting(false);
+    }
   };
 
-  // Show loading state while fetching billing info
-  if (isLoading) {
+  // Show loading state while fetching billing info or completing onboarding
+  if (isLoading || isCompleting) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">Loading plans...</p>
+          <p className="text-muted-foreground">
+            {isCompleting ? 'Completing your onboarding...' : 'Loading plans...'}
+          </p>
         </div>
       </div>
     );
@@ -185,7 +270,9 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-2">Choose your plan</h1>
           <p className="text-muted-foreground text-lg">
-            Start free and upgrade as you grow. No credit card required.
+            {selectedPlan === 'growth' || selectedPlan === 'business' 
+              ? 'Complete payment to activate your plan and continue setup'
+              : 'Start free and upgrade as you grow. No credit card required.'}
           </p>
         </div>
 
@@ -255,7 +342,11 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
             Back
           </Button>
           <Button size="lg" onClick={handleContinue}>
-            Continue
+            {selectedPlan === 'growth' || selectedPlan === 'business' 
+              ? 'Proceed to Payment' 
+              : selectedPlan === 'enterprise'
+              ? 'Contact Sales'
+              : 'Continue'}
             <ArrowRight className="ml-2 w-4 h-4" />
           </Button>
         </div>

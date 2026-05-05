@@ -65,35 +65,17 @@ export function WalletSetup({ onComplete }: WalletSetupProps) {
       return;
     }
 
-    setLoading(true);
-    try {
-      const payload = {
-        chains: selectedChains,
-        tokens: selectedTokens,
-        auto_generate: true,
-      };
-
-      const result = await onboardingService.completeOnboarding(payload);
-
-      // Update API key if new one was generated
-      if (result.api_key) {
-        localStorage.setItem('api_key', result.api_key);
-      }
-
-      toast.success('🎉 Onboarding completed successfully!');
-
-      // Show wallet addresses
-      if (result.wallets && result.wallets.length > 0) {
-      }
-
-      setTimeout(() => {
-        onComplete();
-      }, 1500);
-    } catch (error: any) {
-      toast.error(extractErrorMessage(error, 'Failed to complete onboarding'));
-    } finally {
-      setLoading(false);
-    }
+    // Store wallet setup data in localStorage for plan selection step
+    const walletData = {
+      chains: selectedChains,
+      tokens: selectedTokens,
+      auto_generate: true,
+    };
+    
+    localStorage.setItem('onboarding_wallet_data', JSON.stringify(walletData));
+    
+    toast.success('Wallet setup saved! Now choose your plan.');
+    onComplete();
   };
 
   return (

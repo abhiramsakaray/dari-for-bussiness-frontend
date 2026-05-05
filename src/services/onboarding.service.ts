@@ -8,6 +8,7 @@ export interface BusinessDetailsInput {
 }
 
 export interface CompleteOnboardingInput {
+  plan?: string; // Optional plan selection (free, growth, business, enterprise)
   chains: string[];
   tokens: string[];
   auto_generate: boolean;

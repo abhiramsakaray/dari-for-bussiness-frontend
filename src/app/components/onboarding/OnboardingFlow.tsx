@@ -34,11 +34,12 @@ export function OnboardingFlow() {
       const paymentPending = localStorage.getItem('onboarding_payment_pending');
       
       if (paymentSuccess === 'true' && paymentPending === 'true') {
-        // Payment completed, clear flag and proceed to wallet setup
+        // Payment completed, clear flag and complete onboarding
         localStorage.removeItem('onboarding_payment_pending');
         const plan = localStorage.getItem('onboarding_plan') || 'free';
         setSelectedPlan(plan);
-        setStep('wallet_setup');
+        // Show plan selection to complete
+        setStep('plan_selection');
         return;
       }
 
@@ -57,10 +58,10 @@ export function OnboardingFlow() {
       // Determine which step to show based on backend step
       if (status.step === 1 || !status.business_name) {
         setStep('business_details');
-      } else if (status.step === 2) {
-        setStep('plan_selection');
-      } else if (status.step === 3 || !status.has_wallets) {
+      } else if (status.step === 2 || !status.has_wallets) {
         setStep('wallet_setup');
+      } else if (status.step === 3) {
+        setStep('plan_selection');
       } else {
         setStep('business_details');
       }
@@ -79,33 +80,33 @@ export function OnboardingFlow() {
   };
 
   const handleBusinessDetailsComplete = () => {
+    setStep('wallet_setup');
+  };
+
+  const handleWalletSetupComplete = () => {
     setStep('plan_selection');
   };
 
   const handlePlanSelectionComplete = (plan: string) => {
     setSelectedPlan(plan);
-    // Store plan in localStorage temporarily
-    localStorage.setItem('onboarding_plan', plan);
-    setStep('wallet_setup');
-  };
-
-  const handlePlanSelectionBack = () => {
-    setStep('business_details');
-  };
-
-  const handleWalletSetupComplete = () => {
+    // Clear temporary storage
+    localStorage.removeItem('onboarding_plan');
+    localStorage.removeItem('onboarding_payment_pending');
+    
     // Update localStorage to mark onboarding as completed
     localStorage.setItem('onboarding_completed', 'true');
     localStorage.setItem('onboarding_step', '4');
     
     setStep('complete');
-    // Clear temporary plan storage
-    localStorage.removeItem('onboarding_plan');
     
     // Redirect to dashboard
     setTimeout(() => {
       navigate('/dashboard');
     }, 500);
+  };
+
+  const handlePlanSelectionBack = () => {
+    setStep('wallet_setup');
   };
 
   if (step === 'loading') {
@@ -120,6 +121,10 @@ export function OnboardingFlow() {
     return <BusinessDetails onComplete={handleBusinessDetailsComplete} />;
   }
 
+  if (step === 'wallet_setup') {
+    return <WalletSetup onComplete={handleWalletSetupComplete} />;
+  }
+
   if (step === 'plan_selection') {
     return (
       <PlanSelection
@@ -127,10 +132,6 @@ export function OnboardingFlow() {
         onBack={handlePlanSelectionBack}
       />
     );
-  }
-
-  if (step === 'wallet_setup') {
-    return <WalletSetup onComplete={handleWalletSetupComplete} />;
   }
 
   if (step === 'complete') {
