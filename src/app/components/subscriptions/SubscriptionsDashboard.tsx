@@ -15,6 +15,7 @@ import {
   useCollectPayment,
   useUpdatePaymentMethod,
 } from '../../../hooks/useSubscriptions';
+import { useMRRARR } from '../../../hooks/useAnalytics';
 import {
   SubscriptionPlan,
   Subscription,
@@ -69,6 +70,8 @@ import {
   Timer,
   Wallet,
   Zap,
+  Search,
+  Filter,
 } from 'lucide-react';
 import { BentoLayout } from "../BentoLayout";
 
@@ -88,6 +91,10 @@ export function SubscriptionsDashboard() {
   const [activeTab, setActiveTab] = useState('subscriptions');
   const [plansPage] = useState(1);
   const [subscriptionsPage] = useState(1);
+  
+  // Filter and search state
+  const [statusFilter, setStatusFilter] = useState<SubscriptionStatus | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Dialog state
   const [showNewPlanDialog, setShowNewPlanDialog] = useState(false);
@@ -157,6 +164,7 @@ export function SubscriptionsDashboard() {
     subscriptionsPage,
     20
   );
+  const { data: mrrData } = useMRRARR();
 
   const createPlanMutation = useCreateSubscriptionPlan();
   const updatePlanMutation = useUpdateSubscriptionPlan();
@@ -322,15 +330,31 @@ export function SubscriptionsDashboard() {
   const activeSubscriptions =
     subscriptionsData?.items?.filter((s) => s.status === SubscriptionStatus.ACTIVE).length || 0;
   
-  // Calculate MRR from active subscriptions
-  // Use next_payment_amount if available, otherwise fall back to plan_amount
-  const totalMRR =
-    subscriptionsData?.items
-      ?.filter((s) => s.status === SubscriptionStatus.ACTIVE)
-      .reduce((sum, sub) => {
-        const amount = Number(sub.next_payment_amount) || Number(sub.plan_amount) || 0;
-        return sum + amount;
-      }, 0) || 0;
+  // Use MRR from analytics API (same as analytics dashboard)
+  const totalMRR = mrrData?.mrr_local?.amount 
+    ? Number(mrrData.mrr_local.amount) 
+    : Number(mrrData?.mrr ?? mrrData?.mrr_usd ?? 0);
+
+  // Filter and search subscriptions
+  const filteredSubscriptions = (subscriptionsData?.items || []).filter((sub) => {
+    // Status filter
+    if (statusFilter !== 'all' && sub.status !== statusFilter) {
+      return false;
+    }
+    
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return (
+        sub.customer_email?.toLowerCase().includes(query) ||
+        sub.customer_name?.toLowerCase().includes(query) ||
+        sub.plan_name?.toLowerCase().includes(query) ||
+        sub.id?.toLowerCase().includes(query)
+      );
+    }
+    
+    return true;
+  });
 
   const inputCls = 'w-full border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring';
   const labelCls = 'block text-sm font-medium mb-1';
@@ -405,6 +429,55 @@ export function SubscriptionsDashboard() {
           </TabsList>
 
           <TabsContent value="subscriptions" className="space-y-4">
+            {/* Search and Filter Bar */}
+            <Card className="p-4">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Search by customer, email, plan, or ID..."
+                    className="w-full pl-10 pr-4 py-2 border rounded-md text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <select
+                    className="px-3 py-2 border rounded-md text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring min-w-[150px]"
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value as SubscriptionStatus | 'all')}
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value={SubscriptionStatus.ACTIVE}>Active</option>
+                    <option value={SubscriptionStatus.TRIALING}>Trialing</option>
+                    <option value={SubscriptionStatus.PAST_DUE}>Past Due</option>
+                    <option value={SubscriptionStatus.PAUSED}>Paused</option>
+                    <option value={SubscriptionStatus.CANCELLED}>Cancelled</option>
+                  </select>
+                </div>
+              </div>
+              {(statusFilter !== 'all' || searchQuery) && (
+                <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                  <Filter className="h-4 w-4" />
+                  <span>
+                    Showing {filteredSubscriptions.length} of {subscriptionsData?.total || 0} subscriptions
+                  </span>
+                  {(statusFilter !== 'all' || searchQuery) && (
+                    <button
+                      onClick={() => {
+                        setStatusFilter('all');
+                        setSearchQuery('');
+                      }}
+                      className="text-primary hover:underline ml-2"
+                    >
+                      Clear filters
+                    </button>
+                  )}
+                </div>
+              )}
+            </Card>
+
             {subscriptionsLoading ? (
               <div className="flex items-center justify-center h-64">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -421,10 +494,27 @@ export function SubscriptionsDashboard() {
                   </p>
                 </CardContent>
               </Card>
+            ) : filteredSubscriptions.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <div className="rounded-full bg-muted p-3 mb-4">
+                    <Search className="w-6 h-6 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">No subscriptions found</h3>
+                  <p className="text-muted-foreground text-center">
+                    Try adjusting your search or filters
+                  </p>
+                </CardContent>
+              </Card>
             ) : (
               <Card>
                 <CardHeader>
-                  <CardTitle>All Subscriptions ({subscriptionsData?.total})</CardTitle>
+                  <CardTitle>
+                    {statusFilter === 'all' 
+                      ? `All Subscriptions (${filteredSubscriptions.length})`
+                      : `${statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)} Subscriptions (${filteredSubscriptions.length})`
+                    }
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -439,7 +529,7 @@ export function SubscriptionsDashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {subscriptionsData?.items.map((subscription) => (
+                      {filteredSubscriptions.map((subscription) => (
                         <SubscriptionRow
                           key={subscription.id}
                           subscription={subscription}

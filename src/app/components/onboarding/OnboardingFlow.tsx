@@ -14,6 +14,14 @@ export function OnboardingFlow() {
   const [selectedPlan, setSelectedPlan] = useState<string>('free');
 
   useEffect(() => {
+    // Log URL params for debugging
+    const urlParams = new URLSearchParams(window.location.search);
+    console.log('OnboardingFlow mounted with params:', {
+      payment_success: urlParams.get('payment_success'),
+      subscription_id: urlParams.get('subscription_id'),
+      status: urlParams.get('status')
+    });
+    
     checkOnboardingStatus();
   }, []);
 
@@ -76,6 +84,11 @@ export function OnboardingFlow() {
       }
 
       const status = await onboardingService.getStatus();
+      
+      // IMPORTANT: Check if the backend detected an existing subscription
+      // The backend's /onboarding/status should automatically link Web3 subscriptions
+      // If it did, the onboarding_completed flag will be true
+      console.log('Onboarding status:', status);
 
       // Update localStorage with current status
       localStorage.setItem('onboarding_completed', String(status.onboarding_completed));
@@ -83,6 +96,7 @@ export function OnboardingFlow() {
 
       if (status.onboarding_completed) {
         // Already completed, redirect to dashboard
+        console.log('Onboarding already completed, redirecting to dashboard');
         navigate('/dashboard');
         return;
       }
@@ -95,7 +109,25 @@ export function OnboardingFlow() {
       } else if (status.step === 3) {
         setStep('plan_selection');
       } else {
-        setStep('business_details');
+        // If we're at step 3+ but onboarding isn't complete, try to complete it
+        // This handles the case where a subscription was paid but onboarding wasn't completed
+        console.log('At final step but onboarding not complete, attempting to complete...');
+        try {
+          await onboardingService.completeOnboarding({
+            chains: [],
+            tokens: [],
+            auto_generate: false
+          });
+          
+          localStorage.setItem('onboarding_completed', 'true');
+          localStorage.setItem('onboarding_step', '4');
+          navigate('/dashboard');
+          return;
+        } catch (error) {
+          console.error('Failed to auto-complete onboarding:', error);
+          // Fall back to showing plan selection
+          setStep('plan_selection');
+        }
       }
     } catch (error) {
       

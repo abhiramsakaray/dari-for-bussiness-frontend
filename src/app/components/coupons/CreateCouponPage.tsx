@@ -161,8 +161,8 @@ export function CreateCouponPage() {
 
   return (
     <BentoLayout activePage="coupons">
-      <form onSubmit={handleSubmit} className="h-[calc(100vh-7rem)] flex flex-col gap-4 overflow-hidden">
-        <div className="shrink-0 flex items-center justify-between">
+      <form onSubmit={handleSubmit} className="space-y-6 pb-8">
+        <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <Button
@@ -182,71 +182,276 @@ export function CreateCouponPage() {
           </div>
         </div>
 
-        {/* Bento Grid */}
-        <div className="flex-1 grid grid-cols-3 grid-rows-4 gap-4 min-h-0">
+        {/* Responsive Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           
-          {/* Coupon Code & Type - Row 1, Col 1-2 */}
-          <Card className="col-span-2 bg-card border-border p-6 flex flex-col gap-4">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-              Coupon Details
-            </p>
-            <div className="grid grid-cols-2 gap-4 flex-1">
-              <div className="space-y-2">
-                <Label htmlFor="code">
-                  Coupon Code <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="code"
-                  type="text"
-                  value={form.code}
-                  onChange={(e) => updateField('code', e.target.value.toUpperCase())}
-                  placeholder="e.g. WELCOME10"
-                  maxLength={50}
-                  className="font-mono h-12 text-lg"
-                />
-                {errors.code && (
-                  <p className="text-sm text-destructive">{errors.code}</p>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  A unique code customers will enter at checkout
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="type">
-                  Discount Type <span className="text-destructive">*</span>
-                </Label>
-                <Select
-                  value={form.type}
-                  onValueChange={(value) => updateField('type', value)}
-                >
-                  <SelectTrigger className="h-12">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="percentage">Percentage (%)</SelectItem>
-                    <SelectItem value="fixed">Fixed Amount ({currencySymbol})</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </Card>
-
-          {/* Tips - Row 1-4, Col 3 */}
-          <Card className="row-span-4 bg-secondary/40 border-border p-6 flex flex-col gap-5">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-              Best Practices
-            </p>
-            <div className="flex-1 flex flex-col justify-center gap-5">
-              {TIPS.map(({ icon: Icon, text }, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <div className="h-7 w-7 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <Icon className="h-3.5 w-3.5 text-primary" />
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-snug pt-0.5">{text}</p>
+          {/* Left Column - Form Fields */}
+          <div className="lg:col-span-2 space-y-6">
+            
+            {/* Coupon Code & Type */}
+            <Card className="bg-card border-border p-6">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-4">
+                Coupon Details
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="code">
+                    Coupon Code <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="code"
+                    type="text"
+                    value={form.code}
+                    onChange={(e) => updateField('code', e.target.value.toUpperCase())}
+                    placeholder="e.g. WELCOME10"
+                    maxLength={50}
+                    className="font-mono"
+                  />
+                  {errors.code && (
+                    <p className="text-sm text-destructive">{errors.code}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    A unique code customers will enter at checkout
+                  </p>
                 </div>
-              ))}
+
+                <div className="space-y-2">
+                  <Label htmlFor="type">
+                    Discount Type <span className="text-destructive">*</span>
+                  </Label>
+                  <Select
+                    value={form.type}
+                    onValueChange={(value) => updateField('type', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="percentage">Percentage (%)</SelectItem>
+                      <SelectItem value="fixed">Fixed Amount ({currencySymbol})</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </Card>
+
+            {/* Discount Value & Max Cap */}
+            <Card className="bg-card border-border p-6">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-4">
+                Discount Amount
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="discount_value">
+                    Discount Value <span className="text-destructive">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="discount_value"
+                      type="number"
+                      value={form.discount_value}
+                      onChange={(e) => updateField('discount_value', e.target.value)}
+                      min="0.01"
+                      max={form.type === 'percentage' ? '100' : undefined}
+                      step="0.01"
+                      placeholder={form.type === 'percentage' ? '10' : '5.00'}
+                      className="pr-12"
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">
+                      {form.type === 'percentage' ? '%' : currencySymbol}
+                    </span>
+                  </div>
+                  {errors.discount_value && (
+                    <p className="text-sm text-destructive">{errors.discount_value}</p>
+                  )}
+                </div>
+
+                {form.type === 'percentage' ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="max_discount_amount">
+                      Max Discount Cap ({currencySymbol})
+                    </Label>
+                    <Input
+                      id="max_discount_amount"
+                      type="number"
+                      value={form.max_discount_amount}
+                      onChange={(e) => updateField('max_discount_amount', e.target.value)}
+                      min="0"
+                      step="0.01"
+                      placeholder="No cap"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Optional maximum amount for % discounts
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label htmlFor="min_order_amount">
+                      Min Order Amount ({currencySymbol})
+                    </Label>
+                    <Input
+                      id="min_order_amount"
+                      type="number"
+                      value={form.min_order_amount}
+                      onChange={(e) => updateField('min_order_amount', e.target.value)}
+                      min="0"
+                      step="0.01"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Minimum order value required
+                    </p>
+                  </div>
+                )}
+              </div>
+            </Card>
+
+            {/* Subscription Support */}
+            <Card className="bg-card border-border p-6">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-4">
+                Subscription Support
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    id="applies_to_subscriptions"
+                    checked={form.applies_to_subscriptions}
+                    onChange={(e) => updateField('applies_to_subscriptions', e.target.checked.toString())}
+                    className="mt-1 h-4 w-4 rounded border-input"
+                  />
+                  <div className="flex-1">
+                    <Label htmlFor="applies_to_subscriptions" className="cursor-pointer font-medium">
+                      Can be used for subscription payments
+                    </Label>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Enable this to allow customers to apply this promo code when subscribing to plans
+                    </p>
+                  </div>
+                </div>
+
+                {form.applies_to_subscriptions && (
+                  <div className="space-y-2 pl-7 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <Label htmlFor="subscription_discount_type">
+                      Subscription Discount Type <span className="text-destructive">*</span>
+                    </Label>
+                    <Select
+                      value={form.subscription_discount_type}
+                      onValueChange={(value) => updateField('subscription_discount_type', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="first_payment">First Payment Only</SelectItem>
+                        <SelectItem value="all_payments">All Recurring Payments</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.subscription_discount_type && (
+                      <p className="text-sm text-destructive">{errors.subscription_discount_type}</p>
+                    )}
+                    <div className={`text-xs p-3 rounded-lg border ${
+                      form.subscription_discount_type === 'first_payment'
+                        ? 'bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-300'
+                        : 'bg-amber-500/10 border-amber-500/20 text-amber-700 dark:text-amber-300'
+                    }`}>
+                      {form.subscription_discount_type === 'first_payment' ? (
+                        <span>💡 Discount will only apply to the first subscription payment</span>
+                      ) : (
+                        <span>⚠️ Discount will apply to every recurring payment for the lifetime of the subscription</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Card>
+
+            {/* Usage Limits & Date Range */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Usage Limits */}
+              <Card className="bg-card border-border p-6">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-4">
+                  Usage Limits
+                </p>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="usage_limit_total">Total Uses</Label>
+                    <Input
+                      id="usage_limit_total"
+                      type="number"
+                      value={form.usage_limit_total}
+                      onChange={(e) => updateField('usage_limit_total', e.target.value)}
+                      min="1"
+                      placeholder="Unlimited"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="usage_limit_per_user">Per User</Label>
+                    <Input
+                      id="usage_limit_per_user"
+                      type="number"
+                      value={form.usage_limit_per_user}
+                      onChange={(e) => updateField('usage_limit_per_user', e.target.value)}
+                      min="1"
+                      placeholder="Unlimited"
+                    />
+                  </div>
+                </div>
+              </Card>
+
+              {/* Date Range */}
+              <Card className="bg-card border-border p-6">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-4">
+                  Valid Period
+                </p>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="start_date">
+                      Start Date <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="start_date"
+                      type="datetime-local"
+                      value={form.start_date}
+                      onChange={(e) => updateField('start_date', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="expiry_date">
+                      Expiry Date <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="expiry_date"
+                      type="datetime-local"
+                      value={form.expiry_date}
+                      onChange={(e) => updateField('expiry_date', e.target.value)}
+                    />
+                    {errors.expiry_date && (
+                      <p className="text-sm text-destructive">{errors.expiry_date}</p>
+                    )}
+                  </div>
+                </div>
+              </Card>
             </div>
+          </div>
+
+          {/* Right Column - Tips & Submit */}
+          <div className="space-y-6">
+            <Card className="bg-secondary/40 border-border p-6">
+              <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-5">
+                Best Practices
+              </p>
+              <div className="space-y-5">
+                {TIPS.map(({ icon: Icon, text }, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="h-7 w-7 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                      <Icon className="h-3.5 w-3.5 text-primary" />
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-snug pt-0.5">{text}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
             <Button
               type="submit"
               className="w-full bg-primary hover:bg-primary/90 h-12 text-base gap-2"
@@ -264,208 +469,7 @@ export function CreateCouponPage() {
                 </>
               )}
             </Button>
-          </Card>
-
-          {/* Discount Value & Max Cap - Row 2, Col 1-2 */}
-          <Card className="col-span-2 bg-card border-border p-6 flex flex-col gap-4">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-              Discount Amount
-            </p>
-            <div className="grid grid-cols-2 gap-4 flex-1">
-              <div className="space-y-2">
-                <Label htmlFor="discount_value">
-                  Discount Value <span className="text-destructive">*</span>
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="discount_value"
-                    type="number"
-                    value={form.discount_value}
-                    onChange={(e) => updateField('discount_value', e.target.value)}
-                    min="0.01"
-                    max={form.type === 'percentage' ? '100' : undefined}
-                    step="0.01"
-                    placeholder={form.type === 'percentage' ? '10' : '5.00'}
-                    className="h-12 text-lg pr-12"
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-lg text-muted-foreground font-medium">
-                    {form.type === 'percentage' ? '%' : currencySymbol}
-                  </span>
-                </div>
-                {errors.discount_value && (
-                  <p className="text-sm text-destructive">{errors.discount_value}</p>
-                )}
-              </div>
-
-              {form.type === 'percentage' ? (
-                <div className="space-y-2">
-                  <Label htmlFor="max_discount_amount">
-                    Max Discount Cap ({currencySymbol})
-                  </Label>
-                  <Input
-                    id="max_discount_amount"
-                    type="number"
-                    value={form.max_discount_amount}
-                    onChange={(e) => updateField('max_discount_amount', e.target.value)}
-                    min="0"
-                    step="0.01"
-                    placeholder="No cap"
-                    className="h-12"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Optional maximum amount for % discounts
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Label htmlFor="min_order_amount">
-                    Min Order Amount ({currencySymbol})
-                  </Label>
-                  <Input
-                    id="min_order_amount"
-                    type="number"
-                    value={form.min_order_amount}
-                    onChange={(e) => updateField('min_order_amount', e.target.value)}
-                    min="0"
-                    step="0.01"
-                    className="h-12"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Minimum order value required
-                  </p>
-                </div>
-              )}
-            </div>
-          </Card>
-
-          {/* Subscription Support - Row 2.5, Col 1-2 (NEW) */}
-          <Card className="col-span-2 bg-card border-border p-6 flex flex-col gap-4">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-              Subscription Support
-            </p>
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <input
-                  type="checkbox"
-                  id="applies_to_subscriptions"
-                  checked={form.applies_to_subscriptions}
-                  onChange={(e) => updateField('applies_to_subscriptions', e.target.checked.toString())}
-                  className="mt-1 h-4 w-4 rounded border-input"
-                />
-                <div className="flex-1">
-                  <Label htmlFor="applies_to_subscriptions" className="cursor-pointer font-medium">
-                    Can be used for subscription payments
-                  </Label>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Enable this to allow customers to apply this promo code when subscribing to plans
-                  </p>
-                </div>
-              </div>
-
-              {form.applies_to_subscriptions && (
-                <div className="space-y-2 pl-7 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <Label htmlFor="subscription_discount_type">
-                    Subscription Discount Type <span className="text-destructive">*</span>
-                  </Label>
-                  <Select
-                    value={form.subscription_discount_type}
-                    onValueChange={(value) => updateField('subscription_discount_type', value)}
-                  >
-                    <SelectTrigger className="h-11">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="first_payment">First Payment Only</SelectItem>
-                      <SelectItem value="all_payments">All Recurring Payments</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.subscription_discount_type && (
-                    <p className="text-sm text-destructive">{errors.subscription_discount_type}</p>
-                  )}
-                  <div className={`text-xs p-3 rounded-lg border ${
-                    form.subscription_discount_type === 'first_payment'
-                      ? 'bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-300'
-                      : 'bg-amber-500/10 border-amber-500/20 text-amber-700 dark:text-amber-300'
-                  }`}>
-                    {form.subscription_discount_type === 'first_payment' ? (
-                      <span>💡 Discount will only apply to the first subscription payment</span>
-                    ) : (
-                      <span>⚠️ Discount will apply to every recurring payment for the lifetime of the subscription</span>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </Card>
-
-          {/* Usage Limits - Row 4, Col 1 */}
-          <Card className="bg-card border-border p-5 flex flex-col gap-3">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-              Usage Limits
-            </p>
-            <div className="space-y-3 flex-1">
-              <div className="space-y-2">
-                <Label htmlFor="usage_limit_total" className="text-xs">Total Uses</Label>
-                <Input
-                  id="usage_limit_total"
-                  type="number"
-                  value={form.usage_limit_total}
-                  onChange={(e) => updateField('usage_limit_total', e.target.value)}
-                  min="1"
-                  placeholder="∞"
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="usage_limit_per_user" className="text-xs">Per User</Label>
-                <Input
-                  id="usage_limit_per_user"
-                  type="number"
-                  value={form.usage_limit_per_user}
-                  onChange={(e) => updateField('usage_limit_per_user', e.target.value)}
-                  min="1"
-                  placeholder="∞"
-                  className="h-10"
-                />
-              </div>
-            </div>
-          </Card>
-
-          {/* Date Range - Row 4, Col 2 */}
-          <Card className="bg-card border-border p-5 flex flex-col gap-3">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-              Valid Period
-            </p>
-            <div className="space-y-3 flex-1">
-              <div className="space-y-2">
-                <Label htmlFor="start_date" className="text-xs">
-                  Start Date <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="start_date"
-                  type="datetime-local"
-                  value={form.start_date}
-                  onChange={(e) => updateField('start_date', e.target.value)}
-                  className="h-10"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="expiry_date" className="text-xs">
-                  Expiry Date <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  id="expiry_date"
-                  type="datetime-local"
-                  value={form.expiry_date}
-                  onChange={(e) => updateField('expiry_date', e.target.value)}
-                  className="h-10"
-                />
-                {errors.expiry_date && (
-                  <p className="text-xs text-destructive">{errors.expiry_date}</p>
-                )}
-              </div>
-            </div>
-          </Card>
+          </div>
 
         </div>
       </form>

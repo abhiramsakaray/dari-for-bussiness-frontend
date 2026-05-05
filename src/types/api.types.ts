@@ -454,8 +454,11 @@ export type RolePermissions = {
 // PAYMENT SESSIONS (Existing, for reference)
 // ============================================================================
 
+export type TransactionType = "payment" | "subscription";
+
 export type PaymentSession = {
   id: string;
+  session_id?: string; // Legacy field
   merchant_id: string;
   merchant_name?: string;
   amount_fiat: number;
@@ -473,6 +476,9 @@ export type PaymentSession = {
   chain?: string | null;
   tx_hash?: string | null;
   amount_usdc?: string | null;
+  order_id?: string | null;
+  success_url?: string | null;
+  cancel_url?: string | null;
 
   // Coupon tracking fields
   coupon_code?: string | null;
@@ -483,6 +489,38 @@ export type PaymentSession = {
   amount_fiat_local?: LocalCurrencyAmount | null;
   discount_amount_local?: LocalCurrencyAmount | null;
   amount_paid_local?: LocalCurrencyAmount | null;
+
+  // V3 — Unified Transaction Fields
+  transaction_type?: TransactionType;
+  merchant_amount_local?: number | null;
+  merchant_currency?: string | null;
+  merchant_currency_symbol?: string | null;
+  amount_token?: string | null;
+
+  // Subscription-specific fields
+  subscription_id?: string | null;
+  payment_number?: number | null;
+  period_start?: string | null;
+  period_end?: string | null;
+
+  // Refund fields
+  refund?: RefundInfo | null;
+  refund_count?: number;
+};
+
+export type RefundInfo = {
+  id: string;
+  payment_session_id: string;
+  status: string;
+  amount: number;
+  token: string;
+  chain: string;
+  tx_hash: string | null;
+  recipient_address: string;
+  reason: string | null;
+  failure_reason: string | null;
+  created_at: string;
+  completed_at: string | null;
 };
 
 // ============================================================================

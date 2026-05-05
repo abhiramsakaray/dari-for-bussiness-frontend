@@ -28,6 +28,8 @@ export interface PaymentSession {
   paid_at?: string;
   payer_email?: string;
   payer_name?: string;
+  customer_email?: string;
+  customer_name?: string;
   token?: string;
   chain?: string;
   
@@ -40,6 +42,22 @@ export interface PaymentSession {
   amount_fiat_local?: LocalCurrencyAmount | null;
   discount_amount_local?: LocalCurrencyAmount | null;
   amount_paid_local?: LocalCurrencyAmount | null;
+  
+  // V3 — Unified Transaction Fields
+  transaction_type?: "payment" | "subscription";
+  merchant_amount_local?: number | null;
+  merchant_currency?: string | null;
+  merchant_currency_symbol?: string | null;
+  amount_token?: string | null;
+  
+  // Subscription-specific fields
+  subscription_id?: string | null;
+  payment_number?: number | null;
+  period_start?: string | null;
+  period_end?: string | null;
+  
+  // Refund fields
+  refund_count?: number;
 }
 
 export interface MerchantProfile {
@@ -163,6 +181,16 @@ export const chainpeService = {
   getPaymentHistory: async (params: PaymentHistoryParams = {}): Promise<PaymentHistoryResponse> => {
     const response = await api.get('/merchant/payments', { params });
     const data = response.data;
+    
+    // Debug: Log the first payment to see what fields are returned
+    if (import.meta.env.DEV && data?.payments?.[0]) {
+      console.log('🔍 First payment from API:', data.payments[0]);
+      console.log('🔍 Has transaction_type?', data.payments[0].transaction_type);
+      console.log('🔍 Has merchant_currency?', data.payments[0].merchant_currency);
+      console.log('🔍 Has merchant_currency_symbol?', data.payments[0].merchant_currency_symbol);
+      console.log('🔍 Has merchant_amount_local?', data.payments[0].merchant_amount_local);
+    }
+    
     // Handle multiple backend response formats
     const payments = Array.isArray(data) ? data
       : Array.isArray(data?.payments) ? data.payments

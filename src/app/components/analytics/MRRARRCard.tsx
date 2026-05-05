@@ -62,9 +62,17 @@ export function MRRARRCard() {
   if (!data) return null;
 
   // Use merchant's currency from settings, not from analytics data
-  const displayCurrency = merchantCurrency || data.mrr_local?.currency || data.currency || 'USD';
-  const mrr = Number(data.mrr_local?.amount ?? data.mrr ?? data.mrr_usd ?? 0);
-  const arr = Number(data.arr_local?.amount ?? data.arr ?? data.arr_usd ?? 0);
+  const displayCurrency = merchantCurrency || data.mrr_local?.currency || 'USD';
+  
+  // Parse MRR and ARR values correctly
+  const mrr = data.mrr_local?.amount 
+    ? Number(data.mrr_local.amount) 
+    : Number(data.mrr ?? data.mrr_usd ?? 0);
+  
+  const arr = data.arr_local?.amount 
+    ? Number(data.arr_local.amount) 
+    : Number(data.arr ?? data.arr_usd ?? 0);
+  
   const rawChange = data.net_revenue_change_pct != null ? Number(data.net_revenue_change_pct) : null;
   const changePct = rawChange != null && Number.isFinite(rawChange) ? rawChange : null;
   const isPositive = changePct !== null && changePct >= 0;
@@ -95,14 +103,9 @@ export function MRRARRCard() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
-              <div>
+              <div className="flex-1">
                 <p className="text-sm text-muted-foreground">Monthly Recurring Revenue</p>
                 <p className="text-2xl font-bold">{formatCurrency(mrr, displayCurrency)}</p>
-                {data.mrr_local && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {data.mrr_local.display_local}
-                  </p>
-                )}
               </div>
               <div className="rounded-full bg-green-500/10 p-3">
                 <DollarSign className="w-5 h-5 text-green-500" />
@@ -116,7 +119,7 @@ export function MRRARRCard() {
                   <TrendingDown className="w-4 h-4 text-red-500" />
                 )}
                 <span className={`text-sm font-medium ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                  {isPositive ? '+' : ''}{changePct}%
+                  {isPositive ? '+' : ''}{changePct.toFixed(1)}%
                 </span>
                 <span className="text-xs text-muted-foreground">vs last month</span>
               </div>
@@ -127,14 +130,9 @@ export function MRRARRCard() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
-              <div>
+              <div className="flex-1">
                 <p className="text-sm text-muted-foreground">Annual Recurring Revenue</p>
                 <p className="text-2xl font-bold">{formatCurrency(arr, displayCurrency)}</p>
-                {data.arr_local && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {data.arr_local.display_local}
-                  </p>
-                )}
               </div>
               <div className="rounded-full bg-blue-500/10 p-3">
                 <DollarSign className="w-5 h-5 text-blue-500" />
@@ -175,7 +173,7 @@ export function MRRARRCard() {
                     variant={isPositive ? 'default' : 'destructive'}
                     className="text-lg px-3 py-1"
                   >
-                    {isPositive ? '+' : ''}{changePct}%
+                    {isPositive ? '+' : ''}{changePct.toFixed(1)}%
                   </Badge>
                 ) : (
                   <p className="text-2xl font-bold text-muted-foreground">N/A</p>

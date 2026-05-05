@@ -3,7 +3,7 @@ import { Card } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Search, Tag } from "lucide-react";
+import { Search, Tag, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   Table,
@@ -23,6 +23,19 @@ export function PaymentsList() {
   const navigate = useNavigate();
   const { payments, isLoading } = usePaymentHistory({ limit: 50 });
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Debug: Log payments data
+  if (import.meta.env.DEV && payments && payments.length > 0) {
+    console.log('💳 Payments in component:', payments.length);
+    console.log('💳 First payment full object:', JSON.stringify(payments[0], null, 2));
+    console.log('💳 Payer fields:', {
+      payer_name: payments[0].payer_name,
+      payer_email: payments[0].payer_email,
+      customer_name: payments[0].customer_name,
+      customer_email: payments[0].customer_email,
+    });
+    console.log('💳 Transaction types:', payments.map(p => p.transaction_type || 'undefined'));
+  }
 
   // Filter payments based on search - with safety check
   const filteredPayments = (payments || []).filter(payment => {
@@ -89,6 +102,7 @@ export function PaymentsList() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Type</TableHead>
                     <TableHead>Session ID</TableHead>
                     <TableHead>Payer</TableHead>
                     <TableHead>Order ID</TableHead>
@@ -101,8 +115,21 @@ export function PaymentsList() {
                 <TableBody>
                   {filteredPayments.map((payment) => {
                     const hasDiscount = payment.coupon_code !== null && payment.coupon_code !== undefined;
-                    const amountUsdc = parseFloat(payment.amount_usdc || payment.amount_fiat || '0');
-                    const dual = displayDualAmount(amountUsdc, payment.amount_fiat_local);
+                    const isSubscription = payment.transaction_type === "subscription";
+                    
+                    // Use merchant currency if available
+                    let dual;
+                    if (payment.merchant_amount_local && payment.merchant_currency && payment.merchant_currency_symbol) {
+                      // Backend provided merchant currency enrichment
+                      dual = {
+                        primary: `${payment.merchant_currency_symbol}${payment.merchant_amount_local.toFixed(2)} ${payment.merchant_currency}`,
+                        secondary: payment.amount_usdc ? `$${parseFloat(payment.amount_usdc).toFixed(2)} USD` : null
+                      };
+                    } else {
+                      // Fallback to existing logic
+                      const displayAmountValue = parseFloat(payment.amount_usdc || payment.amount_fiat?.toString() || '0');
+                      dual = displayDualAmount(displayAmountValue, payment.amount_fiat_local);
+                    }
                     
                     // Debug: Diagnose currency encoding for first payment (development only)
                     if (import.meta.env.DEV && filteredPayments.indexOf(payment) === 0) {
@@ -115,17 +142,27 @@ export function PaymentsList() {
                       className="cursor-pointer hover:bg-muted/50 transition-colors"
                       onClick={() => navigate(`/dashboard/payments/${payment.id || payment.session_id}`)}
                     >
+                      <TableCell>
+                        {isSubscription ? (
+                          <Badge variant="default" className="bg-purple-500 hover:bg-purple-600 gap-1">
+                            <RefreshCw className="w-3 h-3" />
+                            Subscription
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline">Payment</Badge>
+                        )}
+                      </TableCell>
                       <TableCell className="font-mono text-sm">
                         {payment.id || payment.session_id}
                       </TableCell>
                       <TableCell>
-                        {payment.payer_name || payment.payer_email ? (
+                        {(payment.payer_name || payment.customer_name || payment.payer_email || payment.customer_email) ? (
                           <div className="text-sm">
-                            {payment.payer_name && <div>{payment.payer_name}</div>}
-                            {payment.payer_email && <div className="text-muted-foreground">{payment.payer_email}</div>}
+                            {(payment.payer_name || payment.customer_name) && <div>{payment.payer_name || payment.customer_name}</div>}
+                            {(payment.payer_email || payment.customer_email) && <div className="text-muted-foreground">{payment.payer_email || payment.customer_email}</div>}
                           </div>
                         ) : (
-                          <span className="text-muted-foreground">—</span>
+                          <span className="text-muted-foreground" title="Payer info not available in list view">—</span>
                         )}
                       </TableCell>
                       <TableCell>{payment.order_id || '-'}</TableCell>
@@ -145,6 +182,16 @@ export function PaymentsList() {
                               <div className="text-muted-foreground">
                                 {payment.status?.toLowerCase() === 'paid' ? 'Paid' : 'Payable'}: {displayAmount(payment.amount_paid || 0, payment.amount_paid_local)}
                               </div>
+                            </div>
+                          )}
+                          {isSubscription && payment.payment_number && (
+                            <div className="text-xs text-muted-foreground">
+                              Payment #{payment.payment_number}
+                              {payment.period_start && payment.period_end && (
+                                <span className="ml-1">
+                                  ({new Date(payment.period_start).toLocaleDateString()} - {new Date(payment.period_end).toLocaleDateString()})
+                                </span>
+                              )}
                             </div>
                           )}
                         </div>

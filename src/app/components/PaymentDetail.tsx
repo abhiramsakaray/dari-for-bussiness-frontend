@@ -3,9 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
-import { ArrowLeft, ExternalLink, Copy, Clock, CheckCircle2, XCircle, AlertCircle, UserCircle2, Tag, Download, FileText } from "lucide-react";
+import { ArrowLeft, ExternalLink, Copy, Clock, CheckCircle2, XCircle, AlertCircle, UserCircle2, Tag, Download, FileText, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { chainpeService, PaymentSession } from "../../services/chainpe";
 import { toast } from "sonner";
 import { displayAmount, displayDualAmount, extractErrorMessage, formatCurrency } from "../../lib/utils";
@@ -214,10 +214,21 @@ export function PaymentDetail() {
   const status = payment?.status?.toLowerCase() || "created";
   const config = statusConfig[status] || statusConfig.created;
   const canonicalSessionId = payment?.id || payment?.session_id || paymentId;
-  const amountUsdc = payment
-    ? Number(payment.amount_usdc ?? payment.amount_fiat ?? 0)
-    : 0;
-  const amountDual = payment ? displayDualAmount(amountUsdc, payment.amount_fiat_local) : { primary: formatCurrency(0, currency), secondary: null };
+  const isSubscription = payment?.transaction_type === "subscription";
+  
+  // Use merchant currency if available
+  const displayAmountValue = payment?.merchant_amount_local ?? Number(payment?.amount_usdc ?? payment?.amount_fiat ?? 0);
+  const displayCurrency = payment?.merchant_currency || payment?.fiat_currency || currency;
+  const displaySymbol = payment?.merchant_currency_symbol || "$";
+  
+  const amountDual = payment?.merchant_amount_local
+    ? {
+        primary: `${displaySymbol}${displayAmountValue.toFixed(2)} ${displayCurrency}`,
+        secondary: payment.amount_usdc ? `$${parseFloat(payment.amount_usdc).toFixed(2)} USD` : null
+      }
+    : payment 
+      ? displayDualAmount(displayAmountValue, payment.amount_fiat_local) 
+      : { primary: formatCurrency(0, currency), secondary: null };
 
   return (
     <BentoLayout activePage="payments">
@@ -256,7 +267,15 @@ export function PaymentDetail() {
                 <div className="flex items-center gap-3">
                   <div className={config.color}>{config.icon}</div>
                   <div>
-                    <p className="text-lg font-semibold capitalize">{status}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-lg font-semibold capitalize">{status}</p>
+                      {isSubscription && (
+                        <Badge variant="default" className="bg-purple-500 hover:bg-purple-600 gap-1">
+                          <RefreshCw className="w-3 h-3" />
+                          Subscription
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-sm text-muted-foreground">
                       {status === "paid" && payment.paid_at
                         ? `Paid on ${new Date(payment.paid_at).toLocaleString()}`
@@ -345,6 +364,54 @@ export function PaymentDetail() {
                     </div>
                     <div>
                       <DetailRow label="Email" value={payment.payer_email} copyable={payment.payer_email} />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Subscription Details */}
+            {isSubscription && payment.subscription_id && (
+              <Card className="bg-card border-border lg:col-span-3">
+                <CardHeader className="border-b border-border">
+                  <CardTitle className="flex items-center gap-2">
+                    <RefreshCw className="h-5 w-5 text-purple-500" />
+                    Subscription Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <DetailRow 
+                        label="Payment Number" 
+                        value={payment.payment_number ? `#${payment.payment_number}` : undefined} 
+                      />
+                    </div>
+                    <div>
+                      <DetailRow 
+                        label="Period Start" 
+                        value={payment.period_start ? new Date(payment.period_start).toLocaleDateString() : undefined} 
+                      />
+                    </div>
+                    <div>
+                      <DetailRow 
+                        label="Period End" 
+                        value={payment.period_end ? new Date(payment.period_end).toLocaleDateString() : undefined} 
+                      />
+                    </div>
+                  </div>
+                  <Separator className="my-4" />
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Subscription ID</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-mono">{payment.subscription_id}</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/dashboard/subscriptions/${payment.subscription_id}`)}
+                      >
+                        View Subscription →
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
