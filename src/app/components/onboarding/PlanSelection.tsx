@@ -133,21 +133,9 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
     return limit;
   };
 
-  const CHAINPE_PLAN_URLS: Record<string, string> = {
-    growth: 'https://api.daripay.xyz/subscribe/plan_QzdDtYYNk8VvEw8g',
-    business: 'https://api.daripay.xyz/subscribe/plan_pcLCq5HLYGafUGhq',
-  };
-
   const handleContinue = () => {
     if (selectedPlan === 'enterprise') {
       toast.info('Our team will contact you to discuss enterprise pricing');
-      return;
-    }
-    
-    if (selectedPlan === 'growth' || selectedPlan === 'business') {
-      const checkoutUrl = CHAINPE_PLAN_URLS[selectedPlan];
-      const successUrl = `${window.location.origin}/dashboard`;
-      window.location.href = `${checkoutUrl}?success_url=${encodeURIComponent(successUrl)}`;
       return;
     }
     

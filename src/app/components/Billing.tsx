@@ -78,18 +78,7 @@ export function Billing() {
       : 0,
   };
 
-  const CHAINPE_PLAN_URLS: Record<string, string> = {
-    growth: 'https://api.daripay.xyz/subscribe/plan_QzdDtYYNk8VvEw8g',
-    business: 'https://api.daripay.xyz/subscribe/plan_pcLCq5HLYGafUGhq',
-  };
-
   const handlePlanChange = (planId: PlanTier) => {
-    if (planId === 'growth' || planId === 'business') {
-      const checkoutUrl = CHAINPE_PLAN_URLS[planId];
-      const successUrl = `${window.location.origin}/dashboard/billing`;
-      window.location.href = `${checkoutUrl}?success_url=${encodeURIComponent(successUrl)}`;
-      return;
-    }
     setSelectedPlanForUpgrade(planId);
   };
 
