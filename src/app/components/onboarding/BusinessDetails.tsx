@@ -82,6 +82,10 @@ export function BusinessDetails({ onComplete }: BusinessDetailsProps) {
       }
 
       await onboardingService.submitBusinessDetails(input);
+      
+      // Store country in localStorage for later use
+      localStorage.setItem('merchant_country', country);
+      
       toast.success('Business details saved!');
       onComplete();
     } catch (error: any) {

@@ -3,7 +3,6 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { useMerchantCurrency } from '@/hooks/useMerchantCurrency';
-import { useBilling } from '@/hooks/useBilling';
 import { onboardingService } from '@/services/onboarding.service';
 import { toast } from 'sonner';
 import { Check, ArrowRight, Zap, TrendingUp, Building, Crown, Loader2 } from 'lucide-react';
@@ -103,8 +102,27 @@ const PLANS = [
 export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
   const [selectedPlan, setSelectedPlan] = useState<string>('free');
   const [isCompleting, setIsCompleting] = useState(false);
+  const [onboardingPlans, setOnboardingPlans] = useState<any>(null);
+  const [isLoadingPlans, setIsLoadingPlans] = useState(true);
   const { currencySymbol } = useMerchantCurrency();
-  const { billingInfo, isLoading } = useBilling();
+
+  // Fetch onboarding plans
+  React.useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const country = localStorage.getItem('merchant_country') || 'US';
+        const plansData = await onboardingService.getPlans(country);
+        setOnboardingPlans(plansData);
+      } catch (error) {
+        console.error('Failed to fetch plans:', error);
+        toast.error('Failed to load plans');
+      } finally {
+        setIsLoadingPlans(false);
+      }
+    };
+    
+    fetchPlans();
+  }, []);
 
   // Check if returning from payment
   React.useEffect(() => {
@@ -199,8 +217,9 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
     
     // For paid plans (Growth/Business), redirect to payment first
     if (selectedPlan === 'growth' || selectedPlan === 'business') {
-      // Get payment link from backend available_plans
-      const paymentLink = billingInfo?.available_plans?.[selectedPlan]?.payment_link;
+      // Get payment link from onboarding plans
+      const plan = onboardingPlans?.plans?.find((p: any) => p.id === selectedPlan);
+      const paymentLink = plan?.payment_link;
       
       if (paymentLink) {
         // Store the selected plan and onboarding state
@@ -213,6 +232,7 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
         return;
       } else {
         toast.error('Payment link not configured. Please contact support.');
+        console.error('Payment link not found for plan:', selectedPlan, 'Available plans:', onboardingPlans);
         return;
       }
     }
@@ -252,7 +272,7 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
   };
 
   // Show loading state while fetching billing info or completing onboarding
-  if (isLoading || isCompleting) {
+  if (isLoadingPlans || isCompleting) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">

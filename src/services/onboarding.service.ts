@@ -28,6 +28,29 @@ export interface OnboardingStatus {
   wallet_count: number;
 }
 
+export interface OnboardingPlanInfo {
+  id: string;
+  name: string;
+  monthly_price: number;
+  currency: string;
+  currency_symbol: string;
+  features: {
+    monthly_volume_limit: number | null;
+    payment_links: number | null;
+    invoices: number | null;
+    team_members: number | null;
+  };
+  feature_list: string[];
+  recommended: boolean;
+  payment_link?: string;
+}
+
+export interface OnboardingPlansResponse {
+  plans: OnboardingPlanInfo[];
+  currency: string;
+  currency_symbol: string;
+}
+
 export interface WalletInfo {
   chain: string;
   wallet_address: string;
@@ -49,6 +72,13 @@ export const onboardingService = {
       '/onboarding/business-details',
       input
     );
+    return response.data;
+  },
+
+  // Get available plans during onboarding
+  getPlans: async (country?: string) => {
+    const params = country ? { country } : {};
+    const response = await api.get<OnboardingPlansResponse>('/onboarding/plans', { params });
     return response.data;
   },
 
