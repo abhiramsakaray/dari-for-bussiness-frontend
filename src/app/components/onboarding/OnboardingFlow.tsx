@@ -31,16 +31,48 @@ export function OnboardingFlow() {
       // Check if returning from payment
       const urlParams = new URLSearchParams(window.location.search);
       const paymentSuccess = urlParams.get('payment_success');
-      const paymentPending = localStorage.getItem('onboarding_payment_pending');
+      const subscriptionId = urlParams.get('subscription_id');
       
-      if (paymentSuccess === 'true' && paymentPending === 'true') {
-        // Payment completed, clear flag and complete onboarding
-        localStorage.removeItem('onboarding_payment_pending');
-        const plan = localStorage.getItem('onboarding_plan') || 'free';
-        setSelectedPlan(plan);
-        // Show plan selection to complete
-        setStep('plan_selection');
-        return;
+      if (paymentSuccess === 'true' && subscriptionId) {
+        // Payment completed - automatically complete onboarding
+        console.log('Payment successful, completing onboarding...');
+        
+        try {
+          // Get wallet data if available
+          const walletData = localStorage.getItem('onboarding_wallet_data');
+          let chains: string[] = [];
+          let tokens: string[] = [];
+          let auto_generate = false;
+          
+          if (walletData) {
+            const parsed = JSON.parse(walletData);
+            chains = parsed.chains || [];
+            tokens = parsed.tokens || [];
+            auto_generate = parsed.auto_generate || false;
+          }
+          
+          // Call the complete endpoint to upgrade merchant tier
+          await onboardingService.completeOnboarding({
+            chains,
+            tokens,
+            auto_generate
+          });
+          
+          // Update localStorage
+          localStorage.setItem('onboarding_completed', 'true');
+          localStorage.setItem('onboarding_step', '4');
+          localStorage.removeItem('onboarding_payment_pending');
+          localStorage.removeItem('onboarding_plan');
+          localStorage.removeItem('onboarding_wallet_data');
+          
+          // Redirect to dashboard
+          console.log('Onboarding completed, redirecting to dashboard...');
+          navigate('/dashboard');
+          return;
+        } catch (error) {
+          console.error('Failed to complete onboarding after payment:', error);
+          // Fall through to normal status check
+        }
       }
 
       const status = await onboardingService.getStatus();
