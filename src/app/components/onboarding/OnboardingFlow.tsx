@@ -28,6 +28,20 @@ export function OnboardingFlow() {
         return;
       }
 
+      // Check if returning from payment
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentSuccess = urlParams.get('payment_success');
+      const paymentPending = localStorage.getItem('onboarding_payment_pending');
+      
+      if (paymentSuccess === 'true' && paymentPending === 'true') {
+        // Payment completed, clear flag and proceed to wallet setup
+        localStorage.removeItem('onboarding_payment_pending');
+        const plan = localStorage.getItem('onboarding_plan') || 'free';
+        setSelectedPlan(plan);
+        setStep('wallet_setup');
+        return;
+      }
+
       const status = await onboardingService.getStatus();
 
       // Update localStorage with current status

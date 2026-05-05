@@ -19,6 +19,7 @@ export interface PlanInfo {
   currency: string;
   billing_period: string;
   features: PlanFeaturesInfo;
+  payment_link?: string; // Payment link for subscription
 }
 
 // Actual API response structure

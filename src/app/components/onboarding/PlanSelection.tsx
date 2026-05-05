@@ -124,11 +124,14 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
     return fallbackPrices[planId] || '0';
   };
 
-  // Format volume limits with currency
+  // Format volume limits with currency (only for transaction volume)
   const formatVolumeLimit = (limit: string): string => {
-    const match = limit.match(/(\d[\d,]*)/);
-    if (match) {
-      return limit.replace(match[0], `${currencySymbol}${match[0]}`);
+    // Only add currency symbol to transaction volume features
+    if (limit.toLowerCase().includes('transaction volume')) {
+      const match = limit.match(/(\d[\d,]*)/);
+      if (match) {
+        return limit.replace(match[0], `${currencySymbol}${match[0]}`);
+      }
     }
     return limit;
   };
@@ -139,6 +142,27 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
       return;
     }
     
+    // For paid plans (Growth/Business), redirect to payment
+    if (selectedPlan === 'growth' || selectedPlan === 'business') {
+      // Get payment link from backend available_plans
+      const paymentLink = billingInfo?.available_plans?.[selectedPlan]?.payment_link;
+      
+      if (paymentLink) {
+        // Store the selected plan and onboarding state
+        localStorage.setItem('onboarding_plan', selectedPlan);
+        localStorage.setItem('onboarding_payment_pending', 'true');
+        
+        // Redirect to payment with success URL back to onboarding
+        const successUrl = `${window.location.origin}/#/onboarding?payment_success=true`;
+        window.location.href = `${paymentLink}?success_url=${encodeURIComponent(successUrl)}`;
+        return;
+      } else {
+        toast.error('Payment link not configured. Please contact support.');
+        return;
+      }
+    }
+    
+    // For free plan, continue directly to wallet setup
     toast.success(`${PLANS.find(p => p.id === selectedPlan)?.name} plan selected!`);
     onComplete(selectedPlan);
   };
