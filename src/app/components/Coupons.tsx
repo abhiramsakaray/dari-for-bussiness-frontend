@@ -164,6 +164,7 @@ export function Coupons() {
                     <TableHead>Code</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Discount</TableHead>
+                    <TableHead>Applies To</TableHead>
                     <TableHead>Min Order</TableHead>
                     <TableHead>Used / Limit</TableHead>
                     <TableHead>Valid Period</TableHead>
@@ -186,6 +187,33 @@ export function Coupons() {
                       </TableCell>
                       <TableCell className="font-medium">
                         {getDiscountDisplay(coupon)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1">
+                          <Badge variant="outline" className="text-xs">
+                            Payments
+                          </Badge>
+                          {coupon.applies_to_subscriptions && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Badge 
+                                    variant="outline" 
+                                    className="text-xs bg-blue-500/10 border-blue-500/30 text-blue-700 dark:text-blue-300"
+                                  >
+                                    Subscriptions
+                                    {coupon.subscription_discount_type === 'all_payments' && ' ∞'}
+                                  </Badge>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {coupon.subscription_discount_type === 'first_payment' 
+                                    ? 'First payment only' 
+                                    : 'All recurring payments'}
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {currencySymbol}{coupon.min_order_amount}

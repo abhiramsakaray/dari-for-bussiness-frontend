@@ -42,6 +42,8 @@ export function CreateCouponModal({ open, onClose, onSuccess }: CreateCouponModa
     usage_limit_per_user: '',
     start_date: new Date().toISOString().slice(0, 16),
     expiry_date: '',
+    applies_to_subscriptions: false,
+    subscription_discount_type: 'first_payment' as 'first_payment' | 'all_payments',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -89,6 +91,10 @@ export function CreateCouponModal({ open, onClose, onSuccess }: CreateCouponModa
       newErrors.usage_limit_per_user = 'Per-user limit must be at least 1';
     }
 
+    if (form.applies_to_subscriptions && !form.subscription_discount_type) {
+      newErrors.subscription_discount_type = 'Please select a subscription discount type';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -117,6 +123,28 @@ export function CreateCouponModal({ open, onClose, onSuccess }: CreateCouponModa
       payload.usage_limit_per_user = parseInt(form.usage_limit_per_user);
     }
 
+    // Add subscription support
+    if (form.applies_to_subscriptions) {
+      payload.applies_to_subscriptions = true;
+      payload.subscription_discount_type = form.subscription_discount_type;
+    }
+
+    // Warning for high-value all_payments discounts
+    if (
+      form.applies_to_subscriptions &&
+      form.subscription_discount_type === 'all_payments' &&
+      form.type === 'percentage' &&
+      parseFloat(form.discount_value) > 50
+    ) {
+      const confirmed = window.confirm(
+        `⚠️ Warning: You are creating a promo code that gives ${form.discount_value}% off ALL recurring payments. ` +
+        'This will significantly reduce subscription revenue. Continue?'
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
+
     createCoupon.mutate(payload, {
       onSuccess: () => {
         onSuccess?.();
@@ -139,6 +167,8 @@ export function CreateCouponModal({ open, onClose, onSuccess }: CreateCouponModa
           usage_limit_per_user: '',
           start_date: new Date().toISOString().slice(0, 16),
           expiry_date: '',
+          applies_to_subscriptions: false,
+          subscription_discount_type: 'first_payment',
         });
         setErrors({});
       }, 300);
@@ -334,6 +364,61 @@ export function CreateCouponModal({ open, onClose, onSuccess }: CreateCouponModa
                 When the coupon expires
               </p>
             </div>
+          </div>
+
+          {/* Subscription Support */}
+          <div className="space-y-4 p-4 border border-border rounded-lg bg-muted/30">
+            <div className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="applies_to_subscriptions"
+                checked={form.applies_to_subscriptions}
+                onChange={(e) => setForm(prev => ({ ...prev, applies_to_subscriptions: e.target.checked }))}
+                className="mt-1 h-4 w-4 rounded border-input"
+              />
+              <div className="flex-1">
+                <Label htmlFor="applies_to_subscriptions" className="cursor-pointer font-medium">
+                  Can be used for subscription payments
+                </Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Enable this to allow customers to apply this promo code when subscribing to plans
+                </p>
+              </div>
+            </div>
+
+            {form.applies_to_subscriptions && (
+              <div className="space-y-2 pl-7 animate-in fade-in slide-in-from-top-2 duration-200">
+                <Label htmlFor="subscription_discount_type">
+                  Subscription Discount Type <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={form.subscription_discount_type}
+                  onValueChange={(value) => updateField('subscription_discount_type', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="first_payment">First Payment Only</SelectItem>
+                    <SelectItem value="all_payments">All Recurring Payments</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.subscription_discount_type && (
+                  <p className="text-sm text-destructive">{errors.subscription_discount_type}</p>
+                )}
+                <div className={`text-xs p-2 rounded border ${
+                  form.subscription_discount_type === 'first_payment'
+                    ? 'bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-300'
+                    : 'bg-amber-500/10 border-amber-500/20 text-amber-700 dark:text-amber-300'
+                }`}>
+                  {form.subscription_discount_type === 'first_payment' ? (
+                    <span>💡 Discount will only apply to the first subscription payment</span>
+                  ) : (
+                    <span>⚠️ Discount will apply to every recurring payment for the lifetime of the subscription</span>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           <DialogFooter>

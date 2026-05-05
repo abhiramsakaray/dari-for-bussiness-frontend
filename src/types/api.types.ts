@@ -798,6 +798,8 @@ export interface CacheStatsResponse {
 export type CouponType = 'percentage' | 'fixed';
 export type CouponStatus = 'active' | 'inactive' | 'deleted';
 
+export type SubscriptionDiscountType = 'first_payment' | 'all_payments';
+
 export interface PromoCode {
   id: string;
   code: string;
@@ -813,6 +815,9 @@ export interface PromoCode {
   status: CouponStatus;
   created_at: string;
   updated_at: string | null;
+  // Subscription support
+  applies_to_subscriptions: boolean;
+  subscription_discount_type?: SubscriptionDiscountType;
 }
 
 export interface CreatePromoCodeInput {
@@ -825,6 +830,9 @@ export interface CreatePromoCodeInput {
   usage_limit_per_user?: number;
   start_date: string; // ISO datetime
   expiry_date: string; // ISO datetime
+  // Subscription support
+  applies_to_subscriptions?: boolean;
+  subscription_discount_type?: SubscriptionDiscountType;
 }
 
 export interface UpdatePromoCodeInput {
@@ -835,6 +843,9 @@ export interface UpdatePromoCodeInput {
   usage_limit_per_user?: number;
   expiry_date?: string;
   status?: 'active' | 'inactive';
+  // Subscription support
+  applies_to_subscriptions?: boolean;
+  subscription_discount_type?: SubscriptionDiscountType;
 }
 
 export interface PromoCodeList {
