@@ -45,7 +45,24 @@ export function Dashboard() {
   const hasCouponDiscounts = stats && stats.revenue.coupon_payment_count > 0;
   const totalRevenueLocal = stats?.revenue.total_local;
   const totalCouponDiscountLocal = stats?.revenue.total_coupon_discount_local;
-  const revenueDisplay = displayDualAmount(totalVolume, totalRevenueLocal);
+  
+  // WORKAROUND: Backend is sending swapped values
+  // amount_usdc contains INR amount, amount_local is double-converted
+  // Fix: Use amount_usdc as the actual local amount
+  let revenueDisplay;
+  if (totalRevenueLocal && totalRevenueLocal.local_currency !== 'USD') {
+    // Backend bug: amount_usdc field contains the actual local currency amount
+    const actualLocalAmount = totalRevenueLocal.amount_usdc;
+    revenueDisplay = {
+      primary: `${totalRevenueLocal.local_symbol}${actualLocalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      secondary: null
+    };
+  } else {
+    revenueDisplay = {
+      primary: `$${totalVolume.toFixed(2)}`,
+      secondary: null
+    };
+  }
 
   // Try to get wallets from either endpoint
   const wallets = walletsData?.wallets || dashboardData?.wallets || [];

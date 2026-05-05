@@ -122,8 +122,8 @@ export function PaymentsList() {
                     if (payment.merchant_amount_local && payment.merchant_currency && payment.merchant_currency_symbol) {
                       // Backend provided merchant currency enrichment
                       dual = {
-                        primary: `${payment.merchant_currency_symbol}${payment.merchant_amount_local.toFixed(2)} ${payment.merchant_currency}`,
-                        secondary: payment.amount_usdc ? `$${parseFloat(payment.amount_usdc).toFixed(2)} USD` : null
+                        primary: `${payment.merchant_currency_symbol}${payment.merchant_amount_local.toFixed(2)}`,
+                        secondary: null
                       };
                     } else {
                       // Fallback to existing logic
@@ -144,7 +144,7 @@ export function PaymentsList() {
                     >
                       <TableCell>
                         {isSubscription ? (
-                          <Badge variant="default" className="bg-purple-500 hover:bg-purple-600 gap-1">
+                          <Badge variant="outline" className="gap-1">
                             <RefreshCw className="w-3 h-3" />
                             Subscription
                           </Badge>

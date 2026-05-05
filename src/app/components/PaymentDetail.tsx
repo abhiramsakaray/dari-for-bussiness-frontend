@@ -221,10 +221,10 @@ export function PaymentDetail() {
   const displayCurrency = payment?.merchant_currency || payment?.fiat_currency || currency;
   const displaySymbol = payment?.merchant_currency_symbol || "$";
   
-  const amountDual = payment?.merchant_amount_local
+  const amountDual = payment?.merchant_amount_local && payment?.merchant_currency_symbol
     ? {
-        primary: `${displaySymbol}${displayAmountValue.toFixed(2)} ${displayCurrency}`,
-        secondary: payment.amount_usdc ? `$${parseFloat(payment.amount_usdc).toFixed(2)} USD` : null
+        primary: `${payment.merchant_currency_symbol}${payment.merchant_amount_local.toFixed(2)}`,
+        secondary: null
       }
     : payment 
       ? displayDualAmount(displayAmountValue, payment.amount_fiat_local) 
@@ -270,7 +270,7 @@ export function PaymentDetail() {
                     <div className="flex items-center gap-2">
                       <p className="text-lg font-semibold capitalize">{status}</p>
                       {isSubscription && (
-                        <Badge variant="default" className="bg-purple-500 hover:bg-purple-600 gap-1">
+                        <Badge variant="outline" className="gap-1">
                           <RefreshCw className="w-3 h-3" />
                           Subscription
                         </Badge>
