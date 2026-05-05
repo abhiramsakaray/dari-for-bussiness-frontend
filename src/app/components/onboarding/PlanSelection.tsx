@@ -111,7 +111,9 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
     const fetchPlans = async () => {
       try {
         const country = localStorage.getItem('merchant_country') || 'US';
+        console.log('Fetching plans for country:', country);
         const plansData = await onboardingService.getPlans(country);
+        console.log('Plans data received:', plansData);
         setOnboardingPlans(plansData);
       } catch (error) {
         console.error('Failed to fetch plans:', error);
@@ -176,14 +178,26 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
     }
   };
 
-  // Get plan price from backend data or use hardcoded USD prices
+  // Get plan price from API response (in merchant's local currency)
   const getPlanPrice = (planId: string): { amount: string; currency: string } => {
-    // Subscription plans are always priced in USD
+    // Try to get price from API response first
+    const apiPlan = onboardingPlans?.plans?.find((p: any) => p.id === planId);
+    if (apiPlan) {
+      return {
+        amount: apiPlan.monthly_price === 0 ? '0' : apiPlan.monthly_price.toLocaleString(undefined, {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2,
+        }),
+        currency: apiPlan.currency || 'USD'
+      };
+    }
+    
+    // Fallback to USD prices if API data not available
     const usdPrices: Record<string, number> = {
       free: 0,
       growth: 29,
       business: 99,
-      enterprise: 0, // Custom
+      enterprise: 0,
     };
     
     const price = usdPrices[planId] || 0;
@@ -195,6 +209,15 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
       }),
       currency: 'USD'
     };
+  };
+
+  // Get currency symbol from API or use merchant's currency
+  const getPlanCurrencySymbol = (planId: string): string => {
+    const apiPlan = onboardingPlans?.plans?.find((p: any) => p.id === planId);
+    if (apiPlan?.currency_symbol) {
+      return apiPlan.currency_symbol;
+    }
+    return onboardingPlans?.currency_symbol || '$';
   };
 
   // Format volume limits with currency (only for transaction volume)
@@ -218,8 +241,14 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
     // For paid plans (Growth/Business), redirect to payment first
     if (selectedPlan === 'growth' || selectedPlan === 'business') {
       // Get payment link from onboarding plans
+      console.log('Looking for payment link for plan:', selectedPlan);
+      console.log('Available plans:', onboardingPlans?.plans);
+      
       const plan = onboardingPlans?.plans?.find((p: any) => p.id === selectedPlan);
+      console.log('Found plan:', plan);
+      
       const paymentLink = plan?.payment_link;
+      console.log('Payment link:', paymentLink);
       
       if (paymentLink) {
         // Store the selected plan and onboarding state
@@ -228,11 +257,14 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
         
         // Redirect to payment with success URL back to onboarding
         const successUrl = `${window.location.origin}/#/onboarding?payment_success=true`;
+        console.log('Redirecting to:', `${paymentLink}?success_url=${encodeURIComponent(successUrl)}`);
         window.location.href = `${paymentLink}?success_url=${encodeURIComponent(successUrl)}`;
         return;
       } else {
+        console.error('Payment link not found!');
+        console.error('Plan object:', plan);
+        console.error('All plans:', onboardingPlans);
         toast.error('Payment link not configured. Please contact support.');
-        console.error('Payment link not found for plan:', selectedPlan, 'Available plans:', onboardingPlans);
         return;
       }
     }
@@ -328,7 +360,7 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
                   <CardTitle className="text-2xl">{plan.name}</CardTitle>
                   <div className="mt-4">
                     <span className="text-4xl font-bold">
-                      {plan.id === 'enterprise' ? 'Custom' : `$${getPlanPrice(plan.id).amount}`}
+                      {plan.id === 'enterprise' ? 'Custom' : `${getPlanCurrencySymbol(plan.id)}${getPlanPrice(plan.id).amount}`}
                     </span>
                     <span className="text-muted-foreground">{plan.period}</span>
                   </div>
