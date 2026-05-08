@@ -62,13 +62,14 @@ import RefundsList from './components/refunds/RefundsList';
 import AnalyticsDashboard from './components/analytics/AnalyticsDashboard';
 import { PaymentTracker } from './components/analytics/PaymentTracker';
 import { SubscriptionTracker } from './components/analytics/SubscriptionTracker';
-import TeamMembersList from './components/team/TeamMembersList';
+import TeamMembersList from './components/team/TeamMembersListNew';
 import { DevelopmentGuide } from './components/developer/DevelopmentGuide';
 import { CodeWithAI } from './components/developer/CodeWithAI';
 import { UsageDashboard } from './components/usage/UsageDashboard';
 import { AdminFees } from './components/AdminFees';
 
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { AutoRedirect } from './components/AutoRedirect';
 import { ScrollToTop } from './components/ScrollToTop';
 
 export default function AppRouter() {
@@ -77,7 +78,7 @@ export default function AppRouter() {
       <ScrollToTop />
       <Routes>
         {/* Landing Pages */}
-        <Route path="/" element={<NewLanding />} />
+        <Route path="/" element={<AutoRedirect><NewLanding /></AutoRedirect>} />
         <Route path="/features" element={<FeaturesPage />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/developers" element={<DevelopersPage />} />
@@ -192,8 +193,8 @@ export default function AppRouter() {
         } />
         
         {/* Auth Routes */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<AutoRedirect><Login /></AutoRedirect>} />
+        <Route path="/register" element={<AutoRedirect><Register /></AutoRedirect>} />
         <Route path="/onboarding" element={<OnboardingFlow />} />
         
         {/* Protected Dashboard Routes */}

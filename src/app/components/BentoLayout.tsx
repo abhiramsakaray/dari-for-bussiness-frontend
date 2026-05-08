@@ -84,7 +84,6 @@ const navGroups: NavGroup[] = [
     items: [
       { id: 'development', label: 'Development', icon: FileText, href: '/developer/guide' },
       { id: 'code-with-ai', label: 'Code with AI', icon: Command, href: '/developer/ai' },
-      { id: 'integrations', label: 'Integrations', icon: Settings, href: '/dashboard/integrations' },
       { id: 'settings', label: 'Settings', icon: Settings, href: '/dashboard/settings' },
     ],
   },
@@ -213,8 +212,6 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
           return true; // Available to all
         case 'settings':
           return permissions.canViewSettings;
-        case 'integrations':
-          return permissions.canViewIntegrations;
         default:
           return true;
       }
@@ -342,16 +339,6 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
 
           {/* Right Zone */}
           <div className="flex items-center gap-3">
-            <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-muted transition-dari">
-              <Search className="h-5 w-5 text-muted-foreground" />
-            </button>
-            <button className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-muted transition-dari relative">
-              <Bell className="h-5 w-5 text-muted-foreground" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full"></span>
-            </button>
-            
-            <div className="w-px h-5 bg-border mx-1"></div>
-
             {/* Account Dropdown */}
             <div className="relative" ref={dropdownRef}>
               <button
@@ -375,7 +362,7 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
                 >
                   {/* Header */}
                   <div className="px-3 py-2.5 mb-1">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-foreground flex items-center justify-center shrink-0">
                         <span className="text-[12px] font-mono font-medium text-white">{initials}</span>
                       </div>
@@ -383,9 +370,6 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
                         <div className="text-[13px] font-semibold text-foreground truncate">{merchantName}</div>
                         <div className="text-[11px] font-mono text-muted-foreground truncate">{merchantEmail}</div>
                       </div>
-                    </div>
-                    <div className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-muted border border-border">
-                      <span className="text-[10px] font-mono text-foreground">{organizationName} · Pro</span>
                     </div>
                   </div>
 

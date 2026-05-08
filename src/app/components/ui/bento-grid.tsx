@@ -12,9 +12,11 @@ const BentoGrid = React.forwardRef<HTMLDivElement, BentoGridProps>(
         ref={ref}
         className={cn(
           "grid gap-4 w-full",
-          columns === 12 && "grid-cols-12",
-          columns === 8 && "grid-cols-8",
-          columns === 6 && "grid-cols-6",
+          // Mobile: 1 column, Tablet: 2 columns, Desktop: full columns
+          "grid-cols-1 sm:grid-cols-2",
+          columns === 12 && "lg:grid-cols-12",
+          columns === 8 && "lg:grid-cols-8",
+          columns === 6 && "lg:grid-cols-6",
           className
         )}
         {...props}
@@ -38,19 +40,23 @@ const BentoCard = React.forwardRef<HTMLDivElement, BentoCardProps>(
         className={cn(
           "bg-card border border-border rounded-[20px] p-6 transition-all duration-[250ms]",
           hover && "hover:border-border-hover hover:shadow-[0_6px_24px_rgba(0,0,0,0.07)] hover:-translate-y-0.5",
-          // Column spans
-          span === 1 && "col-span-1",
-          span === 2 && "col-span-2",
-          span === 3 && "col-span-3",
-          span === 4 && "col-span-4",
-          span === 5 && "col-span-5",
-          span === 6 && "col-span-6",
-          span === 8 && "col-span-8",
-          span === 12 && "col-span-12",
+          // Mobile: always full width
+          "col-span-1",
+          // Tablet: 2 columns for smaller spans, full for larger
+          span <= 3 && "sm:col-span-1",
+          span > 3 && span < 12 && "sm:col-span-2",
+          span === 12 && "sm:col-span-2",
+          // Desktop: actual span values
+          span === 1 && "lg:col-span-1",
+          span === 2 && "lg:col-span-2",
+          span === 3 && "lg:col-span-3",
+          span === 4 && "lg:col-span-4",
+          span === 5 && "lg:col-span-5",
+          span === 6 && "lg:col-span-6",
+          span === 8 && "lg:col-span-8",
+          span === 12 && "lg:col-span-12",
           // Row spans
           rowSpan === 2 && "row-span-2",
-          // Responsive adjustments
-          "max-lg:col-span-full",
           className
         )}
         {...props}

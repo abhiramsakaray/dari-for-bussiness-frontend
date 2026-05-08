@@ -74,9 +74,9 @@ export function Dashboard() {
     <BentoLayout activePage="overview">
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-[32px] font-bold tracking-tight text-foreground">Overview</h1>
+            <h1 className="text-2xl sm:text-[32px] font-bold tracking-tight text-foreground">Overview</h1>
             <p className="text-[13px] text-muted-foreground mt-1">
               Monitor your payment activity and performance
             </p>
@@ -210,12 +210,6 @@ export function Dashboard() {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
                                 <span className="font-medium text-sm">{chainInfo.name}</span>
-                                <Badge
-                                  variant={wallet.is_active ? 'success' : 'default'}
-                                  className="text-xs"
-                                >
-                                  {wallet.is_active ? 'Active' : 'Inactive'}
-                                </Badge>
                               </div>
                               <div className="font-mono text-xs text-muted-foreground truncate">
                                 {wallet.wallet_address}
