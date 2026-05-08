@@ -1,11 +1,15 @@
 # Force XML files to be served with correct content-type
 <FilesMatch "\.(xml)$">
   Header set Content-Type "application/xml; charset=utf-8"
+  Header set X-Content-Type-Options "nosniff"
+  Header set Cache-Control "public, max-age=3600, must-revalidate"
 </FilesMatch>
 
 # Force text files to be served with correct content-type
 <FilesMatch "\.(txt)$">
   Header set Content-Type "text/plain; charset=utf-8"
+  Header set X-Content-Type-Options "nosniff"
+  Header set Cache-Control "public, max-age=3600, must-revalidate"
 </FilesMatch>
 
 # Enable rewrite engine for React Router

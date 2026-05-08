@@ -14,10 +14,15 @@ app.use(express.static(join(__dirname, 'dist'), {
     // Set proper content type for XML files
     if (path.endsWith('.xml')) {
       res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Access-Control-Allow-Origin', '*');
     }
     // Set proper content type for text files
     else if (path.endsWith('.txt')) {
       res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
     }
     // Default for HTML
     else if (path.endsWith('.html')) {
