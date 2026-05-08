@@ -9,7 +9,7 @@ const xmlContentTypePlugin = () => ({
   configureServer(server) {
     server.middlewares.use((req, res, next) => {
       if (req.url?.endsWith('.xml')) {
-        res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+        res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
       } else if (req.url?.endsWith('.txt')) {
         res.setHeader('Content-Type', 'text/plain; charset=utf-8');
       }
