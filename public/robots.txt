@@ -1,26 +1,27 @@
 # Robots.txt for Dari Payments
 # https://daripay.xyz
 
-# Allow all search engines to crawl public pages
-User-agent: *
-Allow: /
-Disallow: /dashboard
-Disallow: /admin
-Disallow: /api
-Disallow: /onboarding
-Disallow: /team
-Disallow: /debug
+# Sitemap location (must be at the top for best compatibility)
+Sitemap: https://daripay.xyz/sitemap.xml
 
-# Specific bot rules
+# Allow search engines to crawl public pages
 User-agent: Googlebot
 Allow: /
-Disallow: /dashboard
-Disallow: /admin
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /onboarding/
+Disallow: /team/
+Disallow: /debug/
 
 User-agent: Bingbot
 Allow: /
-Disallow: /dashboard
-Disallow: /admin
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /onboarding/
+Disallow: /team/
+Disallow: /debug/
 
 # Block AI training bots
 User-agent: GPTBot
@@ -53,8 +54,12 @@ Disallow: /
 User-agent: CloudflareBrowserRenderingCrawler
 Disallow: /
 
-# Sitemap location
-Sitemap: https://daripay.xyz/sitemap.xml
-
-# Crawl delay (optional, helps prevent server overload)
-Crawl-delay: 1
+# Default rule for all other bots
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /onboarding/
+Disallow: /team/
+Disallow: /debug/
