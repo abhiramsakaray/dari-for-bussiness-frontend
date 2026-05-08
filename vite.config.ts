@@ -36,12 +36,15 @@ export default defineConfig({
     include: ['react-router-dom'],
     exclude: ['react-hook-form', 'class-variance-authority'],
   },
+  publicDir: 'public', // Explicitly set public directory
   build: {
     rollupOptions: {
       output: {
         manualChunks: undefined,
       },
     },
+    // Ensure public files are copied
+    copyPublicDir: true,
   },
   server: {
     historyApiFallback: true,
