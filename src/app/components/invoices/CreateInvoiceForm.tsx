@@ -34,7 +34,7 @@ const CURRENCIES = [
   { code: 'TRY', label: 'Turkish Lira',      symbol: '₺',   flag: '🇹🇷' },
 ];
 
-const AVAILABLE_TOKENS = ['USDC', 'USDT', 'XLM', 'ETH', 'MATIC'];
+const AVAILABLE_TOKENS = ['USDC', 'USDT', 'PYUSD', 'EURC', 'AUDD', 'XLM', 'ETH', 'MATIC'];
 const AVAILABLE_CHAINS = ['stellar', 'polygon', 'ethereum', 'base', 'bsc', 'avalanche', 'tron', 'arbitrum', 'solana'];
 
 const lineItemSchema = z.object({

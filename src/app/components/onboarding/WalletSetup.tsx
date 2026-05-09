@@ -28,6 +28,8 @@ const AVAILABLE_TOKENS = [
   { id: 'USDC', name: 'USD Coin', description: 'Circle stablecoin' },
   { id: 'USDT', name: 'Tether', description: 'Most liquid stablecoin' },
   { id: 'PYUSD', name: 'PayPal USD', description: 'PayPal stablecoin' },
+  { id: 'EURC', name: 'Euro Coin', description: 'Circle euro stablecoin' },
+  { id: 'AUDD', name: 'AUD Digital', description: 'Australian dollar stablecoin' },
 ];
 
 export function WalletSetup({ onComplete }: WalletSetupProps) {

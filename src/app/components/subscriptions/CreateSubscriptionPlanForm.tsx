@@ -26,7 +26,7 @@ const CURRENCIES = [
   { code: 'INR', label: 'Indian Rupee', symbol: '₹', flag: '🇮🇳' },
 ];
 
-const AVAILABLE_TOKENS = ['USDC', 'USDT', 'XLM', 'ETH', 'MATIC'];
+const AVAILABLE_TOKENS = ['USDC', 'USDT', 'PYUSD', 'EURC', 'AUDD', 'XLM', 'ETH', 'MATIC'];
 const AVAILABLE_CHAINS = ['stellar', 'polygon', 'ethereum', 'base', 'bsc', 'avalanche', 'arbitrum', 'solana'];
 
 const INTERVALS = [

@@ -15,7 +15,7 @@ import { ArrowLeft } from 'lucide-react';
 
 // Removed navigateTo helper - using direct hash assignment for clarity
 
-const AVAILABLE_TOKENS = ['USDC', 'USDT', 'XLM', 'ETH', 'MATIC', 'DAI'];
+const AVAILABLE_TOKENS = ['USDC', 'USDT', 'PYUSD', 'EURC', 'AUDD', 'XLM', 'ETH', 'MATIC', 'DAI'];
 const AVAILABLE_CHAINS = ['stellar', 'polygon', 'ethereum', 'base', 'bsc', 'avalanche', 'tron', 'arbitrum', 'solana'];
 
 const CURRENCIES = [

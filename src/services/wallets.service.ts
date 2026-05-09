@@ -45,15 +45,15 @@ export const walletsService = {
 
 // Helper to get chain display info
 export const CHAIN_INFO: Record<string, { name: string; color: string; icon: string; tokens?: string[] }> = {
-  stellar: { name: 'Stellar', color: 'blue', icon: '⭐', tokens: ['USDC', 'XLM'] },
-  ethereum: { name: 'Ethereum', color: 'purple', icon: '⟠', tokens: ['USDC', 'USDT', 'ETH'] },
+  stellar: { name: 'Stellar', color: 'blue', icon: '⭐', tokens: ['USDC', 'USDT', 'PYUSD', 'EURC', 'AUDD', 'XLM'] },
+  ethereum: { name: 'Ethereum', color: 'purple', icon: '⟠', tokens: ['USDC', 'USDT', 'PYUSD', 'EURC', 'AUDD', 'ETH'] },
   polygon: { name: 'Polygon', color: 'violet', icon: '⬡', tokens: ['USDC', 'USDT', 'MATIC'] },
-  base: { name: 'Base', color: 'indigo', icon: '🔵', tokens: ['USDC', 'ETH'] },
+  base: { name: 'Base', color: 'indigo', icon: '??', tokens: ['USDC', 'EURC', 'AUDD', 'ETH'] },
   bsc: { name: 'BNB Smart Chain', color: 'yellow', icon: '🔶', tokens: ['USDC', 'USDT', 'BNB'] },
-  avalanche: { name: 'Avalanche', color: 'red', icon: '🔺', tokens: ['USDC', 'USDT', 'AVAX'] },
+  avalanche: { name: 'Avalanche', color: 'red', icon: '??', tokens: ['USDC', 'USDT', 'EURC', 'AVAX'] },
   tron: { name: 'Tron', color: 'red', icon: '◆', tokens: ['USDT', 'TRX'] },
-  arbitrum: { name: 'Arbitrum', color: 'blue', icon: '🔷', tokens: ['USDC', 'USDT', 'ETH'] },
-  solana: { name: 'Solana', color: 'purple', icon: '◎', tokens: ['USDC', 'USDT', 'SOL'] },
+  arbitrum: { name: 'Arbitrum', color: 'blue', icon: '🔷', tokens: ['USDC', 'USDT', 'PYUSD', 'EURC', 'AUDD', 'ETH'] },
+  solana: { name: 'Solana', color: 'purple', icon: '?', tokens: ['USDC', 'USDT', 'EURC', 'AUDD', 'SOL'] },
 };
 
 // Block explorer base URLs per chain (mainnet)
