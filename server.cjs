@@ -23,7 +23,14 @@ app.use(express.static(path.join(__dirname, "dist"), {
 }));
 
 // SPA fallback (React/Vite routing)
-// BUT exclude static files like sitemap.xml, robots.txt, etc.
+
+// Explicitly handle case-insensitive sitemap requests (e.g. sItemap.xml)
+app.get(/sitemap\.xml$/i, (req, res) => {
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+  res.sendFile(path.join(__dirname, "dist", "sitemap.xml"));
+});
+
+// BUT exclude static files like robots.txt, etc.
 app.get("*", (req, res) => {
   // Don't redirect if it's a static file request
   if (req.path.match(/\.(xml|txt|json|ico|png|jpg|jpeg|gif|svg|css|js|woff|woff2|ttf|eot)$/)) {
