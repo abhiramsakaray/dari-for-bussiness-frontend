@@ -13,7 +13,7 @@ app.use(express.static(join(__dirname, 'dist'), {
   setHeaders: (res, path) => {
     // Set proper content type for XML files (use text/xml for better compatibility)
     if (path.endsWith('.xml')) {
-      res.setHeader('Content-Type', 'text/xml; charset=UTF-8');
+      res.setHeader('Content-Type', 'application/xml; charset=UTF-8');
       res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
       res.setHeader('X-Content-Type-Options', 'nosniff');
       res.setHeader('Access-Control-Allow-Origin', '*');

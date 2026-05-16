@@ -1,6 +1,6 @@
 # Force XML files to be served with correct content-type
 <FilesMatch "\.(xml)$">
-  Header set Content-Type "text/xml; charset=UTF-8"
+  Header set Content-Type "application/xml; charset=UTF-8"
   Header set X-Content-Type-Options "nosniff"
   Header set Cache-Control "public, max-age=3600, must-revalidate"
 </FilesMatch>

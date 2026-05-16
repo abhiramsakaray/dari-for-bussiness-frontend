@@ -2,6 +2,45 @@ import { LandingLayout } from './LandingLayout';
 import { Link } from 'react-router-dom';
 import { SEO, organizationSchema, websiteSchema } from '../../../components/SEO';
 
+const supportedBlockchains = [
+  { name: 'Ethereum', icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.svg?v=032' },
+  { name: 'Base', icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/base/info/logo.png' },
+  { name: 'Solana', icon: 'https://cryptologos.cc/logos/solana-sol-logo.svg?v=032' },
+  { name: 'Polygon', icon: 'https://cryptologos.cc/logos/polygon-matic-logo.svg?v=032' },
+  { name: 'BNB Chain', icon: 'https://cryptologos.cc/logos/bnb-bnb-logo.svg?v=032' },
+  { name: 'Arbitrum', icon: 'https://cryptologos.cc/logos/arbitrum-arb-logo.svg?v=032' },
+  { name: 'Avalanche', icon: 'https://cryptologos.cc/logos/avalanche-avax-logo.svg?v=032' },
+  { name: 'Stellar', icon: 'https://cryptologos.cc/logos/stellar-xlm-logo.svg?v=032' },
+];
+
+const supportedStablecoins = [
+  { name: 'USDC', icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png' },
+  { name: 'USDT', icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png' },
+  { name: 'PYUSD', icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6c3ea9036406852006290770BEdFcAbA0e23A0e8/logo.png' },
+  { name: 'EURC', icon: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c/logo.png' },
+  { name: 'AUDD', icon: 'https://pbs.twimg.com/profile_images/1970637798224138240/ZtQsnSTb_400x400.jpg' },
+];
+
+const supportedWallets = [
+  { name: 'MetaMask', domain: 'metamask.io' },
+  { name: 'Trust Wallet', domain: 'trustwallet.com' },
+  { name: 'Coinbase Wallet', domain: 'coinbase.com' },
+  { name: 'Phantom', domain: 'phantom.app' },
+  { name: 'Rabby', domain: 'rabby.io' },
+  { name: 'Exodus', domain: 'exodus.com' },
+  { name: 'Rainbow', domain: 'rainbow.me' },
+  { name: 'Backpack', domain: 'backpack.app' },
+  { name: 'Ledger', domain: 'ledger.com' },
+  { name: 'Trezor', domain: 'trezor.io' },
+  { name: 'OKX Wallet', domain: 'okx.com' },
+  { name: 'SafePal', domain: 'safepal.com' },
+  { name: 'Bitget Wallet', domain: 'web3.bitget.com' },
+  { name: 'TokenPocket', domain: 'tokenpocket.pro' },
+  { name: 'MathWallet', domain: 'mathwallet.org', customIcon: 'https://avatars.githubusercontent.com/u/38073584?v=4' },
+  { name: 'Atomic Wallet', domain: 'atomicwallet.io' },
+  { name: 'LOBSTR', domain: 'lobstr.co' },
+];
+
 export function NewLanding() {
   const combinedSchema = {
     '@context': 'https://schema.org',
@@ -12,7 +51,7 @@ export function NewLanding() {
         '@type': 'WebPage',
         '@id': 'https://daripay.xyz/#webpage',
         url: 'https://daripay.xyz/',
-        name: 'Dari for Business — Stablecoin Payment Infrastructure',
+        name: 'Dari Payments — Stablecoin Payment Infrastructure',
         description: 'Accept crypto payments with Dari. Multi-chain payment gateway for stablecoins (USDC, USDT). Payment links, invoicing, subscriptions, and more.',
         inLanguage: 'en-US',
       },
@@ -63,22 +102,52 @@ export function NewLanding() {
         </div>
       </section>
 
-      {/* Logos Ticker */}
-      <div className="border-t border-b border-gray-200 py-5 overflow-hidden bg-white">
-        <div className="flex items-center gap-0">
-          <span className="font-mono text-xs text-gray-500 whitespace-nowrap tracking-widest uppercase px-6 flex-shrink-0 border-r border-gray-200">
-            Supported
-          </span>
-          <div className="flex-1 overflow-hidden relative">
-            <div className="flex gap-0 animate-scroll">
-              {['USDT', 'USDC', 'ERC-20', 'SOL', 'POLYGON', 'BEP-20', 'TRON', 'ARBITRUM', 'BASE', 'OPTIMISM'].map((token, i) => (
-                <span
-                  key={i}
-                  className="font-mono text-xs text-gray-500 border border-gray-200 px-4 py-1.5 rounded-md whitespace-nowrap tracking-wider mx-1.5 bg-white hover:border-gray-400 hover:text-black transition-all"
-                >
-                  {token}
-                </span>
+      {/* Integrations Grid */}
+      <div className="py-24 bg-white border-t border-b border-gray-200">
+        <div className="max-w-[1160px] mx-auto px-6 text-center">
+          <p className="font-mono text-xs text-gray-500 tracking-widest uppercase mb-6">Compatible Ecosystem</p>
+          <h3 className="text-3xl lg:text-4xl font-bold tracking-tight text-black mb-32">Works with your favorite wallets & chains</h3>
+          
+          {/* Stablecoins Grid */}
+          <div className="mb-20">
+            <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-16">Supported Stablecoins</h4>
+            <div className="flex flex-wrap justify-center gap-x-12 gap-y-12">
+              {supportedStablecoins.map((coin, i) => (
+                <div key={i} className="flex flex-col items-center gap-5 transition-all cursor-default grayscale hover:grayscale-0 hover:scale-105 duration-300 w-24">
+                  <img src={coin.icon} alt={coin.name} className={`w-16 h-16 object-contain ${coin.name === 'AUDD' ? 'rounded-full' : ''}`} />
+                  <span className="text-sm font-medium text-gray-600 text-center">{coin.name}</span>
+                </div>
               ))}
+            </div>
+          </div>
+
+          {/* Blockchains Grid */}
+          <div className="mb-20">
+            <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-16">Supported Chains</h4>
+            <div className="flex flex-wrap justify-center gap-x-12 gap-y-12">
+              {supportedBlockchains.map((chain, i) => (
+                <div key={i} className="flex flex-col items-center gap-5 transition-all cursor-default grayscale hover:grayscale-0 hover:scale-105 duration-300 w-24">
+                  <img src={chain.icon} alt={chain.name} className="w-16 h-16 object-contain" />
+                  <span className="text-sm font-medium text-gray-600 text-center">{chain.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Wallets Marquee */}
+          <div className="relative">
+            <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-16">Supported Wallets</h4>
+            <div className="relative flex overflow-hidden">
+              <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+              <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+              <div className="flex w-max animate-scroll-left hover:pause pb-4 pt-2">
+                {[...supportedWallets, ...supportedWallets, ...supportedWallets].map((wallet, i) => (
+                  <div key={i} className="flex flex-col items-center gap-5 mx-6 transition-all cursor-default grayscale hover:grayscale-0 hover:scale-105 duration-300 w-24">
+                    <img src={wallet.customIcon || `https://icon.horse/icon/${wallet.domain}`} alt={wallet.name} className="w-16 h-16 object-contain" />
+                    <span className="text-sm font-medium text-gray-600 text-center leading-tight">{wallet.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -328,16 +397,16 @@ export function NewLanding() {
         </div>
       </section>
 
+
       <style>{`
-        @keyframes scroll {
+        @keyframes scroll-left {
           0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+          100% { transform: translateX(-33.3333%); }
         }
-        .animate-scroll {
-          animation: scroll 22s linear infinite;
-          width: max-content;
+        .animate-scroll-left {
+          animation: scroll-left 45s linear infinite;
         }
-        .animate-scroll:hover {
+        .hover\\:pause:hover {
           animation-play-state: paused;
         }
       `}</style>
