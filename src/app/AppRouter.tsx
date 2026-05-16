@@ -130,7 +130,7 @@ export default function AppRouter() {
             label="Legal" 
             title="Anti-Money Laundering Policy" 
             subtitle="Our commitment to preventing financial crime." 
-            content="Dari for Business is committed to preventing money laundering and terrorist financing. We comply with all applicable AML regulations and work with licensed partners to ensure regulatory compliance. We implement KYC procedures, transaction monitoring, and suspicious activity reporting in accordance with local and international regulations." 
+            content="Dari Payments is committed to preventing money laundering and terrorist financing. We comply with all applicable AML regulations and work with licensed partners to ensure regulatory compliance. We implement KYC procedures, transaction monitoring, and suspicious activity reporting in accordance with local and international regulations." 
           />
         } />
         <Route path="/compliance" element={

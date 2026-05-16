@@ -5,13 +5,13 @@ export function TermsOfServicePage() {
     <GenericPage
       label="Legal"
       title="Terms of Service"
-      subtitle="The terms and conditions for using Dari for Business."
+      subtitle="The terms and conditions for using Dari Payments."
     >
       <div className="space-y-8">
         <div>
           <h2 className="text-2xl font-bold mb-4 text-black">1. Acceptance of Terms</h2>
           <p className="text-sm text-gray-600 leading-relaxed mb-4">
-            By accessing and using Dari for Business, you accept and agree to be bound by the
+            By accessing and using Dari Payments, you accept and agree to be bound by the
             terms and provision of this agreement.
           </p>
         </div>
@@ -51,7 +51,7 @@ export function TermsOfServicePage() {
         <div>
           <h2 className="text-2xl font-bold mb-4 text-black">6. Limitation of Liability</h2>
           <p className="text-sm text-gray-600 leading-relaxed mb-4">
-            To the maximum extent permitted by law, Dari for Business shall not be liable for
+            To the maximum extent permitted by law, Dari Payments shall not be liable for
             any indirect, incidental, special, consequential, or punitive damages.
           </p>
         </div>

@@ -4,7 +4,7 @@ export function AboutPage() {
   return (
     <GenericPage
       label="Company"
-      title="About Dari for Business"
+      title="About Dari Payments"
       subtitle="Building the future of stablecoin payments for global businesses."
     >
       <div className="space-y-8">

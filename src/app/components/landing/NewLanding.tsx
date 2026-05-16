@@ -61,7 +61,7 @@ export function NewLanding() {
   return (
     <>
       <SEO
-        title="Dari for Business — Stablecoin Payment Infrastructure"
+        title="Dari Payments — Stablecoin Payment Infrastructure"
         description="Accept crypto payments with Dari. Multi-chain payment gateway for stablecoins (USDC, USDT). Payment links, invoicing, subscriptions, and more. Start accepting crypto in minutes."
         keywords="crypto payments, stablecoin payments, USDC payments, USDT payments, crypto payment gateway, blockchain payments, web3 payments, crypto invoicing, crypto subscriptions, payment links, multi-chain payments, polygon payments, ethereum payments, stellar payments, solana payments"
         url="https://daripay.xyz"

@@ -103,7 +103,7 @@ Updated `ROLE_CONFIG` to use consistent brand colors:
 ## 📊 Fix 3: Billing & Plans Page
 
 ### Issue
-No way to manage Dari for Business subscription, view pricing, upgrade, or check usage.
+No way to manage Dari Payments subscription, view pricing, upgrade, or check usage.
 
 ### Solution
 Added "Billing & Plans" to the sidebar navigation.

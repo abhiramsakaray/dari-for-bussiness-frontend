@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Dari for Business platform now includes a complete subscription-based pricing model with feature gating. Users select their plan during onboarding and can upgrade/downgrade anytime through the billing portal.
+The Dari Payments platform now includes a complete subscription-based pricing model with feature gating. Users select their plan during onboarding and can upgrade/downgrade anytime through the billing portal.
 
 ## What's Implemented
 

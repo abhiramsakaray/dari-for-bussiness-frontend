@@ -1,7 +1,7 @@
-# Dari for Business Design System - React/TypeScript Implementation
+# Dari Payments Design System - React/TypeScript Implementation
 
 ## Overview
-This design system maintains complete visual and interaction consistency with the Dari for Business website. All components follow the professional, minimalist, and trust-focused aesthetic.
+This design system maintains complete visual and interaction consistency with the Dari Payments website. All components follow the professional, minimalist, and trust-focused aesthetic.
 
 ## Typography
 

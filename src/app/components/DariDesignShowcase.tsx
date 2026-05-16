@@ -44,7 +44,7 @@ export function DariDesignShowcase() {
         <div className="space-y-2">
           <h1 className="text-page-title">Dari Design System</h1>
           <p className="text-body text-muted-foreground">
-            Complete implementation of the Dari for Business design system in React + TypeScript + Tailwind CSS
+            Complete implementation of the Dari Payments design system in React + TypeScript + Tailwind CSS
           </p>
         </div>
 

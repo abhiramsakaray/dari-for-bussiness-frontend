@@ -11,7 +11,7 @@ interface SEOProps {
 }
 
 export function SEO({
-  title = 'Dari for Business — Stablecoin Payment Infrastructure',
+  title = 'Dari Payments — Stablecoin Payment Infrastructure',
   description = 'Accept crypto payments with Dari. Multi-chain payment gateway for stablecoins (USDC, USDT). Payment links, invoicing, subscriptions, and more. Start accepting crypto in minutes.',
   keywords = 'crypto payments, stablecoin payments, USDC payments, USDT payments, crypto payment gateway, blockchain payments, web3 payments, crypto invoicing, crypto subscriptions, payment links, multi-chain payments, polygon payments, ethereum payments, stellar payments',
   image = 'https://daripay.xyz/og-image.png',
@@ -19,7 +19,7 @@ export function SEO({
   type = 'website',
   structuredData,
 }: SEOProps) {
-  const fullTitle = title.includes('Dari') ? title : `${title} | Dari for Business`;
+  const fullTitle = title.includes('Dari') ? title : `${title} | Dari Payments`;
 
   useEffect(() => {
     // Update title
@@ -63,7 +63,7 @@ export function SEO({
     updateMeta('meta[property="og:title"]', 'property', fullTitle);
     updateMeta('meta[property="og:description"]', 'property', description);
     updateMeta('meta[property="og:image"]', 'property', image);
-    updateMeta('meta[property="og:site_name"]', 'property', 'Dari for Business');
+    updateMeta('meta[property="og:site_name"]', 'property', 'Dari Payments');
 
     // Twitter
     updateMeta('meta[property="twitter:card"]', 'property', 'summary_large_image');
@@ -98,7 +98,7 @@ export function SEO({
 export const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'Dari for Business',
+  name: 'Dari Payments',
   alternateName: 'Dari Payments',
   url: 'https://daripay.xyz',
   logo: 'https://daripay.xyz/daripayments_green_logo.png',
@@ -125,7 +125,7 @@ export const organizationSchema = {
 export const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: 'Dari for Business',
+  name: 'Dari Payments',
   url: 'https://daripay.xyz',
   potentialAction: {
     '@type': 'SearchAction',
@@ -137,7 +137,7 @@ export const websiteSchema = {
 export const softwareApplicationSchema = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: 'Dari for Business',
+  name: 'Dari Payments',
   applicationCategory: 'FinanceApplication',
   operatingSystem: 'Web',
   offers: {
@@ -190,7 +190,7 @@ export const productSchema = (product: {
   description: product.description,
   brand: {
     '@type': 'Brand',
-    name: 'Dari for Business',
+    name: 'Dari Payments',
   },
   offers: product.price
     ? {

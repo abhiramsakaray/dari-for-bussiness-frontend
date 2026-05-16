@@ -1,7 +1,7 @@
-# SEO Setup Guide for Dari for Business
+# SEO Setup Guide for Dari Payments
 
 ## Overview
-This document outlines the SEO implementation for Dari for Business to achieve high search engine rankings and rich search results with sitelinks (like Hostinger example).
+This document outlines the SEO implementation for Dari Payments to achieve high search engine rankings and rich search results with sitelinks (like Hostinger example).
 
 ## Files Created
 
@@ -33,7 +33,7 @@ export function NewLanding() {
   return (
     <>
       <SEO
-        title="Dari for Business — Stablecoin Payment Infrastructure"
+        title="Dari Payments — Stablecoin Payment Infrastructure"
         description="Accept crypto payments with Dari. Multi-chain payment gateway for stablecoins (USDC, USDT). Payment links, invoicing, subscriptions, and more."
         keywords="crypto payments, stablecoin payments, USDC, USDT, payment gateway"
         url="https://daripay.xyz"

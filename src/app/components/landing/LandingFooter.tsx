@@ -163,7 +163,7 @@ export function LandingFooter() {
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row items-center justify-between py-6 gap-4">
           <p className="text-xs text-gray-400 font-mono">
-            © 2024 Dari for Business. All rights reserved.
+            © 2024 Dari Payments. All rights reserved.
           </p>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-mono text-xs text-gray-500 mr-1">Supported:</span>
