@@ -211,49 +211,43 @@ export function NewLanding() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
             {/* Instant Settlement - Wide */}
             <div className="md:col-span-2 bg-white border border-gray-200 rounded-2xl p-8 hover:border-gray-300 hover:shadow-lg transition-all">
-              <div className="w-10 h-10 border border-gray-200 rounded-lg flex items-center justify-center mb-5 bg-white">
-                <svg className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                </svg>
-              </div>
-              <div className="text-sm font-semibold tracking-tight mb-2 text-black">
-                Instant Settlement
-              </div>
-              <div className="text-xs text-gray-500 leading-relaxed">
-                Funds land in your wallet the moment a payment clears. No T+2 delays, no chargebacks, no intermediaries.
-              </div>
-              <div className="font-mono text-4xl font-light text-black mt-5 mb-0.5 tracking-tight">
-                ~2s
-              </div>
-              <div className="text-xs text-gray-500 font-mono">
-                // avg. settlement time
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <div>
+                  <div className="w-10 h-10 border border-gray-200 rounded-lg flex items-center justify-center mb-5 bg-white">
+                    <svg className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                    </svg>
+                  </div>
+                  <div className="text-sm font-semibold tracking-tight mb-2 text-black">
+                    Instant Settlement
+                  </div>
+                  <div className="text-xs text-gray-500 leading-relaxed mb-4">
+                    Funds land in your wallet the moment a payment clears. No T+2 delays, no chargebacks, no intermediaries.
+                  </div>
+                  <div className="font-mono text-4xl font-light text-black mt-5 mb-0.5 tracking-tight">
+                    ~2s
+                  </div>
+                  <div className="text-xs text-gray-500 font-mono">
+                    // avg. settlement time
+                  </div>
+                </div>
+                <div>
+                  <img 
+                    src="/overview.jpeg" 
+                    alt="Dari Payments Dashboard Overview" 
+                    className="w-full h-auto rounded-lg border border-gray-100"
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Analytics */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-8 hover:border-gray-300 hover:shadow-lg transition-all">
-              <div className="w-10 h-10 border border-gray-200 rounded-lg flex items-center justify-center mb-5 bg-white">
-                <svg className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="18" y1="20" x2="18" y2="10" />
-                  <line x1="12" y1="20" x2="12" y2="4" />
-                  <line x1="6" y1="20" x2="6" y2="14" />
-                </svg>
-              </div>
-              <div className="text-sm font-semibold tracking-tight mb-2 text-black">
-                Analytics Dashboard
-              </div>
-              <div className="text-xs text-gray-500 leading-relaxed">
-                Real-time revenue tracking, transaction history, and chain-level insights.
-              </div>
-              <div className="flex items-end gap-1 h-14 mt-5">
-                {[28, 48, 38, 72, 52, 88, 62, 78, 44, 95].map((height, i) => (
-                  <div
-                    key={i}
-                    className={`flex-1 rounded-t ${i % 3 === 0 ? 'bg-black' : i % 2 === 0 ? 'bg-gray-400' : 'bg-gray-200'}`}
-                    style={{ height: `${height}%` }}
-                  ></div>
-                ))}
-              </div>
+            {/* Analytics - Image Only */}
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-gray-300 hover:shadow-lg transition-all">
+              <img 
+                src="/analytics.jpeg" 
+                alt="Analytics Dashboard" 
+                className="w-full h-full object-cover"
+              />
             </div>
 
             {/* Payment Links */}
@@ -272,22 +266,22 @@ export function NewLanding() {
               </div>
             </div>
 
-            {/* Subscriptions */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-8 hover:border-gray-300 hover:shadow-lg transition-all">
-              <div className="w-10 h-10 border border-gray-200 rounded-lg flex items-center justify-center mb-5 bg-white">
-                <svg className="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="17 1 21 5 17 9" />
-                  <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-                  <polyline points="7 23 3 19 7 15" />
-                  <path d="M21 13v2a4 4 0 0 1-4 4H3" />
-                </svg>
-              </div>
-              <div className="text-sm font-semibold tracking-tight mb-2 text-black">
-                Subscription Billing
-              </div>
-              <div className="text-xs text-gray-500 leading-relaxed">
-                Recurring stablecoin payments with smart retry logic, auto-routing, and webhook notifications.
-              </div>
+            {/* Subscriptions - Image Only */}
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-gray-300 hover:shadow-lg transition-all">
+              <img 
+                src="/subscriptions.jpeg" 
+                alt="Subscription Billing" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {/* Local Currencies - Image Only */}
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-gray-300 hover:shadow-lg transition-all">
+              <img 
+                src="/currencies.jpeg" 
+                alt="Local Currencies Support" 
+                className="w-full h-full object-cover"
+              />
             </div>
 
             {/* Multi-chain - Wide */}
