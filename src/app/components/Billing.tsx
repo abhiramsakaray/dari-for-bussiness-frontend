@@ -30,6 +30,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { PlanTier } from '../../services/billing.service';
+import { teamAuthService } from '../../services/teamAuth.service';
 
 export function Billing() {
   const { billingInfo, isLoading, error, changePlan, changePlanAsync, isChangingPlan } = useBilling();
@@ -103,7 +104,19 @@ export function Billing() {
         const response = await changePlanAsync(selectedPlanForUpgrade);
         if (response && response.payment_link) {
           const successUrl = `${window.location.origin}/#/billing?payment_success=true`;
-          window.location.href = `${response.payment_link}?success_url=${encodeURIComponent(successUrl)}`;
+          let targetUrl = `${response.payment_link}?success_url=${encodeURIComponent(successUrl)}`;
+          
+          const currentUser = teamAuthService.getCurrentUser();
+          if (currentUser) {
+            if (currentUser.email) {
+              targetUrl += `&email=${encodeURIComponent(currentUser.email)}`;
+            }
+            if (currentUser.name) {
+              targetUrl += `&name=${encodeURIComponent(currentUser.name)}`;
+            }
+          }
+          
+          window.location.href = targetUrl;
         }
       } catch (err) {
         console.error('Plan change error:', err);
