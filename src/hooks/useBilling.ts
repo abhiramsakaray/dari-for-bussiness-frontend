@@ -32,9 +32,13 @@ export function useBilling() {
 
   const changePlanMutation = useMutation({
     mutationFn: (planId: PlanTier) => billingService.changePlan(planId),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['billing'] });
-      toast.success('Plan changed successfully!');
+      if (data && data.payment_link) {
+        // Handled in components via redirect
+      } else {
+        toast.success('Plan changed successfully!');
+      }
     },
     onError: (error: any) => {
       toast.error(getErrorMessage(error) || 'Failed to change plan');
@@ -69,6 +73,7 @@ export function useBilling() {
     isLoading,
     error,
     changePlan: changePlanMutation.mutate,
+    changePlanAsync: changePlanMutation.mutateAsync,
     cancelSubscription: cancelSubscriptionMutation.mutate,
     reactivateSubscription: reactivateSubscriptionMutation.mutate,
     isChangingPlan: changePlanMutation.isPending,

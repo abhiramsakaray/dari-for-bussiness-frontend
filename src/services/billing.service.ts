@@ -118,7 +118,14 @@ export const billingService = {
 
   // Upgrade/downgrade plan
   changePlan: async (planId: PlanTier) => {
-    const response = await api.post<{ message: string; subscription: Subscription }>(
+    const response = await api.post<{
+      message: string;
+      new_tier: string;
+      new_monthly_price: number;
+      effective_date: string;
+      prorated_amount: number | null;
+      payment_link?: string;
+    }>(
       '/billing/change-plan',
       { plan: planId }
     );

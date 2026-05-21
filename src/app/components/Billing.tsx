@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useBilling } from '../../hooks/useBilling';
+import { toast } from 'sonner';
 import { useMerchantCurrency } from '../../hooks/useMerchantCurrency';
 import { BentoLayout } from "./BentoLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -31,10 +32,24 @@ import {
 import { PlanTier } from '../../services/billing.service';
 
 export function Billing() {
-  const { billingInfo, isLoading, error, changePlan, isChangingPlan } = useBilling();
+  const { billingInfo, isLoading, error, changePlan, changePlanAsync, isChangingPlan } = useBilling();
   const { currencySymbol } = useMerchantCurrency();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [selectedPlanForUpgrade, setSelectedPlanForUpgrade] = useState<PlanTier | null>(null);
+
+  React.useEffect(() => {
+    // Check if redirecting back from a successful subscription payment
+    const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || window.location.search);
+    const paymentSuccess = urlParams.get('payment_success');
+    
+    if (paymentSuccess === 'true') {
+      toast.success('Subscription upgrade pending payment verification...');
+      
+      // Clean up URL query parameters
+      const newUrl = window.location.href.split('?')[0];
+      window.history.replaceState({}, document.title, newUrl);
+    }
+  }, []);
 
   if (isLoading) {
     return (
@@ -82,10 +97,19 @@ export function Billing() {
     setSelectedPlanForUpgrade(planId);
   };
 
-  const confirmPlanChange = () => {
+  const confirmPlanChange = async () => {
     if (selectedPlanForUpgrade) {
-      changePlan(selectedPlanForUpgrade);
-      setSelectedPlanForUpgrade(null);
+      try {
+        const response = await changePlanAsync(selectedPlanForUpgrade);
+        if (response && response.payment_link) {
+          const successUrl = `${window.location.origin}/#/billing?payment_success=true`;
+          window.location.href = `${response.payment_link}?success_url=${encodeURIComponent(successUrl)}`;
+        }
+      } catch (err) {
+        console.error('Plan change error:', err);
+      } finally {
+        setSelectedPlanForUpgrade(null);
+      }
     }
   };
 
