@@ -13,7 +13,7 @@ export function WebhooksPage() {
   return (
     <GenericPage
       label="Webhooks"
-      title="Webhooks"
+      title="Webhooks — Real-time Payment Event Notifications"
       subtitle="Real-time notifications for payment events."
     >
       <div className="space-y-8">

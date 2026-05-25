@@ -1,4 +1,5 @@
 import { LandingLayout } from './LandingLayout';
+import { SEO, faqSchema } from '../../../components/SEO';
 import { PageHeader } from './PageHeader';
 
 export function PricingPage() {
@@ -91,6 +92,17 @@ export function PricingPage() {
   ];
 
   return (
+    <>
+    <SEO 
+      title="Pricing — Transparent Stablecoin Payment Fees" 
+      description="Start free. Scale as you grow. Transparent, tiered pricing for stablecoin payments. No hidden fees, no monthly minimums. Cancel anytime."
+      url="https://daripay.xyz/pricing"
+      structuredData={faqSchema([
+        { question: 'Is there a free plan?', answer: 'Yes. Our Starter plan is free forever with 1% transaction fees. No monthly charges.' },
+        { question: 'What are the transaction fees?', answer: 'Transaction fees range from 1% on the free plan to 0.5% on the Enterprise plan. No hidden fees.' },
+        { question: 'Can I cancel anytime?', answer: 'Yes. All plans are month-to-month with no long-term contracts. Cancel anytime from your dashboard.' },
+      ])}
+    />
     <LandingLayout>
       <PageHeader
         label="Pricing"
@@ -155,5 +167,6 @@ export function PricingPage() {
         </div>
       </section>
     </LandingLayout>
+    </>
   );
 }

@@ -16,6 +16,7 @@ import { chainpeService } from "../../services/chainpe";
 import { apiClient } from "../../lib/api-client";
 import { extractErrorMessage } from "../../lib/utils";
 import { toast } from "sonner";
+import { SEO } from "../../components/SEO";
 
 export function Register() {
   const navigate = useNavigate();
@@ -74,7 +75,13 @@ export function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <>
+      <SEO 
+        title="Register" 
+        description="Create your free Dari Payments merchant account to start accepting stablecoin payments across multiple chains today."
+        url="https://daripay.xyz/register"
+      />
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Back to Home */}
         <Link
@@ -180,5 +187,6 @@ export function Register() {
         </Card>
       </div>
     </div>
+    </>
   );
 }

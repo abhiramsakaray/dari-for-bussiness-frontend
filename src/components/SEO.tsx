@@ -14,7 +14,7 @@ export function SEO({
   title = 'Dari Payments — Stablecoin Payment Infrastructure',
   description = 'Accept crypto payments with Dari. Multi-chain payment gateway for stablecoins (USDC, USDT). Payment links, invoicing, subscriptions, and more. Start accepting crypto in minutes.',
   keywords = 'crypto payments, stablecoin payments, USDC payments, USDT payments, crypto payment gateway, blockchain payments, web3 payments, crypto invoicing, crypto subscriptions, payment links, multi-chain payments, polygon payments, ethereum payments, stellar payments',
-  image = 'https://daripay.xyz/og-image.png',
+  image = 'https://daripay.xyz/og-image.jpeg',
   url = 'https://daripay.xyz',
   type = 'website',
   structuredData,
@@ -81,10 +81,11 @@ export function SEO({
 
     // Structured Data
     if (structuredData) {
-      let script = document.querySelector('script[type="application/ld+json"]');
+      let script = document.querySelector('script#seo-structured-data');
       if (!script) {
         script = document.createElement('script');
         script.setAttribute('type', 'application/ld+json');
+        script.setAttribute('id', 'seo-structured-data');
         document.head.appendChild(script);
       }
       script.textContent = JSON.stringify(structuredData);
@@ -104,17 +105,11 @@ export const organizationSchema = {
   logo: 'https://daripay.xyz/daripayments_green_logo.png',
   description: 'Stablecoin payment infrastructure for businesses. Accept crypto payments with multi-chain support.',
   foundingDate: '2024',
-  contactPoint: {
-    '@type': 'ContactPoint',
-    telephone: '+1-XXX-XXX-XXXX',
-    contactType: 'Customer Service',
-    email: 'support@daripay.xyz',
-    availableLanguage: ['English'],
-  },
+
   sameAs: [
     'https://twitter.com/daripayments',
     'https://linkedin.com/company/dari-payments',
-    'https://github.com/daripayments',
+    'https://github.com/Dari-Organization',
   ],
   address: {
     '@type': 'PostalAddress',
@@ -127,11 +122,6 @@ export const websiteSchema = {
   '@type': 'WebSite',
   name: 'Dari Payments',
   url: 'https://daripay.xyz',
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: 'https://daripay.xyz/search?q={search_term_string}',
-    'query-input': 'required name=search_term_string',
-  },
 };
 
 export const softwareApplicationSchema = {
@@ -146,11 +136,7 @@ export const softwareApplicationSchema = {
     priceCurrency: 'USD',
     description: 'Free tier available with paid plans starting from $29/month',
   },
-  aggregateRating: {
-    '@type': 'AggregateRating',
-    ratingValue: '4.8',
-    ratingCount: '150',
-  },
+
   description: 'Accept crypto payments with Dari. Multi-chain payment gateway for stablecoins.',
 };
 

@@ -1,6 +1,6 @@
 import { LandingLayout } from './LandingLayout';
 import { Link } from 'react-router-dom';
-import { SEO, organizationSchema, websiteSchema } from '../../../components/SEO';
+import { SEO, organizationSchema, websiteSchema, faqSchema } from '../../../components/SEO';
 
 const supportedBlockchains = [
   { name: 'Ethereum', icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.svg?v=032' },
@@ -55,15 +55,65 @@ export function NewLanding() {
         description: 'Accept crypto payments with Dari. Multi-chain payment gateway for stablecoins (USDC, USDT). Payment links, invoicing, subscriptions, and more.',
         inLanguage: 'en-US',
       },
+      {
+        '@type': 'ItemList',
+        '@id': 'https://daripay.xyz/#navigation-list',
+        'name': 'Sitelinks Navigation',
+        'itemListElement': [
+          {
+            '@type': 'SiteNavigationElement',
+            'position': 1,
+            'name': 'Features',
+            'url': 'https://daripay.xyz/features'
+          },
+          {
+            '@type': 'SiteNavigationElement',
+            'position': 2,
+            'name': 'Pricing',
+            'url': 'https://daripay.xyz/pricing'
+          },
+          {
+            '@type': 'SiteNavigationElement',
+            'position': 3,
+            'name': 'Developers',
+            'url': 'https://daripay.xyz/developers'
+          },
+          {
+            '@type': 'SiteNavigationElement',
+            'position': 4,
+            'name': 'About Us',
+            'url': 'https://daripay.xyz/about'
+          },
+          {
+            '@type': 'SiteNavigationElement',
+            'position': 5,
+            'name': 'Login',
+            'url': 'https://daripay.xyz/login'
+          },
+          {
+            '@type': 'SiteNavigationElement',
+            'position': 6,
+            'name': 'Register',
+            'url': 'https://daripay.xyz/register'
+          }
+        ]
+      },
+      faqSchema([
+        { question: 'What is Dari Payments?', answer: 'Dari Payments is a stablecoin payment infrastructure that allows businesses to accept USDC and USDT payments across multiple blockchains with instant settlement.' },
+        { question: 'Which blockchains does Dari support?', answer: 'Dari supports Ethereum, Solana, Polygon, BSC, Arbitrum, Base, Avalanche, and Stellar.' },
+        { question: 'How fast is settlement?', answer: 'Payments settle in approximately 2 seconds on average. Funds are available instantly in your wallet.' },
+        { question: 'Do I need blockchain expertise?', answer: 'No. Dari handles all blockchain complexity. You integrate via simple APIs and manage everything through our dashboard.' },
+        { question: 'Is there a free plan?', answer: 'Yes. Our Starter plan is free forever with no monthly fees. You only pay per-transaction fees.' },
+      ])
     ],
   };
 
   return (
     <>
       <SEO
-        title="Dari Payments — Stablecoin Payment Infrastructure"
-        description="Accept crypto payments with Dari. Multi-chain payment gateway for stablecoins (USDC, USDT). Payment links, invoicing, subscriptions, and more. Start accepting crypto in minutes."
-        keywords="crypto payments, stablecoin payments, USDC payments, USDT payments, crypto payment gateway, blockchain payments, web3 payments, crypto invoicing, crypto subscriptions, payment links, multi-chain payments, polygon payments, ethereum payments, stellar payments, solana payments"
+        title="Dari Payments — Global Stablecoin Payment Infrastructure"
+        description="Accept stablecoin payments globally with instant settlement, APIs, subscriptions, and checkout for startups and enterprises. USDC & USDT across Ethereum, Solana, Polygon, Base, and more."
+        keywords="stablecoin payments, crypto payment gateway, USDC payments, USDT payments, web3 payments, blockchain payments, crypto invoicing, crypto subscriptions, payment links, multi-chain payments, global payouts, fintech payment APIs, checkout infrastructure, cross-border payments, subscription billing"
         url="https://daripay.xyz"
         structuredData={combinedSchema}
       />
@@ -191,6 +241,39 @@ export function NewLanding() {
               </div>
             </div>
           </div>
+
+          {/* Three images below the CTA card */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+            {/* Checkout - Image Only */}
+            <div className="bg-white rounded-3xl overflow-hidden hover:shadow-xl transition-all">
+              <img 
+                src="/checkout.jpeg" 
+                alt="Dari Checkout - Accept stablecoins on your website with a pre-built checkout page" 
+                className="w-full h-auto block"
+                loading="lazy"
+              />
+            </div>
+
+            {/* Subscribe - Image Only */}
+            <div className="bg-white rounded-3xl overflow-hidden hover:shadow-xl transition-all">
+              <img 
+                src="/subscribe.jpeg" 
+                alt="Dari Subscriptions - Smart billing and customer portal for recurring crypto payments" 
+                className="w-full h-auto block"
+                loading="lazy"
+              />
+            </div>
+
+            {/* In-App Payments - Image Only */}
+            <div className="bg-white rounded-3xl overflow-hidden hover:shadow-xl transition-all">
+              <img 
+                src="/inapp-payments.jpeg" 
+                alt="Dari In-App Payments - Embed stablecoin payments directly in your app interface" 
+                className="w-full h-auto block"
+                loading="lazy"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -236,6 +319,7 @@ export function NewLanding() {
                     src="/overview.jpeg" 
                     alt="Dari Payments Dashboard Overview" 
                     className="w-full h-auto rounded-lg border border-gray-100"
+                    loading="lazy"
                   />
                 </div>
               </div>
@@ -247,6 +331,7 @@ export function NewLanding() {
                 src="/analytics.jpeg" 
                 alt="Analytics Dashboard" 
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
             </div>
 
@@ -272,6 +357,7 @@ export function NewLanding() {
                 src="/subscriptions.jpeg" 
                 alt="Subscription Billing" 
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
             </div>
 
@@ -281,6 +367,7 @@ export function NewLanding() {
                 src="/currencies.jpeg" 
                 alt="Local Currencies Support" 
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
             </div>
 
@@ -326,6 +413,7 @@ export function NewLanding() {
                 REST APIs, real-time webhooks, and SDKs to embed payments into any product.
               </div>
             </div>
+
           </div>
         </div>
       </section>

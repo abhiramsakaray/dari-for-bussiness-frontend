@@ -147,10 +147,7 @@ export default function App() {
       case route === "/dashboard/settings":
         return <ProtectedRoute><Settings /></ProtectedRoute>;
       
-      // Admin route (different protection logic)
-      case route === "/admin":
-        return <Admin />;
-      
+
       // Payment Links Routes (protected)
       case route === "/payment-links":
         return <ProtectedRoute><PaymentLinksList /></ProtectedRoute>;

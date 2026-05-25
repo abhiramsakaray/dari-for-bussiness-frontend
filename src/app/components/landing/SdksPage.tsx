@@ -17,7 +17,7 @@ export function SdksPage() {
   return (
     <GenericPage
       label="SDKs"
-      title="SDKs & Libraries"
+      title="SDKs & Libraries — JavaScript, Python, Go & More"
       subtitle="Official libraries for your favorite languages and frameworks."
     >
       <div className="space-y-8">

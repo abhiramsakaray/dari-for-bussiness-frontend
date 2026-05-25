@@ -11,6 +11,7 @@ import { SdksPage } from './components/landing/SdksPage';
 import { WebhooksPage } from './components/landing/WebhooksPage';
 import { ChangelogPage } from './components/landing/ChangelogPage';
 import { AboutPage } from './components/landing/AboutPage';
+import { NotFoundPage } from './components/landing/NotFoundPage';
 import { useEffect } from 'react';
 
 // Simple component that redirects to an external URL
@@ -99,6 +100,7 @@ export default function AppRouter() {
             title="Partner Program" 
             subtitle="Join our partner ecosystem and grow together." 
             content="We're building a network of partners including payment processors, wallet providers, exchanges, and integration partners. Interested in partnering with Dari? Contact us at partnerships@daripay.xyz to discuss collaboration opportunities." 
+            path="partners"
           />
         } />
         <Route path="/press" element={
@@ -107,6 +109,7 @@ export default function AppRouter() {
             title="Press Kit & Media Resources" 
             subtitle="Media resources, brand assets, and press inquiries." 
             content="Download our press kit including logos, brand guidelines, and company information. For press inquiries and media requests, contact press@daripay.xyz. We're happy to provide interviews, quotes, and additional information about our platform." 
+            path="press"
           />
         } />
         
@@ -123,6 +126,7 @@ export default function AppRouter() {
             title="Cookie Policy" 
             subtitle="How we use cookies to improve your experience." 
             content="We use cookies and similar tracking technologies to improve your browsing experience, analyze site traffic, and understand where our visitors are coming from. By using our site, you consent to our use of cookies in accordance with this policy. You can control cookie settings through your browser preferences." 
+            path="cookie-policy"
           />
         } />
         <Route path="/aml-policy" element={
@@ -131,6 +135,7 @@ export default function AppRouter() {
             title="Anti-Money Laundering Policy" 
             subtitle="Our commitment to preventing financial crime." 
             content="Dari Payments is committed to preventing money laundering and terrorist financing. We comply with all applicable AML regulations and work with licensed partners to ensure regulatory compliance. We implement KYC procedures, transaction monitoring, and suspicious activity reporting in accordance with local and international regulations." 
+            path="aml-policy"
           />
         } />
         <Route path="/compliance" element={
@@ -139,6 +144,7 @@ export default function AppRouter() {
             title="Regulatory Compliance" 
             subtitle="How we maintain compliance across jurisdictions." 
             content="We maintain compliance with all applicable regulations across jurisdictions where we operate. This includes financial services regulations, data protection laws (GDPR, CCPA), and blockchain-specific regulations. We work with legal experts and compliance partners to ensure our platform meets all regulatory requirements." 
+            path="compliance"
           />
         } />
         
@@ -146,49 +152,55 @@ export default function AppRouter() {
         <Route path="/payment-links" element={
           <SimplePage 
             label="Product" 
-            title="Payment Links" 
+            title="Payment Links — Accept Crypto in One Click" 
             subtitle="Generate shareable payment links in seconds. No code required." 
             content="Create payment links for one-time or recurring payments. Share via email, SMS, QR code, or social media. Track payments in real-time with our analytics dashboard. Perfect for freelancers, creators, and businesses of all sizes." 
+            path="payment-links"
           />
         } />
         <Route path="/subscriptions" element={
           <SimplePage 
             label="Product" 
-            title="Subscription Billing" 
+            title="Subscription Billing — Recurring Stablecoin Payments" 
             subtitle="Recurring stablecoin payments made simple." 
             content="Set up subscription billing with smart retry logic, automatic invoicing, and webhook notifications. Support for monthly, quarterly, and annual billing cycles. Manage subscribers, track MRR/ARR, and reduce churn with our built-in analytics." 
+            path="subscriptions"
           />
         } />
         <Route path="/invoicing" element={
           <SimplePage 
             label="Product" 
-            title="Crypto Invoicing" 
+            title="Crypto Invoicing — Professional Blockchain Invoices" 
             subtitle="Professional invoices with crypto payment options." 
             content="Create and send professional invoices that accept stablecoin payments. Automatic payment tracking, reminders, and reconciliation. Support for multiple currencies and chains. Perfect for B2B transactions and international clients." 
+            path="invoicing"
           />
         } />
         <Route path="/analytics" element={
           <SimplePage 
             label="Product" 
-            title="Real-time Analytics" 
+            title="Analytics — Real-time Payment Intelligence" 
             subtitle="Track revenue, transactions, and performance across chains." 
             content="Comprehensive analytics dashboard with real-time payment tracking, revenue metrics, conversion rates, and customer insights. Monitor performance across different chains, track MRR/ARR growth, and export data for accounting." 
+            path="analytics"
           />
         } />
         <Route path="/multi-chain" element={
           <SimplePage 
             label="Product" 
-            title="Multi-chain Routing" 
+            title="Multi-chain Payments — One Integration, All Networks" 
             subtitle="Accept payments across all major blockchain networks." 
             content="Automatic routing to the lowest-fee chain for optimal cost savings. Support for Ethereum, Solana, Polygon, BSC, Arbitrum, Base, and more. One integration, all chains. Your customers choose their preferred network." 
+            path="multi-chain"
           />
         } />
         <Route path="/fraud-monitoring" element={
           <SimplePage 
             label="Product" 
-            title="Fraud Detection & Monitoring" 
+            title="Fraud Detection — Blockchain-Powered Security" 
             subtitle="Advanced fraud detection powered by blockchain analytics." 
             content="Real-time fraud monitoring and risk assessment for all transactions. Machine learning models detect suspicious patterns, blacklist management, and automatic flagging of high-risk payments. Protect your business from fraudulent transactions while maintaining a smooth customer experience." 
+            path="fraud-monitoring"
           />
         } />
         
@@ -213,10 +225,7 @@ export default function AppRouter() {
         <Route path="/developer/guide" element={<ProtectedRoute><DevelopmentGuide /></ProtectedRoute>} />
         <Route path="/developer/ai" element={<ProtectedRoute><CodeWithAI /></ProtectedRoute>} />
         
-        {/* Admin */}
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/admin/fees" element={<ProtectedRoute><AdminFees /></ProtectedRoute>} />
-        
+
         {/* Enterprise Features (Protected) */}
         <Route path="/payment-links-dashboard" element={<ProtectedRoute><PaymentLinksList /></ProtectedRoute>} />
         <Route path="/payment-links-dashboard/new" element={<ProtectedRoute><CreatePaymentLinkForm /></ProtectedRoute>} />
@@ -246,7 +255,7 @@ export default function AppRouter() {
         <Route path="/bento-dashboard" element={<ProtectedRoute><BentoDashboard /></ProtectedRoute>} />
         
         {/* Catch all - redirect to home */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Toaster position="top-right" />
     </BrowserRouter>

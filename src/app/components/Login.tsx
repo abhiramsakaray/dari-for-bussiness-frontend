@@ -10,6 +10,7 @@ import { teamAuthService } from "../../services/teamAuth.service";
 import { apiClient } from "../../lib/api-client";
 import { extractErrorMessage } from "../../lib/utils";
 import { toast } from "sonner";
+import { SEO } from "../../components/SEO";
 
 type LoginType = 'merchant' | 'team';
 
@@ -54,12 +55,7 @@ export function Login() {
         
         toast.success("Login successful!");
         
-        // Check if admin
-        if (email.includes('admin')) {
-          navigate('/admin');
-          return;
-        }
-        
+
         // Redirect based on onboarding status
         if (response.onboarding_completed === false) {
           navigate('/onboarding');
@@ -85,7 +81,13 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <>
+      <SEO 
+        title="Login" 
+        description="Log in to your Dari Payments account. Access your merchant dashboard to accept stablecoin payments, manage payouts, invoices, and billing."
+        url="https://daripay.xyz/login"
+      />
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Back to Home */}
         <Link
@@ -196,5 +198,6 @@ export function Login() {
         </Card>
       </div>
     </div>
+    </>
   );
 }

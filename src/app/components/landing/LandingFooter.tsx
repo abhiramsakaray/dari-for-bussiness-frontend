@@ -59,7 +59,7 @@ export function LandingFooter() {
         </div>
 
         {/* Links Section */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-12 border-b border-gray-200">
+        <nav aria-label="Footer navigation" className="grid grid-cols-2 md:grid-cols-4 gap-8 py-12 border-b border-gray-200">
           <div className="flex flex-col gap-3">
             <div className="text-xs font-semibold text-black tracking-wider uppercase font-mono mb-1">
               Product
@@ -158,12 +158,12 @@ export function LandingFooter() {
               Security
             </Link>
           </div>
-        </div>
+        </nav>
 
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row items-center justify-between py-6 gap-4">
           <p className="text-xs text-gray-400 font-mono">
-            © 2024 Dari Payments. All rights reserved.
+            © 2025 Dari Payments. All rights reserved.
           </p>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-mono text-xs text-gray-500 mr-1">Supported:</span>
@@ -194,7 +194,7 @@ export function LandingFooter() {
           </div>
           <div className="flex gap-2">
             <a
-              href="https://twitter.com"
+              href="https://twitter.com/daripayments"
               target="_blank"
               rel="noopener noreferrer"
               className="w-8 h-8 border border-gray-200 rounded-lg bg-white flex items-center justify-center text-gray-500 hover:border-gray-400 hover:text-black transition-all"
@@ -204,7 +204,7 @@ export function LandingFooter() {
               </svg>
             </a>
             <a
-              href="https://github.com"
+              href="https://github.com/Dari-Organization"
               target="_blank"
               rel="noopener noreferrer"
               className="w-8 h-8 border border-gray-200 rounded-lg bg-white flex items-center justify-center text-gray-500 hover:border-gray-400 hover:text-black transition-all"

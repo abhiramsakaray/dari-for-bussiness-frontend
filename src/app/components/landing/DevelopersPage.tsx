@@ -6,7 +6,7 @@ export function DevelopersPage() {
   return (
     <GenericPage
       label="Developers"
-      title="Built for developers"
+      title="Developer Docs — Stablecoin Payment APIs & SDKs"
       subtitle="Simple APIs, comprehensive documentation, and powerful SDKs to integrate stablecoin payments."
     >
       <div className="space-y-12 not-prose">

@@ -4,7 +4,7 @@ export function ApiReferencePage() {
   return (
     <GenericPage
       label="API Reference"
-      title="API Documentation"
+      title="API Reference — Complete REST API Documentation"
       subtitle="Complete reference for the Dari API endpoints."
     >
       <div className="space-y-8">

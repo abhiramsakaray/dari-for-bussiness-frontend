@@ -6,6 +6,7 @@ export function AboutPage() {
       label="Company"
       title="About Dari Payments"
       subtitle="Building the future of stablecoin payments for global businesses."
+      path="about"
     >
       <div className="space-y-8">
         <div>
