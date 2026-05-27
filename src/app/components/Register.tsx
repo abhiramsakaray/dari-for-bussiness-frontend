@@ -28,9 +28,16 @@ export function Register() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!acceptTerms) {
+      const msg = "You must accept the Terms of Service and Privacy Policy to proceed.";
+      setError(msg);
+      toast.error(msg);
+      return;
+    }
     setLoading(true);
     setError(null);
 
@@ -95,9 +102,9 @@ export function Register() {
         {/* Register Card */}
         <Card className="p-8 bg-card border-primary/30">
           <div className="mb-6">
-            <h1 className="text-3xl mb-2">Create Account</h1>
-            <p className="text-muted-foreground">
-              Start accepting USDC payments today
+            <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">Create your account</h1>
+            <p className="text-sm text-muted-foreground">
+              Accept stablecoins globally in minutes. Free forever.
             </p>
           </div>
 
@@ -169,6 +176,28 @@ export function Register() {
               </p>
             </div>
 
+            <div className="flex items-start gap-3 mt-4 mb-2 select-none">
+              <input
+                id="acceptTerms"
+                type="checkbox"
+                checked={acceptTerms}
+                onChange={(e) => setAcceptTerms(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary accent-primary cursor-pointer"
+                required
+              />
+              <Label htmlFor="acceptTerms" className="text-xs text-muted-foreground leading-normal cursor-pointer">
+                I accept the{" "}
+                <Link to="/terms-of-service" className="text-primary hover:underline font-semibold">
+                  Terms of Service
+                </Link>
+                {" "}and{" "}
+                <Link to="/privacy-policy" className="text-primary hover:underline font-semibold">
+                  Privacy Policy
+                </Link>
+                .
+              </Label>
+            </div>
+
             <Button
               type="submit"
               className="w-full bg-primary hover:bg-primary/90"
@@ -178,7 +207,7 @@ export function Register() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm">
+          <div className="mt-4 text-center text-sm">
             <span className="text-muted-foreground">Already have an account? </span>
             <Link to="/login" className="text-primary hover:underline">
               Login

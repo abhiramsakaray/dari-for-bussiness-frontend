@@ -26,6 +26,7 @@ import { StatusPage } from './components/landing/StatusPage';
 import { SecurityPage } from './components/landing/SecurityPage';
 import { PrivacyPolicyPage } from './components/landing/PrivacyPolicyPage';
 import { TermsOfServicePage } from './components/landing/TermsOfServicePage';
+import { PoliciesPage } from './components/landing/PoliciesPage';
 import { SimplePage } from './components/landing/SimplePage';
 
 // Auth Pages
@@ -116,38 +117,15 @@ export default function AppRouter() {
         
         {/* Status & Security */}
         <Route path="/status" element={<StatusPage />} />
-        <Route path="/security" element={<SecurityPage />} />
+        <Route path="/security" element={<PoliciesPage initialTab="security" />} />
         
         {/* Legal Pages */}
-        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-        <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-        <Route path="/cookie-policy" element={
-          <SimplePage 
-            label="Legal" 
-            title="Cookie Policy" 
-            subtitle="How we use cookies to improve your experience." 
-            content="We use cookies and similar tracking technologies to improve your browsing experience, analyze site traffic, and understand where our visitors are coming from. By using our site, you consent to our use of cookies in accordance with this policy. You can control cookie settings through your browser preferences." 
-            path="cookie-policy"
-          />
-        } />
-        <Route path="/aml-policy" element={
-          <SimplePage 
-            label="Legal" 
-            title="Anti-Money Laundering Policy" 
-            subtitle="Our commitment to preventing financial crime." 
-            content="Dari Payments is committed to preventing money laundering and terrorist financing. We comply with all applicable AML regulations and work with licensed partners to ensure regulatory compliance. We implement KYC procedures, transaction monitoring, and suspicious activity reporting in accordance with local and international regulations." 
-            path="aml-policy"
-          />
-        } />
-        <Route path="/compliance" element={
-          <SimplePage 
-            label="Legal" 
-            title="Regulatory Compliance" 
-            subtitle="How we maintain compliance across jurisdictions." 
-            content="We maintain compliance with all applicable regulations across jurisdictions where we operate. This includes financial services regulations, data protection laws (GDPR, CCPA), and blockchain-specific regulations. We work with legal experts and compliance partners to ensure our platform meets all regulatory requirements." 
-            path="compliance"
-          />
-        } />
+        <Route path="/privacy-policy" element={<PoliciesPage initialTab="privacy" />} />
+        <Route path="/terms-of-service" element={<PoliciesPage initialTab="terms" />} />
+        <Route path="/aml-policy" element={<PoliciesPage initialTab="aml" />} />
+        <Route path="/withdrawal-policy" element={<PoliciesPage initialTab="withdrawal" />} />
+        <Route path="/cookie-policy" element={<PoliciesPage initialTab="cookie" />} />
+        <Route path="/compliance" element={<PoliciesPage initialTab="compliance" />} />
         
         {/* Product Feature Pages (Marketing) */}
         <Route path="/payment-links" element={

@@ -242,35 +242,35 @@ export function NewLanding() {
             </div>
           </div>
 
-          {/* Three images below the CTA card */}
+          {/* Three cards below the CTA card - Image Only */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-            {/* Checkout - Image Only */}
-            <div className="bg-white rounded-3xl overflow-hidden hover:shadow-xl transition-all">
+            {/* Checkout Card - Image Only */}
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-gray-300 hover:shadow-lg transition-all cursor-pointer">
               <img 
                 src="/checkout.jpeg" 
                 alt="Dari Checkout - Accept stablecoins on your website with a pre-built checkout page" 
-                className="w-full h-auto block"
-                loading="lazy"
+                className="w-full h-auto block transition-transform duration-500 hover:scale-105"
+                loading="eager"
               />
             </div>
 
-            {/* Subscribe - Image Only */}
-            <div className="bg-white rounded-3xl overflow-hidden hover:shadow-xl transition-all">
+            {/* Subscriptions Card - Image Only */}
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-gray-300 hover:shadow-lg transition-all cursor-pointer">
               <img 
                 src="/subscribe.jpeg" 
                 alt="Dari Subscriptions - Smart billing and customer portal for recurring crypto payments" 
-                className="w-full h-auto block"
-                loading="lazy"
+                className="w-full h-auto block transition-transform duration-500 hover:scale-105"
+                loading="eager"
               />
             </div>
 
-            {/* In-App Payments - Image Only */}
-            <div className="bg-white rounded-3xl overflow-hidden hover:shadow-xl transition-all">
+            {/* In-App Payments Card - Image Only */}
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-gray-300 hover:shadow-lg transition-all cursor-pointer">
               <img 
                 src="/inapp-payments.jpeg" 
                 alt="Dari In-App Payments - Embed stablecoin payments directly in your app interface" 
-                className="w-full h-auto block"
-                loading="lazy"
+                className="w-full h-auto block transition-transform duration-500 hover:scale-105"
+                loading="eager"
               />
             </div>
           </div>
@@ -436,19 +436,19 @@ export function NewLanding() {
             {[
               {
                 num: '01',
-                title: 'Create a payment',
-                desc: 'Generate a payment link or call the API. Set the amount, currency, expiry, and metadata.',
+                title: 'Initialize Session',
+                desc: 'Initialize checkout sessions via our backend SDK or dashboard. Configure pricing, recurring intervals, and custom metadata.',
               },
               {
                 num: '02',
-                title: 'Customer pays',
-                desc: 'Your customer pays from any wallet on any supported chain — no gas needed on their end.',
-                tags: ['USDC', 'USDT'],
+                title: 'Cross-Chain Pay',
+                desc: 'Customers pay from any major wallet across 8+ supported networks. Dari handles cross-chain routing and sponsors gas fees seamlessly.',
+                tags: ['USDC', 'USDT', 'EURC', 'Gasless'],
               },
               {
                 num: '03',
-                title: 'Funds settle instantly',
-                desc: 'Payment confirms in ~2 seconds. No intermediaries, no delays. Funds are yours immediately.',
+                title: 'Instant Settlement',
+                desc: 'Funds confirm in ~2 seconds and settle directly into your secure wallet. Zero intermediaries, zero chargebacks, and automated routing.',
               },
             ].map((step) => (
               <div key={step.num} className="text-center px-7 relative z-10">
