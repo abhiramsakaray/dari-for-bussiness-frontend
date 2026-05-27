@@ -6,6 +6,7 @@ import { NewLanding } from './components/landing/NewLanding';
 import { FeaturesPage } from './components/landing/FeaturesPage';
 import { PricingPage } from './components/landing/PricingPage';
 import { DevelopersPage } from './components/landing/DevelopersPage';
+import { PublicDocsPage } from './components/landing/PublicDocsPage';
 import { ApiReferencePage } from './components/landing/ApiReferencePage';
 import { SdksPage } from './components/landing/SdksPage';
 import { WebhooksPage } from './components/landing/WebhooksPage';
@@ -82,8 +83,8 @@ export default function AppRouter() {
         <Route path="/" element={<AutoRedirect><NewLanding /></AutoRedirect>} />
         <Route path="/features" element={<FeaturesPage />} />
         <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/developers" element={<DevelopersPage />} />
-        <Route path="/docs" element={<DevelopersPage />} />
+        <Route path="/developers" element={<PublicDocsPage />} />
+        <Route path="/docs" element={<PublicDocsPage />} />
         <Route path="/api-reference" element={<ApiReferencePage />} />
         <Route path="/sdks" element={<SdksPage />} />
         <Route path="/webhooks" element={<WebhooksPage />} />

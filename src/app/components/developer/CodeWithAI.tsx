@@ -35,6 +35,16 @@ function AIPromptSection() {
 
 You are integrating daripayments into a project. Follow these rules without exception:
 
+CRITICAL: Before proposing or writing any code, you MUST ask the developer the following questions to tailor the implementation:
+1. "How should the checkout interface be presented?"
+   - Redirect (Redirect user to the hosted checkout page)
+   - Popup / Modal (Show a modal overlay inside the current page)
+   - In-App (Embed the checkout element inline using <DariCheckout />)
+2. "What are we setting up?"
+   - One-off Payments
+   - Recurring Subscriptions
+   - Both
+
 Critical Rules
 
 1. Read docs/integration.md fully before writing any code.
@@ -112,6 +122,13 @@ await dari.payments.createPayment({
 
 Common Patterns
 
+SDK Initialization
+
+// Import and initialize the SDK server-side
+import { DariApi } from 'daripayments';
+
+const dari = new DariApi(process.env.DARI_API_KEY);
+
 Payment Flow
 
 // 1. Server-side: Create payment
@@ -136,41 +153,41 @@ if (event.type === 'payment.completed') {
 
 Subscription Flow
 
-// 1. Create plan
+// 1. Create subscription plan
 const plan = await dari.subscriptions.createPlan({
-  name: 'Pro',
+  name: 'Pro Plan',
   amount: 29.99,
   fiat_currency: 'USD',
   interval: 'month',
   trial_days: 14,
-  accepted_chains: ['polygon'],
-  accepted_tokens: ['USDC'],
+  accepted_chains: ['polygon', 'base'],
+  accepted_tokens: ['USDC', 'USDT'],
 });
 
-// 2. Subscribe customer
+// 2. Subscribe a customer
 const sub = await dari.subscriptions.create(
   { plan_id: plan.id, customer_email: 'user@example.com' },
   { idempotencyKey: \`sub-\${userId}-\${plan.id}\` }
 );
 
-// 3. Redirect to checkout
+// 3. Redirect client to hosted checkout or mount embedded checkout UI
 window.location.href = sub.checkout_url;
 
-// 4. Handle webhook
+// 4. Handle webhook event on success
 if (event.type === 'subscription.payment_succeeded') {
   await extendAccess(event.data.subscription_id);
 }
 
-React Component Modes
+React Integration Modes
 
-// Modal (default) - opens overlay
+// 1. Popup / Modal (default) - opens overlay modal in React
 <PayWithDariButton mode="modal" ... />
 
-// Redirect - redirects immediately
+// 2. Redirect - redirects to the checkout session page immediately
 <PayWithDariButton mode="redirect" ... />
 
-// Direct - plain <a> tag, no JS
-<PayWithDariButton mode="direct" ... />
+// 3. In-App / Embedded - embeds checkout UI directly using the checkout component
+<DariCheckout sessionId={sessionId} onSuccess={onSuccess} onError={onError} />
 
 Environment Setup
 

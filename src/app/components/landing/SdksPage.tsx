@@ -63,7 +63,7 @@ const payment = await dari.payments.createPayment({
 
         <div className="mt-8 flex gap-3">
           <a
-            href="/developer/guide"
+            href="/docs"
             className="px-6 py-3 bg-black text-white rounded-xl text-sm font-semibold hover:opacity-80 transition-opacity"
           >
             View Documentation
