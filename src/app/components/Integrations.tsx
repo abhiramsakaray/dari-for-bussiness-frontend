@@ -46,12 +46,79 @@ interface CredentialField {
   defaultValue?: string;
 }
 
+function RazorpayLogo() {
+  return (
+    <svg viewBox="0 0 48 48" className="h-8 w-8" aria-hidden="true" role="img">
+      <rect width="48" height="48" rx="14" fill="#0F172A" />
+      <path d="M18 12h12l-3 10h7L19 36l4-10h-5l0-14Z" fill="#5B21B6" />
+      <path d="M19 36l13-14h-7l3-10h-12l0 14h5l-4 10Z" fill="#14B8A6" opacity="0.9" />
+    </svg>
+  );
+}
+
+function StripeLogo() {
+  return (
+    <svg viewBox="0 0 48 48" className="h-8 w-8" aria-hidden="true" role="img">
+      <rect width="48" height="48" rx="14" fill="#635BFF" />
+      <path
+        d="M26.2 18.2c-2.1 0-3.3 1-3.3 2.3 0 1.5 1.9 2 4.2 2.8 2.5.9 5.4 2.1 5.4 5.9 0 4.4-3.7 6.7-8.5 6.7-2.2 0-4.7-.5-6.7-1.5l1.1-4.5c1.8.9 4 1.4 5.8 1.4 2 0 3.1-.7 3.1-1.9 0-1.3-1.4-1.8-3.8-2.7-3-1.1-5.8-2.5-5.8-6.1 0-4 3.3-6.5 8.1-6.5 2.1 0 4.3.4 6.2 1.3l-1.1 4.4c-1.7-.8-3.5-1.2-4.7-1.2Z"
+        fill="#fff"
+      />
+    </svg>
+  );
+}
+
+function getIntegrationLogo(type: string) {
+  switch (type.toLowerCase()) {
+    case 'razorpay':
+      return <RazorpayLogo />;
+    case 'stripe':
+      return <StripeLogo />;
+    default:
+      return <Plug className="h-8 w-8 text-gray-600" />;
+  }
+}
+
+function normalizeIntegration(integration: Integration): Integration {
+  return {
+    ...integration,
+    type: integration.type.toLowerCase(),
+    status: integration.status || 'active'
+  };
+}
+
 function ConnectIntegrationModal({ integration, onClose, onSuccess, apiUrl, token }: ConnectModalProps) {
   const [credentials, setCredentials] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
   const getCredentialFields = (type: string): CredentialField[] => {
     switch (type.toLowerCase()) {
+      case 'razorpay':
+        return [
+          { 
+            key: 'razorpay_key_id', 
+            label: 'Razorpay Key ID', 
+            placeholder: 'rzp_test_xxxxxxxxxxxxx',
+            helpText: 'Get this from Razorpay Dashboard → Settings → API Keys',
+            required: true
+          },
+          { 
+            key: 'razorpay_key_secret', 
+            label: 'Razorpay Key Secret', 
+            placeholder: 'xxxxxxxxxxxxx', 
+            type: 'password',
+            helpText: 'Secret key from Razorpay Dashboard → Settings → API Keys',
+            required: true
+          },
+          { 
+            key: 'razorpay_webhook_secret', 
+            label: 'Webhook Secret (Optional)', 
+            placeholder: 'whsec_xxxxxxxxxxxxx', 
+            type: 'password',
+            helpText: 'For webhook signature verification',
+            required: false
+          }
+        ];
       case 'shopify':
         return [
           { 
@@ -230,6 +297,12 @@ function ConnectIntegrationModal({ integration, onClose, onSuccess, apiUrl, toke
           publishable_key: credentials.publishable_key,
           secret_key: credentials.secret_key
         });
+      } else if (integration.type === 'razorpay') {
+        await api.connectWithApiKey('razorpay', {
+          razorpay_key_id: credentials.razorpay_key_id,
+          razorpay_key_secret: credentials.razorpay_key_secret,
+          razorpay_webhook_secret: credentials.razorpay_webhook_secret
+        });
       } else {
         await api.connect(integration.type, credentials, {
           auto_sync: true,
@@ -307,7 +380,7 @@ function ConnectIntegrationModal({ integration, onClose, onSuccess, apiUrl, toke
             ) : (
               <>
                 <Plug className="h-4 w-4 mr-2" />
-                Connect {integration.type === 'stripe' ? '(API Keys)' : ''}
+                Connect {(integration.type === 'stripe' || integration.type === 'razorpay') ? '(API Keys)' : ''}
               </>
             )}
           </Button>
@@ -317,37 +390,24 @@ function ConnectIntegrationModal({ integration, onClose, onSuccess, apiUrl, toke
             Stripe Connect OAuth onboarding will be available in a future release.
           </p>
         )}
+        {integration.type === 'razorpay' && (
+          <p className="text-xs text-muted-foreground mt-4 text-center w-full block">
+            Get your API keys from Razorpay Dashboard → Settings → API Keys
+          </p>
+        )}
       </Card>
     </div>
   );
 }
 
+const ALLOWED_INTEGRATION_TYPES = new Set(['razorpay', 'stripe']);
+
 // Default integrations to show if backend doesn't return any
 const DEFAULT_INTEGRATIONS: Integration[] = [
   {
-    type: 'shopify',
-    name: 'Shopify',
-    description: 'Sync orders and create payment links for your Shopify store automatically'
-  },
-  {
-    type: 'tally',
-    name: 'Tally ERP',
-    description: 'Export transactions and reconcile payments with your Tally accounting system'
-  },
-  {
-    type: 'zoho',
-    name: 'Zoho Books',
-    description: 'Create invoices and sync financial data with Zoho Books seamlessly'
-  },
-  {
-    type: 'woocommerce',
-    name: 'WooCommerce',
-    description: 'Accept crypto payments on your WooCommerce store with automatic order sync'
-  },
-  {
-    type: 'quickbooks',
-    name: 'QuickBooks',
-    description: 'Sync payments and invoices with QuickBooks for streamlined accounting'
+    type: 'razorpay',
+    name: 'Razorpay',
+    description: 'Accept payments via Razorpay with automated order sync and payment links'
   },
   {
     type: 'stripe',
@@ -406,17 +466,26 @@ export function Integrations() {
       ]);
       
       // Combine backend data with frontend defaults (for connectors like Stripe)
-      const backendIntegrations = available.integrations || [];
-      const combined = [...backendIntegrations];
+      const backendIntegrations = (available.integrations || []).filter(integration =>
+        ALLOWED_INTEGRATION_TYPES.has(integration.type.toLowerCase())
+      );
+      const combined = backendIntegrations.map(normalizeIntegration);
       
       DEFAULT_INTEGRATIONS.forEach(defaultInt => {
         if (!combined.some(i => i.type === defaultInt.type)) {
-          combined.push(defaultInt);
+          combined.push(normalizeIntegration(defaultInt));
         }
       });
 
-      setAvailableIntegrations(combined);
-      setConnectedIntegrations(status.integrations || []);
+      const filtered = combined.filter(integration =>
+        ALLOWED_INTEGRATION_TYPES.has(integration.type.toLowerCase())
+      );
+
+      setAvailableIntegrations(filtered);
+      setConnectedIntegrations((status.integrations || [])
+        .filter((integration: Integration) => ALLOWED_INTEGRATION_TYPES.has(integration.type.toLowerCase()))
+        .map(normalizeIntegration)
+      );
     } catch (error: any) {
       // Keep default integrations on error
       setAvailableIntegrations(DEFAULT_INTEGRATIONS);
@@ -426,23 +495,11 @@ export function Integrations() {
   };
 
   const getIntegrationIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'shopify':
-        return <ShoppingBag className="h-8 w-8 text-green-600" />;
-      case 'tally':
-        return <Calculator className="h-8 w-8 text-blue-600" />;
-      case 'zoho':
-        return <FileText className="h-8 w-8 text-orange-600" />;
-      case 'woocommerce':
-        return <ShoppingBag className="h-8 w-8 text-purple-600" />;
-      case 'quickbooks':
-        return <FileText className="h-8 w-8 text-green-700" />;
-      case 'stripe':
-        return <Plug className="h-8 w-8 text-indigo-600" />;
-      default:
-        return <Plug className="h-8 w-8 text-gray-600" />;
-    }
+    return getIntegrationLogo(type);
   };
+
+  const isConnectedIntegration = (type: string) =>
+    connectedIntegrations.some((conn) => conn.type.toLowerCase() === type.toLowerCase());
 
   const getStatusBadge = (status?: string) => {
     switch (status) {
@@ -456,8 +513,8 @@ export function Integrations() {
   };
 
   const handleConnect = async (integration: Integration) => {
-    if (integration.type === 'stripe') {
-      // NOTE: OAuth flow preserved for future phase:
+    if (integration.type === 'stripe' || integration.type === 'razorpay') {
+      // NOTE: OAuth flow preserved for future phase for Stripe
       // const res = await api.getConnectorOAuthUrl('stripe');
       // window.location.href = res.oauth_url;
       setShowConnectModal(integration);
@@ -513,7 +570,7 @@ export function Integrations() {
                 <Card key={integration.id} className="p-6 hover:shadow-lg transition-shadow">
                   <div className="flex items-start justify-between mb-4">
                     <div className="p-3 bg-primary/10 rounded-lg">
-                      {getIntegrationIcon(integration.type)}
+                      {getIntegrationLogo(integration.type)}
                     </div>
                     {getStatusBadge(integration.status)}
                   </div>
@@ -573,8 +630,9 @@ export function Integrations() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {availableIntegrations.map((integration) => {
-                const isConnected = connectedIntegrations.some(
-                  (conn) => conn.type === integration.type
+                const isConnected = isConnectedIntegration(integration.type);
+                const connectedIntegration = connectedIntegrations.find(
+                  (conn) => conn.type.toLowerCase() === integration.type.toLowerCase()
                 );
                 
                 return (
@@ -586,14 +644,9 @@ export function Integrations() {
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="p-3 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl">
-                        {getIntegrationIcon(integration.type)}
+                        {getIntegrationLogo(integration.type)}
                       </div>
-                      {isConnected && (
-                        <Badge className="bg-green-500">
-                          <CheckCircle2 className="h-3 w-3 mr-1" />
-                          Connected
-                        </Badge>
-                      )}
+                      {isConnected && connectedIntegration && getStatusBadge(connectedIntegration.status)}
                     </div>
                     
                     <h3 className="text-lg font-semibold mb-2">{integration.name}</h3>
@@ -601,39 +654,24 @@ export function Integrations() {
                       {integration.description || `Connect your ${integration.name} account`}
                     </p>
                     
-                    {!isConnected ? (
-                      <Button 
-                        className="w-full"
-                        onClick={() => handleConnect(integration)}
-                      >
-                        <Plug className="h-4 w-4 mr-2" />
-                        Connect {integration.name} {integration.type === 'stripe' ? '(API Keys)' : ''}
-                      </Button>
-                    ) : (
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="outline"
-                          className="flex-1"
-                          onClick={() => {
-                            const connected = connectedIntegrations.find(c => c.type === integration.type);
-                            if (connected?.id) handleSync(connected.id, integration.type);
-                          }}
-                        >
-                          <RefreshCw className="h-4 w-4 mr-1" />
-                          Sync
-                        </Button>
-                        <Button 
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            const connected = connectedIntegrations.find(c => c.type === integration.type);
-                            if (connected?.id) handleDisconnect(connected.id);
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
+                    <Button 
+                      className="w-full"
+                      onClick={() => handleConnect(integration)}
+                      disabled={isConnected}
+                      variant={isConnected ? "secondary" : "default"}
+                    >
+                      {isConnected ? (
+                        <>
+                          <CheckCircle2 className="h-4 w-4 mr-2" />
+                          Connected
+                        </>
+                      ) : (
+                        <>
+                          <Plug className="h-4 w-4 mr-2" />
+                          Connect {integration.name} {(integration.type === 'stripe' || integration.type === 'razorpay') ? '(API Keys)' : ''}
+                        </>
+                      )}
+                    </Button>
                   </Card>
                 );
               })}

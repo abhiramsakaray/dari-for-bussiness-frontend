@@ -66,12 +66,16 @@ import AnalyticsDashboard from './components/analytics/AnalyticsDashboard';
 import { PaymentTracker } from './components/analytics/PaymentTracker';
 import { SubscriptionTracker } from './components/analytics/SubscriptionTracker';
 import TeamMembersList from './components/team/TeamMembersListNew';
+import { TeamLogin } from './components/team/TeamLogin';
+import { TeamDashboard } from './components/team/TeamDashboard';
+import { Unauthorized } from './components/team/Unauthorized';
 import { DevelopmentGuide } from './components/developer/DevelopmentGuide';
 import { CodeWithAI } from './components/developer/CodeWithAI';
 import { UsageDashboard } from './components/usage/UsageDashboard';
 import { AdminFees } from './components/AdminFees';
 
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ProtectedTeamRoute } from './components/team/ProtectedTeamRoute';
 import { AutoRedirect } from './components/AutoRedirect';
 import { ScrollToTop } from './components/ScrollToTop';
 
@@ -187,6 +191,9 @@ export default function AppRouter() {
         <Route path="/login" element={<AutoRedirect><Login /></AutoRedirect>} />
         <Route path="/register" element={<AutoRedirect><Register /></AutoRedirect>} />
         <Route path="/onboarding" element={<OnboardingFlow />} />
+        <Route path="/team/login" element={<TeamLogin />} />
+        <Route path="/team/dashboard" element={<ProtectedTeamRoute><TeamDashboard /></ProtectedTeamRoute>} />
+        <Route path="/team/unauthorized" element={<Unauthorized />} />
         
         {/* Protected Dashboard Routes */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
