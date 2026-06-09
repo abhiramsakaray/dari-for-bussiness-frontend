@@ -191,20 +191,20 @@ function ConnectIntegrationModal({ integration, onClose, onSuccess, apiUrl, toke
       case 'stripe':
         return [
           { 
-            key: 'api_key', 
+            key: 'publishable_key', 
+            label: 'Publishable Key', 
+            placeholder: 'pk_live_xxxxx or pk_test_xxxxx', 
+            type: 'text',
+            helpText: 'Stripe API publishable key',
+            required: true
+          },
+          { 
+            key: 'secret_key', 
             label: 'Secret Key', 
             placeholder: 'sk_live_xxxxx or sk_test_xxxxx', 
             type: 'password',
             helpText: 'Stripe API secret key',
             required: true
-          },
-          { 
-            key: 'webhook_secret', 
-            label: 'Webhook Secret (Optional)', 
-            placeholder: 'whsec_xxxxx', 
-            type: 'password',
-            helpText: 'Stripe webhook signing secret',
-            required: false
           }
         ];
       default:
@@ -225,10 +225,17 @@ function ConnectIntegrationModal({ integration, onClose, onSuccess, apiUrl, toke
     const api = new IntegrationsAPI(apiUrl, token);
 
     try {
-      await api.connect(integration.type, credentials, {
-        auto_sync: true,
-        sync_interval: 'hourly'
-      });
+      if (integration.type === 'stripe') {
+        await api.connectWithApiKey('stripe', {
+          publishable_key: credentials.publishable_key,
+          secret_key: credentials.secret_key
+        });
+      } else {
+        await api.connect(integration.type, credentials, {
+          auto_sync: true,
+          sync_interval: 'hourly'
+        });
+      }
       
       toast.success(`${integration.name} connected successfully!`);
       onSuccess();
@@ -300,11 +307,16 @@ function ConnectIntegrationModal({ integration, onClose, onSuccess, apiUrl, toke
             ) : (
               <>
                 <Plug className="h-4 w-4 mr-2" />
-                Connect
+                Connect {integration.type === 'stripe' ? '(API Keys)' : ''}
               </>
             )}
           </Button>
         </div>
+        {integration.type === 'stripe' && (
+          <p className="text-xs text-muted-foreground mt-4 text-center w-full block">
+            Stripe Connect OAuth onboarding will be available in a future release.
+          </p>
+        )}
       </Card>
     </div>
   );
@@ -355,7 +367,33 @@ export function Integrations() {
 
   useEffect(() => {
     loadIntegrations();
+    
+    // Check for OAuth callback parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    
+    if (code && state) {
+      handleOAuthCallback('stripe', code, state);
+    }
   }, []);
+
+  const handleOAuthCallback = async (provider: string, code: string, state: string) => {
+    setLoading(true);
+    const api = new IntegrationsAPI(apiUrl, token);
+    try {
+      await api.handleConnectorOAuthCallback(provider, code, state);
+      toast.success(`${provider} connected successfully!`);
+      // Remove query parameters to clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+      loadIntegrations(); // Refresh list
+    } catch (error: any) {
+      toast.error(error.message || `Failed to connect ${provider}`);
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadIntegrations = async () => {
     setLoading(true);
@@ -367,12 +405,17 @@ export function Integrations() {
         api.getStatus()
       ]);
       
-      // Use backend data if available, otherwise use defaults
-      setAvailableIntegrations(
-        available.integrations && available.integrations.length > 0 
-          ? available.integrations 
-          : DEFAULT_INTEGRATIONS
-      );
+      // Combine backend data with frontend defaults (for connectors like Stripe)
+      const backendIntegrations = available.integrations || [];
+      const combined = [...backendIntegrations];
+      
+      DEFAULT_INTEGRATIONS.forEach(defaultInt => {
+        if (!combined.some(i => i.type === defaultInt.type)) {
+          combined.push(defaultInt);
+        }
+      });
+
+      setAvailableIntegrations(combined);
       setConnectedIntegrations(status.integrations || []);
     } catch (error: any) {
       // Keep default integrations on error
@@ -412,7 +455,14 @@ export function Integrations() {
     }
   };
 
-  const handleConnect = (integration: Integration) => {
+  const handleConnect = async (integration: Integration) => {
+    if (integration.type === 'stripe') {
+      // NOTE: OAuth flow preserved for future phase:
+      // const res = await api.getConnectorOAuthUrl('stripe');
+      // window.location.href = res.oauth_url;
+      setShowConnectModal(integration);
+      return;
+    }
     setShowConnectModal(integration);
   };
 
@@ -469,6 +519,21 @@ export function Integrations() {
                   </div>
                   
                   <h3 className="text-lg font-semibold mb-2 capitalize">{integration.type}</h3>
+                  
+                  {/* Provider Metadata Display */}
+                  {integration.type === 'stripe' && integration.config?.metadata && (
+                    <div className="mb-4 text-sm text-muted-foreground bg-secondary/50 p-3 rounded-md border border-border/50">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-medium text-foreground">{integration.config.metadata.business_name || 'Connected Account'}</span>
+                        <Badge variant="outline" className="text-[10px] uppercase tracking-wider">{integration.config.metadata.environment}</Badge>
+                      </div>
+                      <div className="flex items-center text-xs gap-1 opacity-80">
+                        <Plug className="h-3 w-3" />
+                        <span className="font-mono">{integration.config.metadata.stripe_account_id}</span>
+                      </div>
+                    </div>
+                  )}
+
                   <p className="text-sm text-muted-foreground mb-4">
                     Last sync: {integration.last_sync ? new Date(integration.last_sync).toLocaleString() : 'Never'}
                   </p>
@@ -542,7 +607,7 @@ export function Integrations() {
                         onClick={() => handleConnect(integration)}
                       >
                         <Plug className="h-4 w-4 mr-2" />
-                        Connect {integration.name}
+                        Connect {integration.name} {integration.type === 'stripe' ? '(API Keys)' : ''}
                       </Button>
                     ) : (
                       <div className="flex gap-2">

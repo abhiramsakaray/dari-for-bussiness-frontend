@@ -58,6 +58,9 @@ export interface PaymentSession {
   
   // Refund fields
   refund_count?: number;
+
+  // Raw session metadata (contains stripe_payment_intent_id, card_provider, etc.)
+  metadata?: Record<string, any>;
 }
 
 export interface MerchantProfile {

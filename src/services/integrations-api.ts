@@ -4,7 +4,7 @@ export class IntegrationsAPI {
   private token: string;
 
   constructor(baseURL: string, token: string) {
-    this.baseURL = baseURL;
+    this.baseURL = baseURL.replace(/\/api\/v1\/?$/, '');
     this.token = token;
   }
 
@@ -20,7 +20,8 @@ export class IntegrationsAPI {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: response.statusText }));
-      throw new Error(error.message || `API Error: ${response.statusText}`);
+      const errorMessage = typeof error.detail === 'string' ? error.detail : (error.message || `API Error: ${response.statusText}`);
+      throw new Error(errorMessage);
     }
 
     return response.json();
@@ -89,4 +90,26 @@ export class IntegrationsAPI {
       body: JSON.stringify(invoiceData),
     });
   }
+  
+  // Get OAuth URL for a specific connector (e.g., 'stripe')
+  async getConnectorOAuthUrl(provider: string) {
+    return this.request(`/connectors/${provider}/oauth-url`);
+  }
+
+  // Connect provider with API keys
+  async connectWithApiKey(provider: string, credentials: { publishable_key: string; secret_key: string }) {
+    return this.request(`/connectors/${provider}/api-key`, {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+  }
+
+  // Handle OAuth callback
+  async handleConnectorOAuthCallback(provider: string, code: string, state: string) {
+    return this.request(`/connectors/${provider}/callback`, {
+      method: 'POST',
+      body: JSON.stringify({ code, state }),
+    });
+  }
 }
+

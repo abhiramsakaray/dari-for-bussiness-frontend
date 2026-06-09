@@ -7,6 +7,19 @@ import { onboardingService } from '@/services/onboarding.service';
 import { toast } from 'sonner';
 import { Check, ArrowRight, Zap, TrendingUp, Building, Crown, Loader2 } from 'lucide-react';
 
+// FastAPI 422 detail can be a string or an array of Pydantic validation error objects.
+// This helper always returns a plain string safe for toast.error().
+function extractErrorMessage(error: any, fallback = 'An unexpected error occurred'): string {
+  const detail = error?.response?.data?.detail;
+  if (!detail) return fallback;
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    // Pydantic v2 validation errors: [{loc, msg, type, input, ctx}, ...]
+    return detail.map((e: any) => e?.msg ?? String(e)).join('; ');
+  }
+  return fallback;
+}
+
 interface PlanSelectionProps {
   onComplete: (plan: string) => void;
   onBack: () => void;
@@ -173,7 +186,7 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
         onComplete(plan);
       }, 1500);
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || 'Failed to complete onboarding');
+      toast.error(extractErrorMessage(error, 'Failed to complete onboarding'));
       setIsCompleting(false);
     }
   };
@@ -298,7 +311,7 @@ export function PlanSelection({ onComplete, onBack }: PlanSelectionProps) {
       toast.success(`${PLANS.find(p => p.id === selectedPlan)?.name} plan activated!`);
       onComplete(selectedPlan);
     } catch (error: any) {
-      toast.error(error.response?.data?.detail || 'Failed to complete onboarding');
+      toast.error(extractErrorMessage(error, 'Failed to complete onboarding'));
       setIsCompleting(false);
     }
   };

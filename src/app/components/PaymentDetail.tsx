@@ -348,8 +348,7 @@ export function PaymentDetail() {
               </CardContent>
             </Card>
 
-            {/* Payer Details — only when payer submitted contact info */}
-            {(payment.payer_name || payment.payer_email) && (
+            {(payment.payer_name || payment.payer_email || payment.customer_name || payment.customer_email) && (
               <Card className="bg-card border-border lg:col-span-3">
                 <CardHeader className="border-b border-border">
                   <CardTitle className="flex items-center gap-2">
@@ -360,10 +359,18 @@ export function PaymentDetail() {
                 <CardContent className="p-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-0">
                     <div>
-                      <DetailRow label="Name" value={payment.payer_name} copyable={payment.payer_name} />
+                      <DetailRow
+                        label="Name"
+                        value={payment.payer_name || payment.customer_name}
+                        copyable={payment.payer_name || payment.customer_name}
+                      />
                     </div>
                     <div>
-                      <DetailRow label="Email" value={payment.payer_email} copyable={payment.payer_email} />
+                      <DetailRow
+                        label="Email"
+                        value={payment.payer_email || payment.customer_email}
+                        copyable={payment.payer_email || payment.customer_email}
+                      />
                     </div>
                   </div>
                 </CardContent>
@@ -561,10 +568,44 @@ export function PaymentDetail() {
                 <CardTitle>Transaction Details</CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <DetailRow
-                  label="Transaction Hash"
-                  value={
-                    payment.tx_hash ? (
+                {/* Stripe card payment */}
+                {payment.metadata?.stripe_payment_intent_id ? (
+                  <>
+                    <DetailRow
+                      label="Payment Method"
+                      value={
+                        <span className="flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-violet-500/10 text-violet-400 text-xs font-semibold border border-violet-500/20">
+                            💳 Card
+                          </span>
+                          <span className="text-muted-foreground text-xs capitalize">
+                            {payment.metadata?.card_provider || "Stripe"}
+                          </span>
+                        </span>
+                      }
+                    />
+                    <Separator />
+                    <DetailRow
+                      label="Stripe Payment ID"
+                      value={
+                        <a
+                          href={`https://dashboard.stripe.com/test/payments/${payment.metadata.stripe_payment_intent_id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline inline-flex items-center gap-1 font-mono text-xs"
+                        >
+                          {payment.metadata.stripe_payment_intent_id}
+                          <ExternalLink className="h-3 w-3 shrink-0" />
+                        </a>
+                      }
+                      copyable={payment.metadata.stripe_payment_intent_id}
+                    />
+                  </>
+                ) : payment.tx_hash ? (
+                  /* On-chain payment */
+                  <DetailRow
+                    label="Transaction Hash"
+                    value={
                       <a
                         href={getExplorerTxUrl(payment.chain, payment.tx_hash)}
                         target="_blank"
@@ -574,12 +615,31 @@ export function PaymentDetail() {
                         {payment.tx_hash}
                         <ExternalLink className="h-3 w-3 shrink-0" />
                       </a>
-                    ) : (
+                    }
+                    copyable={payment.tx_hash}
+                  />
+                ) : (
+                  /* No payment yet */
+                  <DetailRow
+                    label="Transaction Hash"
+                    value={
                       <span className="text-muted-foreground italic">No transaction yet</span>
-                    )
-                  }
-                  copyable={payment.tx_hash || undefined}
-                />
+                    }
+                  />
+                )}
+
+                {/* Chain info for on-chain payments */}
+                {payment.chain && !payment.metadata?.stripe_payment_intent_id && (
+                  <>
+                    <Separator />
+                    <DetailRow
+                      label="Network"
+                      value={
+                        <span className="capitalize font-medium">{payment.chain}</span>
+                      }
+                    />
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>

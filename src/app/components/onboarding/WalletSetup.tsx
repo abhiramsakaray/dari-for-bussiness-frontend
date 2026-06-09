@@ -24,12 +24,11 @@ const AVAILABLE_CHAINS = [
   { id: 'solana', name: 'Solana', description: 'Ultra-fast transactions' },
 ];
 
+// NOTE: Must match the backend's TokenEnum exactly (USDC, USDT, PYUSD only)
 const AVAILABLE_TOKENS = [
   { id: 'USDC', name: 'USD Coin', description: 'Circle stablecoin' },
   { id: 'USDT', name: 'Tether', description: 'Most liquid stablecoin' },
   { id: 'PYUSD', name: 'PayPal USD', description: 'PayPal stablecoin' },
-  { id: 'EURC', name: 'Euro Coin', description: 'Circle euro stablecoin' },
-  { id: 'AUDD', name: 'AUD Digital', description: 'Australian dollar stablecoin' },
 ];
 
 export function WalletSetup({ onComplete }: WalletSetupProps) {
