@@ -23,6 +23,7 @@ import {
   RefreshCw,
   Wallet2,
   ArrowUpLeft,
+  GitBranch,
   Wallet
 } from "lucide-react";
 import { getPermissions, getUserInfo, getRoleLabel } from "../../utils/rolePermissions";
@@ -69,7 +70,7 @@ const navGroups: NavGroup[] = [
     icon: BarChart3,
     items: [
       { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/analytics-dashboard' },
-      { id: 'reports', label: 'Reports', icon: FileText, href: '/reports' },
+      { id: 'orchestration', label: 'Orchestration', icon: GitBranch, href: '/orchestration' },
       { id: 'team', label: 'Team', icon: Users, href: '/team' },
       { id: 'wallets', label: 'Wallets', icon: Wallet2, href: '/wallets' },
       { id: 'withdrawals', label: 'Withdrawals', icon: ArrowUpLeft, href: '/withdrawals' },
@@ -84,18 +85,12 @@ const navGroups: NavGroup[] = [
     items: [
       { id: 'development', label: 'Development', icon: FileText, href: '/developer/guide' },
       { id: 'code-with-ai', label: 'Code with AI', icon: Command, href: '/developer/ai' },
+      { id: 'customization', label: 'Customization', icon: LayoutGrid, href: '/dashboard/customization' },
       { id: 'settings', label: 'Settings', icon: Settings, href: '/dashboard/settings' },
     ],
   },
 ];
 
-const topNavItems: NavItem[] = [
-  { id: 'overview', label: 'Overview', icon: LayoutGrid, href: '/dashboard' },
-  { id: 'transactions', label: 'Transactions', icon: ArrowLeftRight, href: '/dashboard/payments' },
-  { id: 'analytics', label: 'Analytics', icon: BarChart3, href: '/analytics-dashboard' },
-  { id: 'reports', label: 'Reports', icon: FileText, href: '/reports' },
-  { id: 'users', label: 'Users', icon: Users, href: '/team' },
-];
 
 export function BentoLayout({ children, activePage }: BentoLayoutProps) {
   const navigate = useNavigate();
@@ -194,8 +189,6 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
           return permissions.canViewTransactions; // Same as transactions
         case 'analytics':
           return permissions.canViewAnalytics;
-        case 'reports':
-          return permissions.canViewReports;
         case 'team':
           return permissions.canViewTeam;
         case 'wallets':
@@ -210,6 +203,8 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
           return true; // Available to all
         case 'code-with-ai':
           return true; // Available to all
+        case 'customization':
+          return permissions.canViewSettings;
         case 'settings':
           return permissions.canViewSettings;
         default:
@@ -217,23 +212,6 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
       }
     })
   })).filter(group => group.items.length > 0); // Remove empty groups
-
-  const filteredTopNavItems = topNavItems.filter(item => {
-    switch (item.id) {
-      case 'overview':
-        return permissions.canViewOverview;
-      case 'transactions':
-        return permissions.canViewTransactions;
-      case 'analytics':
-        return permissions.canViewAnalytics;
-      case 'reports':
-        return permissions.canViewReports;
-      case 'users':
-        return permissions.canViewTeam;
-      default:
-        return true;
-    }
-  });
 
   const toggleGroup = (groupId: string) => {
     setExpandedGroups(prev => ({
@@ -320,22 +298,8 @@ export function BentoLayout({ children, activePage }: BentoLayoutProps) {
             </Link>
           </div>
 
-          {/* Center Zone - Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-9">
-            {filteredTopNavItems.map((item) => (
-              <Link
-                key={item.id}
-                to={item.href}
-                className={`text-[13px] font-medium transition-dari ${
-                  activePage === item.id
-                    ? 'text-foreground border-b-2 border-foreground pb-0.5'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </div>
+          {/* Center Zone - Empty for cleaner look */}
+          <div className="hidden lg:flex flex-1"></div>
 
           {/* Right Zone */}
           <div className="flex items-center gap-3">

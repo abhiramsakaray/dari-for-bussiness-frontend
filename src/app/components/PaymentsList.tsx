@@ -128,7 +128,7 @@ export function PaymentsList() {
                     } else {
                       // Fallback to existing logic
                       const displayAmountValue = parseFloat(payment.amount_usdc || payment.amount_fiat?.toString() || '0');
-                      dual = displayDualAmount(displayAmountValue, payment.amount_fiat_local);
+                      dual = displayDualAmount(displayAmountValue, payment.amount_fiat_local, payment.fiat_currency, payment.amount_fiat);
                     }
                     
                     // Debug: Diagnose currency encoding for first payment (development only)
@@ -176,11 +176,11 @@ export function PaymentsList() {
                             <div className="text-xs space-y-0.5">
                               <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
                                 <Tag className="w-3 h-3" />
-                                <span>-{displayAmount(payment.discount_amount, payment.discount_amount_local)}</span>
+                                <span>-{displayAmount(payment.discount_amount, payment.discount_amount_local, payment.fiat_currency)}</span>
                                 <span className="font-mono">({payment.coupon_code})</span>
                               </div>
                               <div className="text-muted-foreground">
-                                {payment.status?.toLowerCase() === 'paid' ? 'Paid' : 'Payable'}: {displayAmount(payment.amount_paid || 0, payment.amount_paid_local)}
+                                {payment.status?.toLowerCase() === 'paid' ? 'Paid' : 'Payable'}: {displayAmount(payment.amount_paid || 0, payment.amount_paid_local, payment.fiat_currency)}
                               </div>
                             </div>
                           )}

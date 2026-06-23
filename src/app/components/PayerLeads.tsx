@@ -31,8 +31,19 @@ export function PayerLeads() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await chainpeService.getPayerLeads({ limit: 100, include_paid: includePaid });
-      setLeads(response.payments);
+      // Fallback: Fetch all payments and filter locally to ensure we catch leads
+      // even if the dedicated payer-leads endpoint is returning empty.
+      const response = await chainpeService.getPaymentHistory({ limit: 100 });
+      
+      let filteredLeads = response.payments.filter((p) => 
+        Boolean(p.payer_email || p.customer_email)
+      );
+      
+      if (!includePaid) {
+        filteredLeads = filteredLeads.filter(p => p.status?.toLowerCase() !== "paid");
+      }
+      
+      setLeads(filteredLeads);
     } catch (err: any) {
       setError(extractErrorMessage(err, "Failed to fetch payer leads"));
     } finally {

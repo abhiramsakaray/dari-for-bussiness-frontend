@@ -158,12 +158,13 @@ export interface LocalCurrencyAmount {
  */
 export function displayAmount(
   amountUsd: number,
-  localAmount: LocalCurrencyAmount | null | undefined
+  localAmount: LocalCurrencyAmount | null | undefined,
+  fallbackCurrency = 'USD'
 ): string {
   if (localAmount) {
     return localAmount.display_local;
   }
-  return formatCurrency(amountUsd, 'USD');
+  return formatCurrency(amountUsd, fallbackCurrency);
 }
 
 /**
@@ -174,7 +175,9 @@ export function displayAmount(
  */
 export function displayDualAmount(
   amountUsdc: number | string,
-  localAmount: LocalCurrencyAmount | null | undefined
+  localAmount: LocalCurrencyAmount | null | undefined,
+  fallbackCurrency = 'USD',
+  fiatAmount?: number | string
 ): { primary: string; secondary: string | null } {
   // Convert to number if string
   const usdc = typeof amountUsdc === 'string' ? parseFloat(amountUsdc) : amountUsdc;
@@ -185,8 +188,17 @@ export function displayDualAmount(
       secondary: `$${usdc.toFixed(2)}`,
     };
   }
+  
+  if (fallbackCurrency !== 'USD' && fiatAmount !== undefined) {
+    const fiat = typeof fiatAmount === 'string' ? parseFloat(fiatAmount) : fiatAmount;
+    return {
+      primary: formatCurrency(fiat, fallbackCurrency),
+      secondary: `$${usdc.toFixed(2)} USDC`,
+    };
+  }
+  
   return {
-    primary: `$${usdc.toFixed(2)}`,
+    primary: formatCurrency(usdc, fallbackCurrency),
     secondary: null,
   };
 }

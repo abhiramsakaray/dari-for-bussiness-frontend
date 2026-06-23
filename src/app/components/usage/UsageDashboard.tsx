@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useBilling } from '../../../hooks/useBilling';
 import { useMerchantCurrency } from '../../../hooks/useMerchantCurrency';
+import { usePaymentStats } from '../../../hooks/usePaymentHistory';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Progress } from '../ui/progress';
@@ -11,7 +12,9 @@ import { BillingPeriodCard } from './BillingPeriodCard';
 import { UsageHistoryModal } from './UsageHistoryModal';
 
 export function UsageDashboard() {
-  const { billingInfo, isLoading, error } = useBilling();
+  const { billingInfo, isLoading: billingLoading, error } = useBilling();
+  const { stats, isLoading: statsLoading } = usePaymentStats();
+  const isLoading = billingLoading || statsLoading;
   const { currencySymbol } = useMerchantCurrency();
   const [showHistoryModal, setShowHistoryModal] = useState(false);
 
@@ -44,10 +47,22 @@ export function UsageDashboard() {
     );
   }
 
+  // Extract actual volume from payment stats to ensure it matches the dashboard
+  let actualVolume = billingInfo.current_volume;
+  if (stats?.revenue) {
+    const totalLocal = stats.revenue.total_local;
+    if (totalLocal && totalLocal.local_currency !== 'USD') {
+      // Use the workaround for the backend bug where amount_usdc holds the local amount
+      actualVolume = totalLocal.amount_usdc || actualVolume;
+    } else {
+      actualVolume = stats.revenue.total_usdc || actualVolume;
+    }
+  }
+
   // Calculate usage percentages
   const usagePercentages = {
     volume: billingInfo.monthly_volume_limit
-      ? (billingInfo.current_volume / billingInfo.monthly_volume_limit) * 100
+      ? (actualVolume / billingInfo.monthly_volume_limit) * 100
       : 0,
     paymentLinks: billingInfo.payment_link_limit
       ? (billingInfo.current_payment_links / billingInfo.payment_link_limit) * 100
@@ -163,7 +178,7 @@ export function UsageDashboard() {
               <div className="flex justify-between items-center mb-2">
                 <span className="font-medium">Transaction Volume</span>
                 <span className="text-sm text-muted-foreground">
-                  {currencySymbol}{billingInfo.current_volume.toLocaleString()} /{' '}
+                  {currencySymbol}{actualVolume.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} /{' '}
                   {billingInfo.monthly_volume_limit
                     ? `${currencySymbol}${billingInfo.monthly_volume_limit.toLocaleString()}`
                     : 'Unlimited'}

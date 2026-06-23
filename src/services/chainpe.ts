@@ -2,6 +2,7 @@ import api from './api';
 
 export interface PaymentSessionData {
   amount: number;
+  currency?: string;
   amount_usdc?: number; // For backward compatibility
   order_id?: string;
   success_url: string;
@@ -15,6 +16,8 @@ export interface PaymentSession {
   merchant_id?: string;
   merchant_name?: string;
   checkout_url: string;
+  amount?: number;
+  currency?: string;
   amount_usdc: string;
   amount_fiat?: number;
   fiat_currency?: string;
@@ -61,6 +64,43 @@ export interface PaymentSession {
 
   // Raw session metadata (contains stripe_payment_intent_id, card_provider, etc.)
   metadata?: Record<string, any>;
+
+  // ── Settlement Intelligence [ORCH-SETTLE] ──────────────────────────────
+  settlement_id?: string | null;
+  settlement_status?: string | null;        // SETTLED | PENDING_RECONCILIATION | DISPUTED | REVERSED
+  settlement_gross_amount?: string | null;  // Total received on-chain (USDC)
+  settlement_platform_fee?: string | null;  // Dari processing fee
+  settlement_network_fee?: string | null;   // On-chain gas / relayer cost
+  settlement_net_amount?: string | null;    // Merchant payout (gross - fees)
+  settlement_chain?: string | null;
+  settlement_token?: string | null;
+  settlement_tx_hash?: string | null;
+  settlement_created_at?: string | null;
+
+  // ── Orchestration Routing Metadata [ORCH-ROUTE] ────────────────────────
+  provider_used?: string | null;            // Gateway that processed the payment
+  routing_strategy?: string | null;        // rule | smart | failover | only_option
+  routing_reason?: string | null;          // Human-readable routing reason
+  routing_score?: number | null;           // Composite gateway score at decision time
+  alternative_providers?: string[] | null;
+  routing_estimated_fee?: string | null;
+  routing_estimated_success_rate?: number | null;
+  routing_failover_used?: boolean | null;
+  routing_candidate_scores?: Array<{
+    gateway: string;
+    score: number | null;
+    success_rate: number | null;
+  }> | null;
+  routing_decision_id?: string | null;
+}
+
+export interface CheckoutSettings {
+  primary_color?: string;
+  theme?: string;
+  require_phone?: boolean;
+  require_billing_address?: boolean;
+  support_email?: string;
+  store_name?: string;
 }
 
 export interface MerchantProfile {
@@ -71,6 +111,8 @@ export interface MerchantProfile {
   webhook_url?: string;
   api_key: string;
   is_active: boolean;
+  logo_url?: string;
+  checkout_settings?: CheckoutSettings;
   created_at: string;
 }
 
@@ -177,6 +219,18 @@ export const chainpeService = {
   // Update merchant profile
   updateMerchantProfile: async (data: Partial<MerchantProfile>): Promise<MerchantProfile> => {
     const response = await api.put('/merchant/profile', data);
+    return response.data;
+  },
+
+  // Upload merchant logo
+  uploadLogo: async (file: File): Promise<{ message: string, logo_url: string }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/merchant/upload-logo', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
 

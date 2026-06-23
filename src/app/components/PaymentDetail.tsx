@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
-import { ArrowLeft, ExternalLink, Copy, Clock, CheckCircle2, XCircle, AlertCircle, UserCircle2, Tag, Download, FileText, RefreshCw } from "lucide-react";
+import { ArrowLeft, ExternalLink, Copy, Clock, CheckCircle2, XCircle, AlertCircle, UserCircle2, Tag, Download, FileText, RefreshCw, Landmark, Zap, TrendingUp, Shield, GitBranch } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { chainpeService, PaymentSession } from "../../services/chainpe";
@@ -227,7 +227,7 @@ export function PaymentDetail() {
         secondary: null
       }
     : payment 
-      ? displayDualAmount(displayAmountValue, payment.amount_fiat_local) 
+      ? displayDualAmount(displayAmountValue, payment.amount_fiat_local, payment.fiat_currency, payment.amount_fiat) 
       : { primary: formatCurrency(0, currency), secondary: null };
 
   return (
@@ -293,19 +293,19 @@ export function PaymentDetail() {
                       // Show coupon breakdown
                       <div className="space-y-1">
                         <div className="text-sm text-muted-foreground line-through">
-                          {displayAmount(payment.amount_fiat || 0, payment.amount_fiat_local)}
+                          {displayAmount(payment.amount_fiat || 0, payment.amount_fiat_local, payment.fiat_currency)}
                         </div>
                         <div className="flex items-center justify-end gap-2 text-green-600 dark:text-green-400">
                           <Tag className="h-4 w-4" />
                           <span className="text-sm font-medium">
-                            -{displayAmount(payment.discount_amount, payment.discount_amount_local)}
+                            -{displayAmount(payment.discount_amount, payment.discount_amount_local, payment.fiat_currency)}
                           </span>
                           <Badge variant="secondary" className="font-mono text-xs">
                             {payment.coupon_code}
                           </Badge>
                         </div>
                         <div className="text-3xl font-bold">
-                          {displayAmount(payment.amount_paid || 0, payment.amount_paid_local)}
+                          {displayAmount(payment.amount_paid || 0, payment.amount_paid_local, payment.fiat_currency)}
                         </div>
                         <p className="text-sm text-muted-foreground">
                           {status === 'paid' ? 'Amount Paid' : 'Amount Payable'}
@@ -447,7 +447,7 @@ export function PaymentDetail() {
                   <>
                     <DetailRow 
                       label="Original Amount" 
-                      value={displayAmount(payment.amount_fiat || 0, payment.amount_fiat_local)} 
+                      value={displayAmount(payment.amount_fiat || 0, payment.amount_fiat_local, payment.fiat_currency)} 
                     />
                     <Separator />
                     <DetailRow 
@@ -463,7 +463,7 @@ export function PaymentDetail() {
                       label="Discount" 
                       value={
                         <span className="text-green-600 dark:text-green-400">
-                          -{displayAmount(payment.discount_amount, payment.discount_amount_local)}
+                          -{displayAmount(payment.discount_amount, payment.discount_amount_local, payment.fiat_currency)}
                         </span>
                       } 
                     />
@@ -472,7 +472,7 @@ export function PaymentDetail() {
                       label={status === 'paid' ? 'Amount Paid' : 'Amount Payable'}
                       value={
                         <span className="font-semibold">
-                          {displayAmount(payment.amount_paid || 0, payment.amount_paid_local)}
+                          {displayAmount(payment.amount_paid || 0, payment.amount_paid_local, payment.fiat_currency)}
                         </span>
                       } 
                     />
@@ -642,6 +642,195 @@ export function PaymentDetail() {
                 )}
               </CardContent>
             </Card>
+
+            {/* ── Payment Economics Card ── */}
+            {payment.settlement_gross_amount && (
+              <Card className="bg-card border-border lg:col-span-2">
+                <CardHeader className="border-b border-border">
+                  <CardTitle className="flex items-center gap-2">
+                    <Landmark className="h-5 w-5 text-emerald-500" />
+                    Payment Economics
+                    {payment.settlement_status && (
+                      <Badge
+                        variant={payment.settlement_status === 'SETTLED' ? 'success' : 'pending'}
+                        className="ml-auto text-xs"
+                      >
+                        {payment.settlement_status}
+                      </Badge>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  {/* Fee Breakdown */}
+                  <div className="space-y-0">
+                    <div className="flex justify-between items-center py-3">
+                      <span className="text-sm text-muted-foreground">Gross Amount</span>
+                      <span className="font-semibold text-sm">
+                        {payment.settlement_token} {payment.settlement_gross_amount}
+                      </span>
+                    </div>
+                    <Separator />
+                    <div className="flex justify-between items-center py-3">
+                      <span className="text-sm text-muted-foreground">Platform Fee</span>
+                      <span className="text-sm text-orange-400">− {payment.settlement_token} {payment.settlement_platform_fee}</span>
+                    </div>
+                    <Separator />
+                    <div className="flex justify-between items-center py-3">
+                      <span className="text-sm text-muted-foreground">Network Fee</span>
+                      <span className="text-sm text-yellow-400">− {payment.settlement_token} {payment.settlement_network_fee}</span>
+                    </div>
+                    <Separator />
+                    <div className="flex justify-between items-center py-3 rounded-lg bg-emerald-500/10 px-3 -mx-3">
+                      <span className="text-sm font-semibold text-emerald-400 flex items-center gap-1">
+                        <Shield className="h-4 w-4" />
+                        Net Settlement
+                      </span>
+                      <span className="font-bold text-emerald-400">
+                        {payment.settlement_token} {payment.settlement_net_amount}
+                      </span>
+                    </div>
+                  </div>
+                  {/* Settlement metadata */}
+                  {(payment.settlement_chain || payment.settlement_tx_hash) && (
+                    <>
+                      <Separator className="mt-4" />
+                      {payment.settlement_chain && (
+                        <DetailRow label="Settlement Chain" value={
+                          <span className="capitalize font-medium">{payment.settlement_chain}</span>
+                        } />
+                      )}
+                      {payment.settlement_tx_hash && (
+                        <>
+                          <Separator />
+                          <DetailRow
+                            label="Settlement Tx"
+                            value={
+                              <span className="font-mono text-xs break-all">
+                                {payment.settlement_tx_hash.slice(0, 20)}…
+                              </span>
+                            }
+                            mono
+                            copyable={payment.settlement_tx_hash}
+                          />
+                        </>
+                      )}
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* ── Orchestration Insights Card ── */}
+            {payment.provider_used && (
+              <Card className="bg-card border-border">
+                <CardHeader className="border-b border-border">
+                  <CardTitle className="flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-violet-500" />
+                    Orchestration Insights
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-0">
+                  <DetailRow
+                    label="Provider Used"
+                    value={
+                      <Badge variant="outline" className="capitalize font-semibold">
+                        {payment.provider_used}
+                      </Badge>
+                    }
+                  />
+                  <Separator />
+                  <DetailRow
+                    label="Routing Strategy"
+                    value={
+                      <span className="capitalize text-sm">{payment.routing_strategy?.replace('_', ' ')}</span>
+                    }
+                  />
+                  {payment.routing_reason && (
+                    <>
+                      <Separator />
+                      <DetailRow
+                        label="Routing Reason"
+                        value={<span className="text-sm text-right max-w-[200px]">{payment.routing_reason}</span>}
+                      />
+                    </>
+                  )}
+                  {typeof payment.routing_score === 'number' && (
+                    <>
+                      <Separator />
+                      <DetailRow
+                        label="Gateway Score"
+                        value={
+                          <span className="flex items-center gap-1">
+                            <TrendingUp className="h-3.5 w-3.5 text-green-400" />
+                            <span className="font-semibold text-sm">{payment.routing_score.toFixed(1)}</span>
+                          </span>
+                        }
+                      />
+                    </>
+                  )}
+                  {payment.routing_failover_used && (
+                    <>
+                      <Separator />
+                      <DetailRow
+                        label="Failover"
+                        value={
+                          <Badge variant="secondary" className="text-amber-400 border-amber-400/30 bg-amber-400/10">
+                            Triggered
+                          </Badge>
+                        }
+                      />
+                    </>
+                  )}
+                  {payment.alternative_providers && payment.alternative_providers.length > 0 && (
+                    <>
+                      <Separator />
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-1">
+                        <span className="text-sm text-muted-foreground">Alternatives</span>
+                        <div className="flex flex-wrap gap-1 justify-end">
+                          {payment.alternative_providers.map(p => (
+                            <Badge key={p} variant="outline" className="text-xs capitalize">{p}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  {payment.routing_candidate_scores && payment.routing_candidate_scores.length > 0 && (
+                    <>
+                      <Separator />
+                      <div className="py-3">
+                        <p className="text-xs text-muted-foreground mb-2">Candidate Scores</p>
+                        <div className="space-y-1.5">
+                          {payment.routing_candidate_scores.map(c => (
+                            <div key={c.gateway} className="flex items-center gap-2">
+                              <span className="text-xs capitalize w-20 truncate">{c.gateway}</span>
+                              <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className="h-full rounded-full bg-gradient-to-r from-violet-500 to-blue-500"
+                                  style={{ width: `${Math.min((c.score || 0), 100)}%` }}
+                                />
+                              </div>
+                              <span className="text-xs text-muted-foreground w-8 text-right">{(c.score || 0).toFixed(0)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  {payment.routing_decision_id && (
+                    <>
+                      <Separator />
+                      <DetailRow
+                        label="Decision ID"
+                        value={<span className="font-mono text-xs">{payment.routing_decision_id.slice(0, 12)}…</span>}
+                        mono
+                        copyable={payment.routing_decision_id}
+                      />
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
           </div>
         ) : null}
       </div>

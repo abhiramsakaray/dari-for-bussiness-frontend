@@ -41,6 +41,7 @@ import { PaymentDetail } from './components/PaymentDetail';
 import { PayerLeads } from './components/PayerLeads';
 import { CreatePayment } from './components/CreatePayment';
 import { Settings } from './components/Settings';
+import { CheckoutCustomization } from './components/CheckoutCustomization';
 import { Admin } from './components/Admin';
 import { Integrations } from './components/Integrations';
 import { Billing } from './components/Billing';
@@ -73,6 +74,7 @@ import { DevelopmentGuide } from './components/developer/DevelopmentGuide';
 import { CodeWithAI } from './components/developer/CodeWithAI';
 import { UsageDashboard } from './components/usage/UsageDashboard';
 import { AdminFees } from './components/AdminFees';
+import OrchestrationDashboard from './components/orchestration/OrchestrationDashboard';
 
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ProtectedTeamRoute } from './components/team/ProtectedTeamRoute';
@@ -203,6 +205,7 @@ export default function AppRouter() {
         <Route path="/dashboard/create" element={<ProtectedRoute><CreatePayment /></ProtectedRoute>} />
         <Route path="/dashboard/integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
         <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/dashboard/customization" element={<ProtectedRoute><CheckoutCustomization /></ProtectedRoute>} />
         <Route path="/dashboard/coupons" element={<ProtectedRoute><Coupons /></ProtectedRoute>} />
         <Route path="/dashboard/coupons/new" element={<ProtectedRoute><CreateCouponPage /></ProtectedRoute>} />
         <Route path="/dashboard/coupons/:id/analytics" element={<ProtectedRoute><CouponAnalytics /></ProtectedRoute>} />
@@ -226,11 +229,10 @@ export default function AppRouter() {
         <Route path="/subscriptions-dashboard/new" element={<ProtectedRoute><CreateSubscriptionPlanForm /></ProtectedRoute>} />
         <Route path="/subscriptions/web3-checkout/:planId?" element={<ProtectedRoute><Web3SubscriptionCheckoutPage planId="" /></ProtectedRoute>} />
         <Route path="/refunds" element={<ProtectedRoute><RefundsList /></ProtectedRoute>} />
-        <Route path="/coupons" element={<ProtectedRoute><Coupons /></ProtectedRoute>} />
         <Route path="/analytics-dashboard" element={<ProtectedRoute><AnalyticsDashboard /></ProtectedRoute>} />
-        <Route path="/reports" element={<ProtectedRoute><AnalyticsDashboard /></ProtectedRoute>} />
         <Route path="/analytics/payment-tracking" element={<ProtectedRoute><PaymentTracker /></ProtectedRoute>} />
         <Route path="/analytics/subscription-tracking" element={<ProtectedRoute><SubscriptionTracker /></ProtectedRoute>} />
+        <Route path="/orchestration" element={<ProtectedRoute><OrchestrationDashboard /></ProtectedRoute>} />
         <Route path="/team" element={<ProtectedRoute><TeamMembersList /></ProtectedRoute>} />
         <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
         <Route path="/usage" element={<ProtectedRoute><UsageDashboard /></ProtectedRoute>} />

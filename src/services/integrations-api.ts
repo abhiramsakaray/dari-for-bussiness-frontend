@@ -97,7 +97,7 @@ export class IntegrationsAPI {
   }
 
   // Connect provider with API keys
-  async connectWithApiKey(provider: string, credentials: { publishable_key: string; secret_key: string }) {
+  async connectWithApiKey(provider: string, credentials: any) {
     return this.request(`/connectors/${provider}/api-key`, {
       method: 'POST',
       body: JSON.stringify(credentials),
@@ -109,6 +109,23 @@ export class IntegrationsAPI {
     return this.request(`/connectors/${provider}/callback`, {
       method: 'POST',
       body: JSON.stringify({ code, state }),
+    });
+  }
+
+  // Get connector status
+  async getConnectorStatus(provider: string) {
+    try {
+      return await this.request(`/connectors/${provider}/health`);
+    } catch (error) {
+      // If 404, it means it's not connected
+      return { is_connected: false };
+    }
+  }
+
+  // Disconnect a connector
+  async disconnectConnector(provider: string) {
+    return this.request(`/connectors/${provider}`, {
+      method: 'DELETE',
     });
   }
 }

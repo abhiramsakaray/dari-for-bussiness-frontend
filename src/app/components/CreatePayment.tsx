@@ -37,7 +37,7 @@ const STEPS = [
   { icon: Zap,          text: "Set amount & pick currency" },
   { icon: Link2,        text: "Receive a unique checkout URL" },
   { icon: ArrowRight,   text: "Redirect your customer" },
-  { icon: Wallet,       text: "Customer pays with Stellar wallet" },
+  { icon: Wallet,       text: "Customer pays via their preferred method" },
   { icon: Bell,         text: "Webhook fires on completion" },
 ];
 
@@ -99,14 +99,14 @@ export function CreatePayment() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     const fiatAmount = parseFloat(formData.amount);
-    const usdcAmount = fiatToUsdc(fiatAmount, formData.currency);
     
     // Store the original fiat info BEFORE creating the session
     const fiatInfo = { amount: formData.amount, currency: formData.currency };
     
     try {
       const session = await createPayment({
-        amount: parseFloat(usdcAmount.toFixed(6)),
+        amount: fiatAmount,
+        currency: formData.currency,
         order_id: formData.orderId || undefined,
         success_url: formData.successUrl,
         cancel_url: formData.cancelUrl,
@@ -186,7 +186,7 @@ export function CreatePayment() {
               <div className="bg-white p-4 rounded-2xl shadow-sm">
                 <QRCodeSVG value={sessionData.checkout_url} size={180} level="H" includeMargin />
               </div>
-              <p className="text-xs text-center text-muted-foreground">Scan with any Stellar-compatible wallet</p>
+              <p className="text-xs text-center text-muted-foreground">Scan or click to complete payment securely</p>
             </Card>
 
             {/* Checkout URL */}

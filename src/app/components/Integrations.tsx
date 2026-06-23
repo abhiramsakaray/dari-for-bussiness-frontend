@@ -274,6 +274,54 @@ function ConnectIntegrationModal({ integration, onClose, onSuccess, apiUrl, toke
             required: true
           }
         ];
+      case 'dodo':
+        return [
+          { key: 'api_key', label: 'API Key', placeholder: 'test_xxxx or live_xxxx', type: 'password', required: true },
+          { key: 'webhook_secret', label: 'Webhook Secret', placeholder: 'Optional', type: 'password', required: false },
+        ];
+      case 'paytm':
+        return [
+          { key: 'merchant_id', label: 'Merchant ID', placeholder: 'xxxxxx', required: true },
+          { key: 'merchant_key', label: 'Merchant Key', placeholder: 'xxxxxx', type: 'password', required: true },
+          { key: 'webhook_secret', label: 'Webhook Secret (Optional)', placeholder: 'xxxxxx', type: 'password', required: false },
+        ];
+      case 'phonepe':
+        return [
+          { key: 'client_id', label: 'Client ID', placeholder: 'xxxxxx', required: true },
+          { key: 'client_secret', label: 'Client Secret', placeholder: 'xxxxxx', type: 'password', required: true },
+          { key: 'username', label: 'Webhook Username', placeholder: 'xxxxxx', required: true },
+          { key: 'password', label: 'Webhook Password', placeholder: 'xxxxxx', type: 'password', required: true },
+        ];
+      case 'cashfree':
+        return [
+          { key: 'app_id', label: 'App ID', placeholder: 'xxxxxx', required: true },
+          { key: 'secret_key', label: 'Secret Key', placeholder: 'xxxxxx', type: 'password', required: true },
+          { key: 'webhook_secret', label: 'Webhook Secret (Optional)', placeholder: 'xxxxxx', type: 'password', required: false },
+        ];
+      case 'payu':
+        return [
+          { key: 'merchant_key', label: 'Merchant Key', placeholder: 'xxxxxx', required: true },
+          { key: 'merchant_salt', label: 'Merchant Salt', placeholder: 'xxxxxx', type: 'password', required: true },
+          { key: 'webhook_secret', label: 'Webhook Secret (Optional)', placeholder: 'xxxxxx', type: 'password', required: false },
+        ];
+      case 'ccavenue':
+        return [
+          { key: 'merchant_id', label: 'Merchant ID', placeholder: 'xxxxxx', required: true },
+          { key: 'access_code', label: 'Access Code', placeholder: 'xxxxxx', required: true },
+          { key: 'working_key', label: 'Working Key', placeholder: 'xxxxxx', type: 'password', required: true },
+        ];
+      case 'instamojo':
+        return [
+          { key: 'api_key', label: 'API Key', placeholder: 'xxxxxx', type: 'password', required: true },
+          { key: 'auth_token', label: 'Auth Token', placeholder: 'xxxxxx', type: 'password', required: true },
+          { key: 'webhook_secret', label: 'Webhook Secret (Optional)', placeholder: 'xxxxxx', type: 'password', required: false },
+        ];
+      case 'easebuzz':
+        return [
+          { key: 'merchant_key', label: 'Merchant Key', placeholder: 'xxxxxx', required: true },
+          { key: 'merchant_salt', label: 'Merchant Salt', placeholder: 'xxxxxx', type: 'password', required: true },
+          { key: 'webhook_secret', label: 'Webhook Secret (Optional)', placeholder: 'xxxxxx', type: 'password', required: false },
+        ];
       default:
         return [
           { 
@@ -292,17 +340,9 @@ function ConnectIntegrationModal({ integration, onClose, onSuccess, apiUrl, toke
     const api = new IntegrationsAPI(apiUrl, token);
 
     try {
-      if (integration.type === 'stripe') {
-        await api.connectWithApiKey('stripe', {
-          publishable_key: credentials.publishable_key,
-          secret_key: credentials.secret_key
-        });
-      } else if (integration.type === 'razorpay') {
-        await api.connectWithApiKey('razorpay', {
-          razorpay_key_id: credentials.razorpay_key_id,
-          razorpay_key_secret: credentials.razorpay_key_secret,
-          razorpay_webhook_secret: credentials.razorpay_webhook_secret
-        });
+      const connectorSet = new Set(['stripe', 'razorpay', 'dodo', 'paytm', 'phonepe', 'cashfree', 'payu', 'ccavenue', 'instamojo', 'easebuzz']);
+      if (connectorSet.has(integration.type)) {
+        await api.connectWithApiKey(integration.type, credentials);
       } else {
         await api.connect(integration.type, credentials, {
           auto_sync: true,
@@ -400,7 +440,7 @@ function ConnectIntegrationModal({ integration, onClose, onSuccess, apiUrl, toke
   );
 }
 
-const ALLOWED_INTEGRATION_TYPES = new Set(['razorpay', 'stripe']);
+const ALLOWED_INTEGRATION_TYPES = new Set(['razorpay', 'stripe', 'dodo', 'paytm', 'phonepe', 'cashfree', 'payu', 'ccavenue', 'instamojo', 'easebuzz']);
 
 // Default integrations to show if backend doesn't return any
 const DEFAULT_INTEGRATIONS: Integration[] = [
@@ -413,7 +453,15 @@ const DEFAULT_INTEGRATIONS: Integration[] = [
     type: 'stripe',
     name: 'Stripe',
     description: 'Connect your Stripe account for unified payment processing and reporting'
-  }
+  },
+  { type: 'dodo', name: 'Dodo Payments', description: 'Accept payments via Dodo Payments API' },
+  { type: 'paytm', name: 'Paytm', description: 'Accept payments via Paytm Payment Gateway' },
+  { type: 'phonepe', name: 'PhonePe', description: 'Accept payments via PhonePe Standard Checkout' },
+  { type: 'cashfree', name: 'Cashfree', description: 'Accept payments via Cashfree Payment Gateway' },
+  { type: 'payu', name: 'PayU', description: 'Accept payments via PayU Payment Gateway' },
+  { type: 'ccavenue', name: 'CCAvenue', description: 'Accept payments via CCAvenue Payment Gateway' },
+  { type: 'instamojo', name: 'Instamojo', description: 'Accept payments via Instamojo Payment Gateway' },
+  { type: 'easebuzz', name: 'Easebuzz', description: 'Accept payments via Easebuzz Payment Gateway' }
 ];
 
 export function Integrations() {
@@ -460,32 +508,54 @@ export function Integrations() {
     const api = new IntegrationsAPI(apiUrl, token);
     
     try {
-      const [available, status] = await Promise.all([
+      const connectorTypes = ['stripe', 'razorpay', 'dodo', 'paytm', 'phonepe', 'cashfree', 'payu', 'ccavenue', 'instamojo', 'easebuzz'];
+      const [available, status, ...connectorStatuses] = await Promise.all([
         api.listAvailable(),
-        api.getStatus()
+        api.getStatus(),
+        ...connectorTypes.map(type => 
+          api.getConnectorStatus(type)
+             .then(data => ({ type, data }))
+             .catch(() => ({ type, data: { is_connected: false } }))
+        )
       ]);
       
       // Combine backend data with frontend defaults (for connectors like Stripe)
-      const backendIntegrations = (available.integrations || []).filter(integration =>
+      const backendIntegrations = (available.integrations || []).filter((integration: any) =>
         ALLOWED_INTEGRATION_TYPES.has(integration.type.toLowerCase())
       );
       const combined = backendIntegrations.map(normalizeIntegration);
       
       DEFAULT_INTEGRATIONS.forEach(defaultInt => {
-        if (!combined.some(i => i.type === defaultInt.type)) {
+        if (!combined.some((i: any) => i.type === defaultInt.type)) {
           combined.push(normalizeIntegration(defaultInt));
         }
       });
 
-      const filtered = combined.filter(integration =>
+      const filtered = combined.filter((integration: any) =>
         ALLOWED_INTEGRATION_TYPES.has(integration.type.toLowerCase())
       );
 
       setAvailableIntegrations(filtered);
-      setConnectedIntegrations((status.integrations || [])
+      
+      const connected = (status.integrations || [])
         .filter((integration: Integration) => ALLOWED_INTEGRATION_TYPES.has(integration.type.toLowerCase()))
-        .map(normalizeIntegration)
-      );
+        .map(normalizeIntegration);
+        
+      connectorStatuses.forEach((statusObj, idx) => {
+        const { type, data } = statusObj;
+        if (data && data.is_connected) {
+          connected.push({
+            id: -1 - idx,
+            type: type,
+            name: DEFAULT_INTEGRATIONS.find(i => i.type === type)?.name || type,
+            status: data.is_active ? 'active' : 'inactive',
+            last_sync: data.last_health_check,
+            config: { metadata: { environment: data.environment || 'live', account_id: data.connected_account_id } }
+          });
+        }
+      });
+
+      setConnectedIntegrations(connected);
     } catch (error: any) {
       // Keep default integrations on error
       setAvailableIntegrations(DEFAULT_INTEGRATIONS);
@@ -513,10 +583,9 @@ export function Integrations() {
   };
 
   const handleConnect = async (integration: Integration) => {
-    if (integration.type === 'stripe' || integration.type === 'razorpay') {
-      // NOTE: OAuth flow preserved for future phase for Stripe
-      // const res = await api.getConnectorOAuthUrl('stripe');
-      // window.location.href = res.oauth_url;
+    const connectorSet = new Set(['stripe', 'razorpay', 'dodo', 'paytm', 'phonepe', 'cashfree', 'payu', 'ccavenue', 'instamojo', 'easebuzz']);
+    if (connectorSet.has(integration.type)) {
+      // Show connection modal for API keys
       setShowConnectModal(integration);
       return;
     }
@@ -536,13 +605,18 @@ export function Integrations() {
     }
   };
 
-  const handleDisconnect = async (integrationId: number) => {
+  const handleDisconnect = async (integrationId: number, type: string) => {
     if (!confirm('Are you sure you want to disconnect this integration?')) return;
     
     const api = new IntegrationsAPI(apiUrl, token);
     
     try {
-      await api.disconnect(integrationId);
+      const connectorSet = new Set(['stripe', 'razorpay', 'dodo', 'paytm', 'phonepe', 'cashfree', 'payu', 'ccavenue', 'instamojo', 'easebuzz']);
+      if (connectorSet.has(type)) {
+        await api.disconnectConnector(type);
+      } else {
+        await api.disconnect(integrationId);
+      }
       toast.success('Integration disconnected');
       loadIntegrations();
     } catch (error: any) {
@@ -608,7 +682,7 @@ export function Integrations() {
                     <Button
                       size="sm"
                       variant="destructive"
-                      onClick={() => handleDisconnect(integration.id!)}
+                      onClick={() => handleDisconnect(integration.id!, integration.type)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
